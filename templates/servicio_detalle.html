@@ -5,7 +5,7 @@
 {% block content %}
 <div class="page-header">
   <div class="container">
-    <div class="eyebrow">Producto</div>
+    <div class="eyebrow">{{ t('Producto') }}</div>
     <h1>{{ servicio.name }}</h1>
     <p>{{ servicio.short_description }}</p>
   </div>
@@ -23,15 +23,15 @@
 
     <div class="about-grid">
       <div>
-        <div class="eyebrow">Descripción técnica</div>
-        <h2>Sobre este sistema</h2>
+        <div class="eyebrow">{{ t('Descripción técnica') }}</div>
+        <h2>{{ t('Sobre este sistema') }}</h2>
         {% for para in servicio.description.split('\n\n') %}
           <p class="text-steel">{{ para }}</p>
         {% endfor %}
-        <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust" style="margin-top:10px;">Cotiza este producto →</a>
+        <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust" style="margin-top:10px;">{{ t('Cotiza este producto') }} →</a>
       </div>
       <div>
-        <div class="eyebrow">Otros productos</div>
+        <div class="eyebrow">{{ t('Otros productos') }}</div>
         <div class="related-services">
           {% for o in otros %}
             <a href="{{ url_for('public.servicio_detalle', slug=o.slug) }}">{{ o.name }} →</a>

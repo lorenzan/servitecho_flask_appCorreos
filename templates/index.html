@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Servitecho El Salvador | Techos, Fachadas y Módulos Prefabricados{% endblock %}
+{% block title %}Servitecho El Salvador | {{ t('Techos, Fachadas y Módulos Prefabricados') }}{% endblock %}
 
 {% block content %}
 
 <section class="hero">
   <div class="container">
     <div>
-      <div class="eyebrow">{{ blocks.hero.eyebrow if blocks.hero else 'Construyendo confianza en cada proyecto' }}</div>
-      <h1>{{ blocks.hero.title if blocks.hero else 'Techos, Fachadas y Módulos Prefabricados en El Salvador' }}</h1>
+      <div class="eyebrow">{{ blocks.hero.eyebrow if blocks.hero else t('Construyendo confianza en cada proyecto') }}</div>
+      <h1>{{ blocks.hero.title if blocks.hero else t('Techos, Fachadas y Módulos Prefabricados en El Salvador') }}</h1>
       <p class="lead">{{ blocks.hero.body if blocks.hero else '' }}</p>
       <div class="hero-actions">
-        <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust">{{ blocks.hero.extra if blocks.hero and blocks.hero.extra else 'Solicita tu cotización' }} →</a>
-        <a href="#productos" class="btn btn-outline">Ver productos</a>
+        <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust">{{ blocks.hero.extra if blocks.hero and blocks.hero.extra else t('Solicita tu cotización') }} →</a>
+        <a href="#productos" class="btn btn-outline">{{ t('Ver productos') }}</a>
       </div>
     </div>
     <div class="hero-figure">
@@ -29,9 +29,9 @@
 <section class="section" id="productos">
   <div class="container">
     <div class="section-head">
-      <div class="eyebrow">Productos</div>
-      <h2>Sistemas para cada tipo de proyecto</h2>
-      <p class="text-steel">Fabricación, suministro e instalación con garantía para proyectos residenciales, comerciales e industriales.</p>
+      <div class="eyebrow">{{ t('Productos') }}</div>
+      <h2>{{ t('Sistemas para cada tipo de proyecto') }}</h2>
+      <p class="text-steel">{{ t('Fabricación, suministro e instalación con garantía para proyectos residenciales, comerciales e industriales.') }}</p>
     </div>
     <div class="grid-3">
       {% for s in services %}
@@ -45,7 +45,7 @@
         </figure>
         <h3>{{ s.name }}</h3>
         <p>{{ s.short_description }}</p>
-        <a class="link" href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">Ver detalles →</a>
+        <a class="link" href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ t('Ver detalles') }} →</a>
       </div>
       {% endfor %}
     </div>
@@ -58,16 +58,16 @@
   {% endif %}>
   <div class="container">
     <div class="section-head center">
-      <div class="eyebrow">{{ blocks.why_us.eyebrow if blocks.why_us else 'Nuestro compromiso' }}</div>
-      <h2>{{ blocks.why_us.title if blocks.why_us else '¿Qué nos distingue?' }}</h2>
+      <div class="eyebrow">{{ blocks.why_us.eyebrow if blocks.why_us else t('Nuestro compromiso') }}</div>
+      <h2>{{ blocks.why_us.title if blocks.why_us else t('¿Qué nos distingue?') }}</h2>
       <p style="color:var(--silver);">{{ blocks.why_us.body if blocks.why_us else '' }}</p>
     </div>
   </div>
   <div class="stat-strip container" style="border-color:var(--line);">
-    <div class="stat"><div class="num">+30</div><div class="label">Años de garantía Standing Seam</div></div>
-    <div class="stat"><div class="num">24/7</div><div class="label">Soporte a clientes</div></div>
-    <div class="stat"><div class="num">100%</div><div class="label">Instalación profesional</div></div>
-    <div class="stat"><div class="num">3</div><div class="label">Sistemas constructivos</div></div>
+    <div class="stat"><div class="num">+30</div><div class="label">{{ t('Años de garantía Standing Seam') }}</div></div>
+    <div class="stat"><div class="num">24/7</div><div class="label">{{ t('Soporte a clientes') }}</div></div>
+    <div class="stat"><div class="num">100%</div><div class="label">{{ t('Instalación profesional') }}</div></div>
+    <div class="stat"><div class="num">3</div><div class="label">{{ t('Sistemas constructivos') }}</div></div>
   </div>
 </section>
 
@@ -82,8 +82,8 @@
         {% endif %}
       </div>
       <div>
-        <div class="eyebrow">{{ blocks.about.eyebrow if blocks.about else 'Acerca de nosotros' }}</div>
-        <h2>{{ blocks.about.title if blocks.about else 'Construimos Confianza' }}</h2>
+        <div class="eyebrow">{{ blocks.about.eyebrow if blocks.about else t('Acerca de nosotros') }}</div>
+        <h2>{{ blocks.about.title if blocks.about else t('Construimos Confianza') }}</h2>
         {% if blocks.about %}
           {% for para in blocks.about.body.split('\n\n') %}
             <p class="text-steel">{{ para }}</p>
@@ -107,22 +107,22 @@
       <div class="mv-card">
         {% if blocks.mission and blocks.mission.image_path %}<img src="{{ url_for('static', filename=blocks.mission.image_path) }}" alt="">{% endif %}
         <div class="eyebrow">01</div>
-        <h3 style="color:var(--charcoal);">{{ blocks.mission.title if blocks.mission else 'Misión' }}</h3>
+        <h3 style="color:var(--charcoal);">{{ blocks.mission.title if blocks.mission else t('Misión') }}</h3>
         <p class="text-steel mb-0">{{ blocks.mission.body if blocks.mission else '' }}</p>
       </div>
       <div class="mv-card">
         {% if blocks.vision and blocks.vision.image_path %}<img src="{{ url_for('static', filename=blocks.vision.image_path) }}" alt="">{% endif %}
         <div class="eyebrow">02</div>
-        <h3 style="color:var(--charcoal);">{{ blocks.vision.title if blocks.vision else 'Visión' }}</h3>
+        <h3 style="color:var(--charcoal);">{{ blocks.vision.title if blocks.vision else t('Visión') }}</h3>
         <p class="text-steel mb-0">{{ blocks.vision.body if blocks.vision else '' }}</p>
       </div>
       <div class="mv-card">
         {% if blocks.support and blocks.support.image_path %}<img src="{{ url_for('static', filename=blocks.support.image_path) }}" alt="">{% endif %}
         <div class="eyebrow">03</div>
-        <h3 style="color:var(--charcoal);">{{ blocks.support.title if blocks.support else 'Soporte 24/7' }}</h3>
+        <h3 style="color:var(--charcoal);">{{ blocks.support.title if blocks.support else t('Soporte 24/7') }}</h3>
         <p class="text-steel mb-0">{{ blocks.support.body if blocks.support else '' }}</p>
         {% if blocks.support and blocks.support.extra %}
-          <a class="link" href="tel:{{ blocks.support.extra }}">Llamar: {{ blocks.support.extra }} →</a>
+          <a class="link" href="tel:{{ blocks.support.extra }}">{{ t('Llamar:') }} {{ blocks.support.extra }} →</a>
         {% endif %}
       </div>
     </div>
@@ -133,10 +133,10 @@
   <div class="container">
     <div class="section-head" style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px;">
       <div>
-        <div class="eyebrow">Reseñas</div>
-        <h2 class="mb-0">Lo que dicen nuestros clientes</h2>
+        <div class="eyebrow">{{ t('Reseñas') }}</div>
+        <h2 class="mb-0">{{ t('Lo que dicen nuestros clientes') }}</h2>
       </div>
-      <a href="{{ url_for('public.resenas') }}" class="btn btn-outline-dark">Ver todas / dejar reseña →</a>
+      <a href="{{ url_for('public.resenas') }}" class="btn btn-outline-dark">{{ t('Ver todas / dejar reseña') }} →</a>
     </div>
     {% if reviews %}
     <div class="grid-3">
@@ -149,7 +149,7 @@
       {% endfor %}
     </div>
     {% else %}
-      <p class="text-steel">Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!</p>
+      <p class="text-steel">{{ t('Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!') }}</p>
     {% endif %}
   </div>
 </section>
@@ -157,9 +157,9 @@
 <div class="corrugated corrugated--light"></div>
 <section class="section--tight section--dark">
   <div class="container" style="text-align:center;">
-    <h2>¿Listo para construir tu próximo proyecto?</h2>
-    <p style="color:var(--silver); max-width:56ch; margin:0 auto 28px;">Cuéntanos la ubicación, lo que necesitas y sube fotos del sitio. Te enviamos tu cotización sin compromiso.</p>
-    <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust">Solicitar cotización →</a>
+    <h2>{{ t('¿Listo para construir tu próximo proyecto?') }}</h2>
+    <p style="color:var(--silver); max-width:56ch; margin:0 auto 28px;">{{ t('Cuéntanos la ubicación, lo que necesitas y sube fotos del sitio. Te enviamos tu cotización sin compromiso.') }}</p>
+    <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust">{{ t('Solicitar cotización') }} →</a>
   </div>
 </section>
 

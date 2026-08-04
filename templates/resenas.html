@@ -1,19 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Reseñas de clientes | Servitecho El Salvador{% endblock %}
+{% block title %}{{ t('Reseñas de clientes') }} | Servitecho El Salvador{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div class="container">
-    <div class="eyebrow">Reseñas</div>
-    <h1>La experiencia de nuestros clientes</h1>
-    <p>Proyectos entregados, opiniones reales. Comparte también la tuya.</p>
+    <div class="eyebrow">{{ t('Reseñas') }}</div>
+    <h1>{{ t('La experiencia de nuestros clientes') }}</h1>
+    <p>{{ t('Proyectos entregados, opiniones reales. Comparte también la tuya.') }}</p>
   </div>
 </div>
 
 <section class="section">
   <div class="container about-grid" style="align-items:flex-start;">
     <div>
-      <h2>Opiniones publicadas</h2>
+      <h2>{{ t('Opiniones publicadas') }}</h2>
       {% if reviews %}
         <div class="grid-2">
           {% for r in reviews %}
@@ -25,25 +25,25 @@
           {% endfor %}
         </div>
       {% else %}
-        <p class="text-steel">Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!</p>
+        <p class="text-steel">{{ t('Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!') }}</p>
       {% endif %}
     </div>
 
     <div>
       <div class="form-card">
-        <h3 style="margin-bottom:.2em;">Deja tu reseña</h3>
-        <p class="text-steel" style="font-size:.9rem;">Tu reseña se publicará luego de ser revisada por nuestro equipo.</p>
+        <h3 style="margin-bottom:.2em;">{{ t('Deja tu reseña') }}</h3>
+        <p class="text-steel" style="font-size:.9rem;">{{ t('Tu reseña se publicará luego de ser revisada por nuestro equipo.') }}</p>
         <form method="POST" action="{{ url_for('public.resenas') }}">
           <div class="form-row">
-            <label for="name">Nombre</label>
+            <label for="name">{{ t('Nombre') }}</label>
             <input type="text" id="name" name="name" required>
           </div>
           <div class="form-row">
-            <label for="email">Correo (opcional)</label>
+            <label for="email">{{ t('Correo (opcional)') }}</label>
             <input type="email" id="email" name="email">
           </div>
           <div class="form-row">
-            <label>Calificación</label>
+            <label>{{ t('Calificación') }}</label>
             <div class="rating-select">
               {% for i in range(5, 0, -1) %}
               <label><input type="radio" name="rating" value="{{ i }}" {% if i == 5 %}checked{% endif %}> {{ i }}★</label>
@@ -51,10 +51,10 @@
             </div>
           </div>
           <div class="form-row">
-            <label for="comment">Comentario</label>
-            <textarea id="comment" name="comment" required placeholder="Cuéntanos sobre tu proyecto y experiencia con Servitecho..."></textarea>
+            <label for="comment">{{ t('Comentario') }}</label>
+            <textarea id="comment" name="comment" required placeholder="{{ t('Cuéntanos sobre tu proyecto y experiencia con Servitecho...') }}"></textarea>
           </div>
-          <button type="submit" class="btn btn-rust btn-block">Enviar reseña</button>
+          <button type="submit" class="btn btn-rust btn-block">{{ t('Enviar reseña') }}</button>
         </form>
       </div>
     </div>

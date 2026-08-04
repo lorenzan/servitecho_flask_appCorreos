@@ -1,12 +1,26 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, g, render_template, request, redirect, url_for, flash
 from sqlalchemy import desc
 
 from extensions import db
 from models import ContentBlock, Service, Review, Quote, QuoteImage
 from utils import save_upload
 from utils_email import notify_new_review, notify_new_quote
+import translations
 
 public_bp = Blueprint("public", __name__)
+
+
+@public_bp.route("/lang/<lang>")
+def set_lang(lang):
+    """Cambia el idioma del visitante y guarda la preferencia en una cookie."""
+    lang = lang if lang in ("es", "en") else "es"
+    # Solo redirigimos a la página desde la que vino si es de nuestro sitio
+    # (evita redirección abierta vía Referer).
+    referrer = request.referrer or ""
+    target = referrer if request.host in referrer else url_for("public.index")
+    resp = redirect(target)
+    resp.set_cookie("lang", lang, max_age=60 * 60 * 24 * 365, samesite="Lax")
+    return resp
 
 
 def get_blocks(*keys):
@@ -27,6 +41,10 @@ def index():
         .limit(6)
         .all()
     )
+    if getattr(g, "lang", "es") == "en":
+        blocks = {k: translations.localize_block(b) for k, b in blocks.items()}
+        services = [translations.localize_service(s) for s in services]
+        reviews = [translations.localize_review(r) for r in reviews]
     return render_template(
         "index.html", blocks=blocks, services=services, reviews=reviews
     )
@@ -40,6 +58,9 @@ def servicio_detalle(slug):
         .order_by(Service.order)
         .all()
     )
+    if getattr(g, "lang", "es") == "en":
+        servicio = translations.localize_service(servicio)
+        otros = [translations.localize_service(o) for o in otros]
     return render_template("servicio_detalle.html", servicio=servicio, otros=otros)
 
 
@@ -79,6 +100,8 @@ def resenas():
         .order_by(desc(Review.created_at))
         .all()
     )
+    if getattr(g, "lang", "es") == "en":
+        reviews = [translations.localize_review(r) for r in reviews]
     return render_template("resenas.html", reviews=reviews)
 
 
@@ -133,6 +156,8 @@ def cotizacion():
             notify_new_quote(quote)
             return redirect(url_for("public.cotizacion_gracias"))
 
+    if getattr(g, "lang", "es") == "en":
+        services = [translations.localize_service(s) for s in services]
     return render_template("cotizacion.html", services=services)
 
 
