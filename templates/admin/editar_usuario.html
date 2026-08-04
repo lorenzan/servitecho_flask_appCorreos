@@ -1,0 +1,41 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Editar' if admin_user else 'Nuevo' }} usuario | Servitecho{% endblock %}
+{% block page_title %}{{ 'Editar' if admin_user else 'Nuevo' }} usuario admin{% endblock %}
+
+{% block admin_content %}
+<div class="card-panel" style="max-width:520px;">
+  <form method="POST">
+    <div class="form-row">
+      <label for="username">Usuario</label>
+      <input type="text" id="username" name="username" required
+             value="{{ admin_user.username if admin_user else '' }}"
+             placeholder="Nombre de usuario">
+    </div>
+
+    <div class="form-row">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password"
+             {{ '' if admin_user else 'required' }}
+             placeholder="{{ 'Dejar vacío para no cambiar' if admin_user else 'Contraseña' }}">
+      {% if admin_user %}
+        <div class="hint">Dejar vacío si no deseas cambiar la contraseña.</div>
+      {% endif %}
+    </div>
+
+    <div class="form-row">
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <input type="checkbox" name="is_superadmin" {{ 'checked' if admin_user and admin_user.is_superadmin else '' }}>
+        <span>Superadmin</span>
+      </label>
+      <div class="hint">Los superadmins pueden gestionar otros usuarios administradores.</div>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:28px;">
+      <button type="submit" class="btn btn-rust">
+        {{ 'Guardar cambios' if admin_user else 'Crear usuario' }}
+      </button>
+      <a href="{{ url_for('admin.usuarios') }}" class="btn btn-outline-dark">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

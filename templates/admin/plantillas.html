@@ -1,0 +1,22 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Plantillas de correo | Servitecho Admin{% endblock %}
+{% block page_title %}Plantillas de correo{% endblock %}
+
+{% block admin_content %}
+<p class="text-steel">Personaliza el asunto y el mensaje de cada correo automático que envía el sitio.</p>
+
+<div class="card-panel">
+  <table class="admin-table">
+    <thead><tr><th>Plantilla</th><th>Asunto actual</th><th></th></tr></thead>
+    <tbody>
+      {% for t in templates %}
+      <tr>
+        <td>{{ t.label }}</td>
+        <td class="text-steel">{{ t.subject }}</td>
+        <td><a href="{{ url_for('admin.editar_plantilla', key=t.key) }}" class="link">Editar →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

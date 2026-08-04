@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Panel administrador | Servitecho{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="admin-body">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">SERVITECHO <span>/ admin</span></div>
+      <nav class="admin-nav">
+        <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">Panel principal</a>
+        <a href="{{ url_for('admin.resenas') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin.') and 'resena' in request.endpoint }}">Reseñas</a>
+        <a href="{{ url_for('admin.cotizaciones') }}" class="{{ 'active' if request.endpoint and 'cotizacion' in request.endpoint }}">Cotizaciones</a>
+        <a href="{{ url_for('admin.servicios') }}" class="{{ 'active' if request.endpoint and 'servicio' in request.endpoint }}">Productos / Servicios</a>
+        <a href="{{ url_for('admin.contenido') }}" class="{{ 'active' if request.endpoint and 'contenido' in request.endpoint }}">Contenido del sitio</a>
+        <a href="{{ url_for('admin.config_correo') }}" class="{{ 'active' if request.endpoint == 'admin.config_correo' }}">Correo — Configuración</a>
+        <a href="{{ url_for('admin.plantillas') }}" class="{{ 'active' if request.endpoint and 'plantilla' in request.endpoint }}">Correo — Plantillas</a>
+        {% if current_user.is_superadmin %}
+        <a href="{{ url_for('admin.usuarios') }}" class="{{ 'active' if request.endpoint and 'usuario' in request.endpoint }}">Usuarios admin</a>
+        {% endif %}
+      </nav>
+      <div class="admin-nav-foot">
+        <a href="{{ url_for('public.index') }}" target="_blank" style="color:var(--silver); font-family:var(--font-mono); font-size:.78rem; display:block; margin-bottom:12px;">↗ Ver sitio público</a>
+        <a href="{{ url_for('admin.logout') }}" class="btn btn-outline btn-sm btn-block">Cerrar sesión</a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <h1>{% block page_title %}Panel principal{% endblock %}</h1>
+        <span class="text-steel" style="font-family:var(--font-mono); font-size:.8rem;">{{ current_user.username }}</span>
+      </div>
+      <div class="admin-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        {% block admin_content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

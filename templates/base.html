@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Servitecho El Salvador{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="container">
+      <div>
+        {% if site_info %}
+        <span class="topbar-item">📍 {{ site_info.body }}</span>
+        <span class="topbar-item">✉️ {{ site_info.title }}</span>
+        {% endif %}
+      </div>
+      <div>
+        {% if site_info %}
+        <a class="topbar-item" href="tel:{{ site_info.eyebrow }}">📞 {{ site_info.eyebrow }}</a>
+        <span class="topbar-item">🕒 {{ site_info.extra }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <header class="navbar">
+    <div class="container">
+      <a class="brand" href="{{ url_for('public.index') }}">
+        {% if site_logo and site_logo.image_path %}
+          <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Servitecho">
+        {% else %}
+          <span class="brand-mark"></span>
+        {% endif %}
+        SERVITECHO
+      </a>
+      <nav class="nav-links" id="navLinks">
+        <a href="{{ url_for('public.index') }}">Inicio</a>
+        {% for s in nav_services %}
+          <a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a>
+        {% endfor %}
+        <a href="{{ url_for('public.resenas') }}">Reseñas</a>
+        <a href="{{ url_for('public.cotizacion') }}">Cotización</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn btn-rust" href="{{ url_for('public.cotizacion') }}"><span>Solicita tu cotización</span> →</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container" style="padding-top:24px;">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4 style="display:flex; align-items:center; gap:10px;">
+            {% if site_logo and site_logo.image_path %}
+              <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Servitecho" style="height:28px; width:auto; border-radius:6px;">
+            {% endif %}
+            SERVITECHO
+          </h4>
+          <p class="text-steel" style="max-width:36ch;">Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.</p>
+        </div>
+        <div>
+          <h4>Servicios</h4>
+          <ul>
+            {% for s in nav_services %}
+              <li><a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <ul>
+            {% if site_info %}
+            <li>{{ site_info.body }}</li>
+            <li><a href="tel:{{ site_info.eyebrow }}">{{ site_info.eyebrow }}</a></li>
+            <li><a href="mailto:{{ site_info.title }}">{{ site_info.title }}</a></li>
+            <li>{{ site_info.extra }}</li>
+            {% endif %}
+            <li><a href="{{ url_for('public.resenas') }}">Dejar una reseña</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© {{ 2026 }} Servitecho El Salvador. Todos los derechos reservados.</span>
+        <a href="{{ url_for('admin.login') }}">Acceso administrador</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (navToggle) {
+      navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+    }
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

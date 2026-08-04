@@ -1,0 +1,56 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Editar' if servicio else 'Nuevo' }} producto | Servitecho Admin{% endblock %}
+{% block page_title %}{{ 'Editar producto' if servicio else 'Nuevo producto' }}{% endblock %}
+
+{% block admin_content %}
+<div class="card-panel" style="max-width:720px;">
+  <form method="POST"
+        action="{{ url_for('admin.editar_servicio', service_id=servicio.id) if servicio else url_for('admin.nuevo_servicio') }}"
+        enctype="multipart/form-data">
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label for="name">Nombre del producto</label>
+        <input type="text" id="name" name="name" value="{{ servicio.name if servicio else '' }}" required>
+      </div>
+      <div class="form-row">
+        <label for="slug">Slug (URL)</label>
+        <input type="text" id="slug" name="slug" value="{{ servicio.slug if servicio else '' }}" placeholder="ej. standing-seam" required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="short_description">Descripción corta</label>
+      <textarea id="short_description" name="short_description" style="min-height:80px;">{{ servicio.short_description if servicio else '' }}</textarea>
+    </div>
+
+    <div class="form-row">
+      <label for="description">Descripción completa</label>
+      <textarea id="description" name="description">{{ servicio.description if servicio else '' }}</textarea>
+    </div>
+
+    <div class="form-row">
+      <label for="image">Imagen del producto</label>
+      {% if servicio and servicio.image_path %}
+        <img src="{{ url_for('static', filename=servicio.image_path) }}" alt="{{ servicio.name }}" style="max-width:220px; border-radius:2px; margin-bottom:10px;">
+      {% endif %}
+      <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label for="order">Orden de aparición</label>
+        <input type="number" id="order" name="order" value="{{ servicio.order if servicio else 0 }}">
+      </div>
+      <div class="form-row">
+        <label style="display:flex; align-items:center; gap:8px; text-transform:none; font-family:var(--font-body); margin-top:10px;">
+          <input type="checkbox" name="active" style="width:auto;" {% if not servicio or servicio.active %}checked{% endif %}>
+          Visible en el sitio público
+        </label>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-rust">Guardar producto</button>
+    <a href="{{ url_for('admin.servicios') }}" class="btn btn-outline-dark">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

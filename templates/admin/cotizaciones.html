@@ -1,0 +1,37 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Cotizaciones | Servitecho Admin{% endblock %}
+{% block page_title %}Solicitudes de cotización{% endblock %}
+
+{% block admin_content %}
+<div class="filter-tabs">
+  <a href="{{ url_for('admin.cotizaciones', filtro='todas') }}" class="{{ 'active' if filtro == 'todas' }}">Todas</a>
+  {% for st in status_choices %}
+    <a href="{{ url_for('admin.cotizaciones', filtro=st) }}" class="{{ 'active' if filtro == st }}">{{ st.replace('_',' ')|capitalize }}</a>
+  {% endfor %}
+</div>
+
+<div class="card-panel">
+  {% if quotes %}
+    <table class="admin-table">
+      <thead>
+        <tr><th>Cliente</th><th>Ubicación</th><th>Producto</th><th>Fotos</th><th>Fecha</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for q in quotes %}
+        <tr>
+          <td>{{ q.name }}<br><span class="text-steel" style="font-size:.78rem;">{{ q.phone }}</span></td>
+          <td style="max-width:220px;">{{ q.location }}</td>
+          <td>{{ q.service_type or '—' }}</td>
+          <td>{{ q.images|length }}</td>
+          <td>{{ q.created_at.strftime('%d/%m/%Y') }}</td>
+          <td><span class="badge badge-{{ q.status }}">{{ q.status.replace('_',' ') }}</span></td>
+          <td><a href="{{ url_for('admin.cotizacion_detalle', quote_id=q.id) }}" class="link">Revisar →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-steel mb-0">No hay solicitudes de cotización en esta categoría.</p>
+  {% endif %}
+</div>
+{% endblock %}

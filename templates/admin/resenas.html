@@ -1,0 +1,54 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Reseñas | Servitecho Admin{% endblock %}
+{% block page_title %}Gestión de reseñas{% endblock %}
+
+{% block admin_content %}
+<div class="filter-tabs">
+  <a href="{{ url_for('admin.resenas', filtro='todas') }}" class="{{ 'active' if filtro == 'todas' }}">Todas</a>
+  <a href="{{ url_for('admin.resenas', filtro='pendientes') }}" class="{{ 'active' if filtro == 'pendientes' }}">Pendientes</a>
+  <a href="{{ url_for('admin.resenas', filtro='aprobadas') }}" class="{{ 'active' if filtro == 'aprobadas' }}">Publicadas</a>
+</div>
+
+<div class="card-panel">
+  {% if reviews %}
+    <table class="admin-table">
+      <thead>
+        <tr><th>Cliente</th><th>Calificación</th><th>Comentario</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        {% for r in reviews %}
+        <tr>
+          <td>{{ r.name }}{% if r.email %}<br><span class="text-steel" style="font-size:.78rem;">{{ r.email }}</span>{% endif %}</td>
+          <td>{{ '★' * r.rating }}{{ '☆' * (5-r.rating) }}</td>
+          <td style="max-width:320px;">{{ r.comment }}</td>
+          <td>{{ r.created_at.strftime('%d/%m/%Y') }}</td>
+          <td>
+            {% if r.approved %}
+              <span class="badge badge-cotizado">Publicada</span>
+            {% else %}
+              <span class="badge badge-pendiente">Pendiente</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if not r.approved %}
+              <form class="inline-form" method="POST" action="{{ url_for('admin.aprobar_resena', review_id=r.id) }}">
+                <button class="btn btn-rust btn-sm" type="submit">Aprobar</button>
+              </form>
+            {% else %}
+              <form class="inline-form" method="POST" action="{{ url_for('admin.rechazar_resena', review_id=r.id) }}">
+                <button class="btn btn-outline-dark btn-sm" type="submit">Ocultar</button>
+              </form>
+            {% endif %}
+            <form class="inline-form" method="POST" action="{{ url_for('admin.eliminar_resena', review_id=r.id) }}" onsubmit="return confirm('¿Eliminar esta reseña permanentemente?');">
+              <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-steel mb-0">No hay reseñas en esta categoría.</p>
+  {% endif %}
+</div>
+{% endblock %}

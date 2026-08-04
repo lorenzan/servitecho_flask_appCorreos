@@ -1,0 +1,65 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Editar {{ block.label }} | Servitecho Admin{% endblock %}
+{% block page_title %}Editar: {{ block.label }}{% endblock %}
+
+{% block admin_content %}
+<div class="card-panel" style="max-width:720px;">
+  <form method="POST" action="{{ url_for('admin.editar_contenido', section_key=block.section_key) }}" enctype="multipart/form-data">
+
+    {% if block.section_key == 'logo' %}
+      <div class="form-row">
+        <label for="image">Logotipo del sitio</label>
+        {% if block.image_path %}
+          <img src="{{ url_for('static', filename=block.image_path) }}" alt="Logo actual" style="max-width:200px; max-height:80px; border-radius:8px; margin-bottom:12px; background:var(--offwhite); padding:8px;">
+        {% else %}
+          <p class="hint" style="margin-top:0;">Aún no se ha subido un logotipo — se muestra el ícono por defecto.</p>
+        {% endif %}
+        <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
+        <p class="hint">Recomendado: imagen PNG con fondo transparente, aprox. 200x60px.</p>
+      </div>
+    {% else %}
+      <div class="form-row">
+        <label for="eyebrow">
+          {% if block.section_key == 'site_info' %}Teléfono / WhatsApp{% else %}Etiqueta / antetítulo{% endif %}
+        </label>
+        <input type="text" id="eyebrow" name="eyebrow" value="{{ block.eyebrow or '' }}">
+      </div>
+      <div class="form-row">
+        <label for="title">
+          {% if block.section_key == 'site_info' %}Correo electrónico{% else %}Título{% endif %}
+        </label>
+        <input type="text" id="title" name="title" value="{{ block.title or '' }}">
+      </div>
+      <div class="form-row">
+        <label for="body">
+          {% if block.section_key == 'site_info' %}Dirección{% else %}Texto / contenido{% endif %}
+        </label>
+        <textarea id="body" name="body">{{ block.body or '' }}</textarea>
+      </div>
+      <div class="form-row">
+        <label for="extra">
+          {% if block.section_key == 'site_info' %}Horario de atención
+          {% elif block.section_key == 'about' %}Valores (separados por coma)
+          {% elif block.section_key == 'support' %}Teléfono de soporte
+          {% else %}Texto del botón (opcional){% endif %}
+        </label>
+        <input type="text" id="extra" name="extra" value="{{ block.extra or '' }}">
+      </div>
+
+      {% if block.section_key != 'site_info' %}
+      <div class="form-row">
+        <label for="image">Imagen</label>
+        {% if block.image_path %}
+          <img src="{{ url_for('static', filename=block.image_path) }}" alt="{{ block.label }}" style="max-width:220px; border-radius:8px; margin-bottom:10px;">
+        {% endif %}
+        <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
+        <p class="hint">Sube una nueva imagen para reemplazar la actual (opcional).</p>
+      </div>
+      {% endif %}
+    {% endif %}
+
+    <button type="submit" class="btn btn-rust">Guardar cambios</button>
+    <a href="{{ url_for('admin.contenido') }}" class="btn btn-outline-dark">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
