@@ -3,7 +3,7 @@
 """
 from app import create_app
 from extensions import db
-from models import Admin, ContentBlock, Service, Review, SocialLink, EmailSettings, EmailTemplate
+from models import Admin, ContentBlock, Service, Review, SocialLink, EmailSettings, EmailTemplate, AdsSettings
 
 app = create_app()
 
@@ -241,6 +241,10 @@ def run():
         if not EmailSettings.query.first():
             db.session.add(EmailSettings(smtp_host="smtp.gmail.com", smtp_port=587, enabled=False))
             print("Configuración de correo inicializada (desactivada por defecto).")
+
+        if not AdsSettings.query.first():
+            db.session.add(AdsSettings(enabled=False, google_ads_id="", conversion_label="", ga4_measurement_id=""))
+            print("Configuración de Google Ads inicializada (desactivada por defecto).")
 
         for data in EMAIL_TEMPLATES:
             if not EmailTemplate.query.filter_by(key=data["key"]).first():

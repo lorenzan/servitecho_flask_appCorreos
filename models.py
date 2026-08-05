@@ -134,6 +134,21 @@ class EmailSettings(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class AdsSettings(db.Model):
+    """Singleton row: Google Ads / GA4 del sitio público (se gestiona desde admin).
+
+    Arranca desactivado (enabled=False) — no formaba parte del alcance original.
+    """
+    __tablename__ = "ads_settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    enabled = db.Column(db.Boolean, default=False)
+    google_ads_id = db.Column(db.String(120))  # ej. AW-XXXXXXXXX
+    conversion_label = db.Column(db.String(120))  # etiqueta de conversión de Google Ads
+    ga4_measurement_id = db.Column(db.String(120))  # opcional, ej. G-XXXXXXXXX
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class EmailTemplate(db.Model):
     """Editable subject/body templates for outgoing notification emails."""
     __tablename__ = "email_templates"

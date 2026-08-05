@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import desc
 
 from extensions import db
-from models import Admin, Review, Quote, ContentBlock, Service, SocialLink, EmailSettings, EmailTemplate
+from models import Admin, Review, Quote, ContentBlock, Service, SocialLink, EmailSettings, EmailTemplate, AdsSettings
 from utils import save_upload
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
@@ -445,6 +445,29 @@ def config_correo_probar():
         "success" if ok else "danger",
     )
     return redirect(url_for("admin.config_correo"))
+
+
+# ---------- Marketing: Google Ads / Analytics ----------
+
+@admin_bp.route("/configuracion/marketing", methods=["GET", "POST"])
+@login_required
+def config_marketing():
+    settings = AdsSettings.query.first()
+    if not settings:
+        settings = AdsSettings()
+        db.session.add(settings)
+        db.session.commit()
+
+    if request.method == "POST":
+        settings.enabled = request.form.get("enabled") == "on"
+        settings.google_ads_id = request.form.get("google_ads_id", "").strip()
+        settings.conversion_label = request.form.get("conversion_label", "").strip()
+        settings.ga4_measurement_id = request.form.get("ga4_measurement_id", "").strip()
+        db.session.commit()
+        flash("Configuración de Google Ads actualizada.", "success")
+        return redirect(url_for("admin.config_marketing"))
+
+    return render_template("admin/config_marketing.html", settings=settings)
 
 
 # ---------- Plantillas de correo ----------

@@ -14,3 +14,11 @@
   </div>
 </section>
 {% endblock %}
+
+{% block extra_scripts %}
+{% if ads_settings and ads_settings.enabled and ads_settings.google_ads_id and ads_settings.conversion_label %}
+<script>
+  gtag('event', 'conversion', {'send_to': '{{ ads_settings.google_ads_id }}/{{ ads_settings.conversion_label }}'});
+</script>
+{% endif %}
+{% endblock %}

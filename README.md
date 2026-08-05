@@ -7,6 +7,7 @@ con **Flask** y **SQLite**, con 4 módulos adicionales:
 - 📋 **Cotizaciones** — formulario donde el cliente indica su **ubicación** (con mapa interactivo tipo Google Maps para marcar el punto exacto, buscador de direcciones y botón "usar mi ubicación actual"), **descripción del trabajo** y puede **subir varias fotos** del proyecto. Un administrador las revisa, ve el punto en el mapa y cambia su estado.
 - 🖼️ **Administración de contenido** — panel para editar **todas las imágenes y textos** editables del sitio: logotipo del header/footer, imagen del hero, imagen de "sobre nosotros", íconos de misión/visión/soporte, imagen de fondo de "¿Qué nos distingue?" y los datos de contacto. Las imágenes de los productos se administran desde su propio módulo (Productos / Servicios).
 - ✉️ **Correo (Gmail SMTP)** — se te notifica por correo cada vez que llega una nueva reseña o cotización, puedes responder directamente al cliente por correo desde el detalle de la cotización, y todo se configura y personaliza desde el panel (sin tocar código).
+- 📈 **Google Ads / Analytics** — módulo opcional de marketing: activa el seguimiento de Google Ads (conversiones) y Google Analytics 4 desde el panel, sin tocar código. **Viene desactivado por defecto** (no formaba parte del alcance original).
 - 🛠️ **Administración de productos/servicios** — CRUD de los productos (Standing Seam, Panel Termoacústico, Módulos Constructivos), cada uno con su propia página pública.
 
 ## 1. Requisitos
@@ -104,6 +105,7 @@ with app.app_context():
 | **Contenido del sitio** | Editar el logotipo, y los textos e imágenes de cada sección de la página de inicio |
 | **Correo — Configuración** | Activar/desactivar el envío de correos, definir el Gmail que envía, la contraseña de aplicación y a qué correo llegan las notificaciones |
 | **Correo — Plantillas** | Editar el asunto y mensaje de los 3 correos automáticos (nueva reseña, nueva cotización, respuesta al cliente) |
+| **Marketing — Google Ads** | Activar/desactivar el seguimiento de Google Ads y Analytics 4, y configurar el ID de Google Ads, la etiqueta de conversión y el ID de GA4 |
 
 ## 8.1 Configurar el envío de correos (Gmail)
 
@@ -129,6 +131,24 @@ Todo se configura desde el panel, en **Correo → Configuración** (`/admin/conf
 Las 3 plantillas se editan libremente desde **Correo → Plantillas**, incluyendo variables como `{{ nombre }}`, `{{ ubicacion }}`, `{{ respuesta }}`, etc. — cada plantilla muestra qué variables tiene disponibles.
 
 ⚠️ **Nota de seguridad:** la contraseña de aplicación se guarda en la base de datos SQLite del servidor. Esto es adecuado para un panel de un solo administrador; si en el futuro agregas más usuarios administradores, considera restringir quién puede ver/editar esta sección.
+
+## 8.2 Configurar Google Ads / Analytics (Marketing)
+
+Este módulo **no formaba parte del alcance original** del contrato con el cliente, por lo que
+**arranca desactivado por defecto** y solo hace algo cuando el cliente decida activarlo.
+
+Todo se configura desde el panel, en **Marketing — Google Ads** (`/admin/configuracion/marketing`), sin tocar código:
+
+1. Activa el checkbox **"Activar Google Ads / Analytics en el sitio"**.
+2. Llena el **ID de Google Ads** (formato `AW-XXXXXXXXX`) y la **etiqueta de conversión** que encontrarás en tu cuenta de Google Ads (Herramientas → Conversiones).
+3. Opcional: llena el **ID de GA4** (formato `G-XXXXXXXXX`) para medir también con Google Analytics 4.
+4. Guarda.
+
+Con esto, el script de gtag.js se carga en todas las páginas públicas y la página de "gracias"
+(`/cotizacion/gracias`) dispara automáticamente el **evento de conversión** cuando un cliente completa
+el formulario de cotización.
+
+> ⚠️ Mientras la casilla esté desactivada, **no se renderiza ningún script de Google** en el HTML público.
 
 ## 8. Notas técnicas
 

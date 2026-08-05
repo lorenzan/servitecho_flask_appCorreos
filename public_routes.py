@@ -1,4 +1,4 @@
-from flask import Blueprint, g, render_template, request, redirect, url_for, flash
+from flask import Blueprint, current_app, g, render_template, request, redirect, url_for, flash, Response
 from sqlalchemy import desc
 
 from extensions import db
@@ -164,3 +164,72 @@ def cotizacion():
 @public_bp.route("/cotizacion/gracias")
 def cotizacion_gracias():
     return render_template("cotizacion_gracias.html")
+
+
+# ---------- SEO: robots.txt y sitemap.xml ----------
+
+def _site_base_url():
+    """Dominio público para enlaces absolutos (SITE_URL si está configurado,
+    si no el Host de la petición)."""
+    configured = current_app.config.get("SITE_URL", "").rstrip("/")
+    return configured or request.host_url.rstrip("/")
+
+
+@public_bp.route("/robots.txt")
+def robots():
+    base = _site_base_url()
+    text = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin/\n"
+        "Disallow: /lang/\n"
+        "\n"
+        f"Sitemap: {base}/sitemap.xml\n"
+    )
+    return text, 200, {"Content-Type": "text/plain; charset=utf-8"}
+
+
+@public_bp.route("/sitemap.xml")
+def sitemap():
+    base = _site_base_url()
+    services = Service.query.filter_by(active=True).order_by(Service.order).all()
+
+    # lastmod solo cuando tenemos una fecha real (una fecha inventada
+    # perjudica al SEO más que omitirla).
+    lastmod_home = db.session.query(db.func.max(ContentBlock.updated_at)).scalar()
+    lastmod_resenas = db.session.query(db.func.max(Review.created_at)).scalar()
+
+    def fmt(dt):
+        return dt.strftime("%Y-%m-%d") if dt else None
+
+    urls = [
+        {
+            "loc": base + url_for("public.index"),
+            "priority": "1.0",
+            "changefreq": "weekly",
+            "lastmod": fmt(lastmod_home),
+        },
+        {
+            "loc": base + url_for("public.resenas"),
+            "priority": "0.7",
+            "changefreq": "weekly",
+            "lastmod": fmt(lastmod_resenas),
+        },
+        {
+            "loc": base + url_for("public.cotizacion"),
+            "priority": "0.8",
+            "changefreq": "monthly",
+            "lastmod": None,
+        },
+    ]
+    for s in services:
+        urls.append(
+            {
+                "loc": base + url_for("public.servicio_detalle", slug=s.slug),
+                "priority": "0.8",
+                "changefreq": "monthly",
+                "lastmod": None,
+            }
+        )
+    xml = render_template("sitemap.xml", urls=urls)
+    return Response(xml, mimetype="application/xml")

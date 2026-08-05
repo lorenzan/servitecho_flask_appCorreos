@@ -23,6 +23,7 @@
         <a href="{{ url_for('admin.redes_sociales') }}" class="{{ 'active' if request.endpoint and 'red' in request.endpoint }}">Redes sociales</a>
         <a href="{{ url_for('admin.config_correo') }}" class="{{ 'active' if request.endpoint == 'admin.config_correo' }}">Correo — Configuración</a>
         <a href="{{ url_for('admin.plantillas') }}" class="{{ 'active' if request.endpoint and 'plantilla' in request.endpoint }}">Correo — Plantillas</a>
+        <a href="{{ url_for('admin.config_marketing') }}" class="{{ 'active' if request.endpoint == 'admin.config_marketing' }}">Marketing — Google Ads</a>
         {% if current_user.is_superadmin %}
         <a href="{{ url_for('admin.usuarios') }}" class="{{ 'active' if request.endpoint and 'usuario' in request.endpoint }}">Usuarios admin</a>
         {% endif %}

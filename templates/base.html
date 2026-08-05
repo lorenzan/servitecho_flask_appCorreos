@@ -8,6 +8,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% if ads_settings and ads_settings.enabled and ads_settings.google_ads_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ ads_settings.google_ads_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ ads_settings.google_ads_id }}');
+    {% if ads_settings.ga4_measurement_id %}
+    gtag('config', '{{ ads_settings.ga4_measurement_id }}');
+    {% endif %}
+  </script>
+  {% endif %}
   {% block extra_head %}{% endblock %}
 </head>
 <body>
