@@ -105,6 +105,11 @@ _STATIC_STRINGS = [
     "¡Gracias! Tu solicitud fue enviada",
     "Nuestro equipo revisará la información y las fotos de tu proyecto, y "
     "te contactaremos pronto con tu cotización.",
+    # Error 404 / 500
+    "Error", "Página no encontrada",
+    "Lo sentimos, la página que buscas no existe o fue movida.",
+    "Algo salió mal",
+    "Ocurrió un error inesperado. Inténtalo de nuevo en unos minutos.",
 ]
 
 _cache = {}

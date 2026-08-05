@@ -1,4 +1,4 @@
-from flask import Flask, g
+from flask import Flask, g, render_template
 from config import Config
 from extensions import db, login_manager
 from models import Admin
@@ -27,6 +27,24 @@ def create_app():
     @app.before_request
     def _set_language():
         translations.set_language()
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template(
+            "error.html",
+            code=404,
+            title="Página no encontrada",
+            message="Lo sentimos, la página que buscas no existe o fue movida.",
+        ), 404
+
+    @app.errorhandler(500)
+    def internal_error(e):
+        return render_template(
+            "error.html",
+            code=500,
+            title="Algo salió mal",
+            message="Ocurrió un error inesperado. Inténtalo de nuevo en unos minutos.",
+        ), 500
 
     @app.context_processor
     def inject_globals():
