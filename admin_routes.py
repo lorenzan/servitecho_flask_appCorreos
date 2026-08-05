@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import desc
 
 from extensions import db
-from models import Admin, Review, Quote, ContentBlock, Service, EmailSettings, EmailTemplate
+from models import Admin, Review, Quote, ContentBlock, Service, SocialLink, EmailSettings, EmailTemplate
 from utils import save_upload
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
@@ -102,6 +102,34 @@ def rechazar_resena(review_id):
     return redirect(url_for("admin.resenas"))
 
 
+@admin_bp.route("/resenas/<int:review_id>/editar", methods=["GET", "POST"])
+@login_required
+def editar_resena(review_id):
+    review = Review.query.get_or_404(review_id)
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        comment = request.form.get("comment", "").strip()
+        try:
+            rating = int(request.form.get("rating", 0))
+        except (TypeError, ValueError):
+            rating = 0
+        if not name or not comment or rating < 1 or rating > 5:
+            flash("El nombre, el comentario y una calificación de 1 a 5 son obligatorios.", "danger")
+            return redirect(request.url)
+
+        review.name = name
+        review.email = request.form.get("email", "").strip()
+        review.rating = rating
+        review.comment = comment
+        review.approved = request.form.get("approved") == "on"
+        db.session.commit()
+        flash("Reseña actualizada.", "success")
+        return redirect(url_for("admin.resenas"))
+
+    return render_template("admin/editar_resena.html", review=review)
+
+
 @admin_bp.route("/resenas/<int:review_id>/eliminar", methods=["POST"])
 @login_required
 def eliminar_resena(review_id):
@@ -110,6 +138,90 @@ def eliminar_resena(review_id):
     db.session.commit()
     flash("Reseña eliminada.", "success")
     return redirect(url_for("admin.resenas"))
+
+
+# ---------- Redes sociales (pie de página) ----------
+
+def _normalizar_url(url):
+    url = url.strip()
+    if url and not url.startswith(("http://", "https://", "mailto:", "tel:")):
+        url = "https://" + url
+    return url
+
+
+@admin_bp.route("/redes")
+@login_required
+def redes_sociales():
+    redes = SocialLink.query.order_by(SocialLink.order).all()
+    return render_template("admin/redes_sociales.html", redes=redes)
+
+
+@admin_bp.route("/redes/nueva", methods=["GET", "POST"])
+@login_required
+def nueva_red():
+    if request.method == "POST":
+        return _guardar_red(None)
+    return render_template("admin/editar_red.html", red=None, plataformas=SocialLink.PLATFORM_LABELS)
+
+
+@admin_bp.route("/redes/<int:link_id>/editar", methods=["GET", "POST"])
+@login_required
+def editar_red(link_id):
+    red = SocialLink.query.get_or_404(link_id)
+    if request.method == "POST":
+        return _guardar_red(red)
+    return render_template("admin/editar_red.html", red=red, plataformas=SocialLink.PLATFORM_LABELS)
+
+
+def _guardar_red(red):
+    name = request.form.get("name", "").strip()
+    url = _normalizar_url(request.form.get("url", ""))
+    platform = request.form.get("platform", "otro")
+    if platform not in SocialLink.PLATFORMS:
+        platform = "otro"
+    try:
+        order = int(request.form.get("order", 0))
+    except (TypeError, ValueError):
+        order = 0
+    active = request.form.get("active") == "on"
+
+    if not name or not url:
+        flash("El nombre y el enlace (URL) son obligatorios.", "danger")
+        return redirect(request.url)
+
+    if red is None:
+        red = SocialLink()
+        db.session.add(red)
+
+    red.name = name
+    red.url = url
+    red.platform = platform
+    red.order = order
+    red.active = active
+    db.session.commit()
+    flash(f'Red social "{red.name}" guardada.', "success")
+    return redirect(url_for("admin.redes_sociales"))
+
+
+@admin_bp.route("/redes/<int:link_id>/toggle", methods=["POST"])
+@login_required
+def toggle_red(link_id):
+    red = SocialLink.query.get_or_404(link_id)
+    red.active = not red.active
+    db.session.commit()
+    estado = "activada" if red.active else "desactivada"
+    flash(f'Red social "{red.name}" {estado}.', "success")
+    return redirect(url_for("admin.redes_sociales"))
+
+
+@admin_bp.route("/redes/<int:link_id>/eliminar", methods=["POST"])
+@login_required
+def eliminar_red(link_id):
+    red = SocialLink.query.get_or_404(link_id)
+    db.session.delete(red)
+    db.session.commit()
+    flash(f'Red social "{red.name}" eliminada.', "success")
+    return redirect(url_for("admin.redes_sociales"))
 
 
 # ---------- Cotizaciones (solicitudes de trabajo) ----------

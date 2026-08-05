@@ -30,16 +30,18 @@ def create_app():
 
     @app.context_processor
     def inject_globals():
-        from models import Service, ContentBlock
+        from models import Service, ContentBlock, SocialLink
         nav_services = Service.query.filter_by(active=True).order_by(Service.order).all()
         site_info = ContentBlock.query.filter_by(section_key="site_info").first()
         site_logo = ContentBlock.query.filter_by(section_key="logo").first()
+        social_links = SocialLink.query.filter_by(active=True).order_by(SocialLink.order).all()
         if getattr(g, "lang", "es") == "en":
             nav_services = [translations.localize_service(s) for s in nav_services]
         return {
             "nav_services": nav_services,
             "site_info": site_info,
             "site_logo": site_logo,
+            "social_links": social_links,
             "current_lang": getattr(g, "lang", "es"),
             "t": translations.t,
         }

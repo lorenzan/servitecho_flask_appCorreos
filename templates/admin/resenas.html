@@ -30,6 +30,7 @@
             {% endif %}
           </td>
           <td>
+            <a class="btn btn-outline-dark btn-sm" href="{{ url_for('admin.editar_resena', review_id=r.id) }}">Editar</a>
             {% if not r.approved %}
               <form class="inline-form" method="POST" action="{{ url_for('admin.aprobar_resena', review_id=r.id) }}">
                 <button class="btn btn-rust btn-sm" type="submit">Aprobar</button>

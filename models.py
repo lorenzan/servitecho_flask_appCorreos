@@ -61,6 +61,30 @@ class Review(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class SocialLink(db.Model):
+    """Red social mostrada en el pie de página (se gestiona desde el admin)."""
+    __tablename__ = "social_links"
+
+    PLATFORMS = ["facebook", "instagram", "whatsapp", "x", "linkedin", "tiktok", "youtube", "otro"]
+    PLATFORM_LABELS = {
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "whatsapp": "WhatsApp",
+        "x": "X (Twitter)",
+        "linkedin": "LinkedIn",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "otro": "Otro / personalizado",
+    }
+
+    id = db.Column(db.Integer, primary_key=True)
+    platform = db.Column(db.String(30), nullable=False, default="otro")
+    name = db.Column(db.String(80), nullable=False)
+    url = db.Column(db.String(300), nullable=False)
+    active = db.Column(db.Boolean, default=True)  # visible o no en el pie de página
+    order = db.Column(db.Integer, default=0)
+
+
 class Quote(db.Model):
     """Cotización: solicitud de presupuesto enviada por un cliente."""
     __tablename__ = "quotes"

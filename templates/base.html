@@ -84,6 +84,16 @@
             SERVITECHO
           </h4>
           <p class="text-steel" style="max-width:36ch;">{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}</p>
+          {% if social_links %}
+            {% from "_social_icons.html" import social_icon %}
+            <div class="social-row">
+              {% for l in social_links %}
+                {% if l.url %}
+                <a class="social-btn" href="{{ l.url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ l.name }}" title="{{ l.name }}">{{ social_icon(l) }}</a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
         <div>
           <h4>{{ t('Servicios') }}</h4>

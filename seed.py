@@ -3,7 +3,7 @@
 """
 from app import create_app
 from extensions import db
-from models import Admin, ContentBlock, Service, Review, EmailSettings, EmailTemplate
+from models import Admin, ContentBlock, Service, Review, SocialLink, EmailSettings, EmailTemplate
 
 app = create_app()
 
@@ -199,6 +199,13 @@ EMAIL_TEMPLATES = [
 ]
 
 
+DEFAULT_SOCIAL_LINKS = [
+    dict(platform="facebook", name="Facebook", url="", active=False, order=1),
+    dict(platform="instagram", name="Instagram", url="", active=False, order=2),
+    dict(platform="whatsapp", name="WhatsApp", url="", active=False, order=3),
+]
+
+
 def run():
     with app.app_context():
         db.create_all()
@@ -225,6 +232,11 @@ def run():
             for data in SAMPLE_REVIEWS:
                 db.session.add(Review(**data))
             print(f"Reseñas de ejemplo creadas ({len(SAMPLE_REVIEWS)}).")
+
+        if SocialLink.query.count() == 0:
+            for data in DEFAULT_SOCIAL_LINKS:
+                db.session.add(SocialLink(**data))
+            print(f"Redes sociales por defecto creadas ({len(DEFAULT_SOCIAL_LINKS)}).")
 
         if not EmailSettings.query.first():
             db.session.add(EmailSettings(smtp_host="smtp.gmail.com", smtp_port=587, enabled=False))

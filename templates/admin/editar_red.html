@@ -1,0 +1,73 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ 'Editar' if red else 'Nueva' }} red social | Servitecho Admin{% endblock %}
+{% block page_title %}{{ 'Editar' if red else 'Añadir' }} red social{% endblock %}
+
+{% block admin_content %}
+<div class="card-panel" style="max-width:560px;">
+  <form method="POST">
+    <div class="form-row">
+      <label for="platform">Plataforma</label>
+      <select id="platform" name="platform" data-default-name="{{ red.name if red and red.platform == 'otro' else '' }}">
+        {% for key, label in plataformas.items() %}
+          <option value="{{ key }}" {{ 'selected' if red and red.platform == key }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <div class="hint">Al elegir una plataforma se sugiere el nombre automáticamente.</div>
+    </div>
+
+    <div class="form-row">
+      <label for="name">Nombre mostrado</label>
+      <input type="text" id="name" name="name" required value="{{ red.name if red else '' }}" placeholder="Facebook">
+    </div>
+
+    <div class="form-row">
+      <label for="url">Enlace (URL)</label>
+      <input type="text" id="url" name="url" required value="{{ red.url if red else '' }}" placeholder="https://facebook.com/tu-pagina">
+      <div class="hint">Si no escribes "https://" al inicio, se agrega automáticamente.</div>
+    </div>
+
+    <div class="form-row">
+      <label for="order">Orden</label>
+      <input type="number" id="order" name="order" min="0" value="{{ red.order if red else 0 }}">
+      <div class="hint">Número menor = aparece primero en el pie de página.</div>
+    </div>
+
+    <div class="form-row">
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <input type="checkbox" name="active" {{ 'checked' if not red or red.active else '' }}>
+        <span>Activa (visible en el pie de página)</span>
+      </label>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:28px;">
+      <button type="submit" class="btn btn-rust">{{ 'Guardar cambios' if red else 'Añadir red social' }}</button>
+      <a href="{{ url_for('admin.redes_sociales') }}" class="btn btn-outline-dark">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const sel = document.getElementById('platform');
+  const name = document.getElementById('name');
+  const labels = {{ plataformas | tojson }};
+  if (!sel || !name) return;
+  // Si el nombre está vacío o coincide con el nombre sugerido de otra plataforma,
+  // al cambiar la plataforma se autocompleta el nombre.
+  const defaultFor = (key) => labels[key] || '';
+  sel.addEventListener('change', function () {
+    const suggested = defaultFor(sel.value);
+    const current = name.value.trim();
+    const prevKey = sel.dataset.prevKey;
+    const prevSuggested = prevKey ? defaultFor(prevKey) : '';
+    if (!current || current === prevSuggested) {
+      name.value = suggested;
+    }
+    sel.dataset.prevKey = sel.value;
+  });
+  sel.dataset.prevKey = sel.value;
+})();
+</script>
+{% endblock %}

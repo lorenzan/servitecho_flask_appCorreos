@@ -1,0 +1,54 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Redes sociales | Servitecho Admin{% endblock %}
+{% block page_title %}Redes sociales{% endblock %}
+
+{% block admin_content %}
+<div class="card-panel" style="margin-bottom:16px; padding:18px 26px;">
+  <p class="mb-0 text-steel" style="font-size:.9rem;">
+    Las redes activas se muestran como botones en el pie de página del sitio público.
+    Puedes activar/desactivar cada una, editar su enlace o eliminarla.
+  </p>
+</div>
+
+<a href="{{ url_for('admin.nueva_red') }}" class="btn btn-rust" style="margin-bottom:20px;">+ Añadir red social</a>
+
+<div class="card-panel">
+  {% if redes %}
+  <table class="admin-table">
+    <thead><tr><th>Orden</th><th>Red</th><th>Enlace</th><th>Estado</th><th></th></tr></thead>
+    <tbody>
+      {% for r in redes %}
+      <tr>
+        <td>{{ r.order }}</td>
+        <td>
+          {% from "_social_icons.html" import social_icon %}
+          <span style="display:inline-flex; align-items:center; gap:10px;">
+            <span class="social-btn" style="width:30px; height:30px; border-color:var(--line-dark); background:var(--offwhite); color:var(--charcoal); margin:0;">{{ social_icon(r) }}</span>
+            <span>{{ r.name }}</span>
+          </span>
+        </td>
+        <td class="text-steel" style="word-break:break-all; max-width:280px;">{{ r.url }}</td>
+        <td>
+          {% if r.active %}<span class="badge badge-cotizado">Activa</span>
+          {% else %}<span class="badge badge-rechazado">Desactivada</span>{% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('admin.editar_red', link_id=r.id) }}" class="link">Editar</a>
+          &nbsp;·&nbsp;
+          <form class="inline-form" method="POST" action="{{ url_for('admin.toggle_red', link_id=r.id) }}">
+            <button type="submit" class="btn btn-outline-dark btn-sm">{{ 'Desactivar' if r.active else 'Activar' }}</button>
+          </form>
+          &nbsp;·&nbsp;
+          <form class="inline-form" method="POST" action="{{ url_for('admin.eliminar_red', link_id=r.id) }}" onsubmit="return confirm('¿Eliminar esta red social?');">
+            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="text-steel mb-0">Aún no hay redes sociales registradas.</p>
+  {% endif %}
+</div>
+{% endblock %}

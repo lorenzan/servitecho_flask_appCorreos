@@ -233,6 +233,16 @@ footer{ background:var(--charcoal); color:var(--silver); padding:64px 0 24px; }
 footer h4{ color:var(--white); font-size:.85rem; font-weight:600; letter-spacing:.02em; margin-bottom:18px; text-transform:none; }
 footer ul li{ margin-bottom:10px; font-size:.92rem; }
 footer a:hover{ color:var(--rust-light); }
+
+.social-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+.social-btn{
+  width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center;
+  border-radius:50%; background:rgba(255,255,255,0.06); border:1px solid var(--line); color:var(--silver);
+  transition:background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.social-btn svg{ width:18px; height:18px; fill:currentColor; }
+.social-btn:hover{ background:var(--rust); border-color:var(--rust); color:var(--white); transform:translateY(-2px); }
+.social-fallback{ font-family:var(--font-display); font-weight:800; font-size:.9rem; }
 .footer-bottom{ border-top:1px solid var(--line); padding-top:22px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:.82rem; color:var(--steel); }
 
 /* ---------------- Breadcrumb / page header ---------------- */
