@@ -12,52 +12,98 @@
 </head>
 <body>
 
-  <div class="topbar">
-    <div class="container">
-      <div>
-        {% if site_info %}
-        <span class="topbar-item">📍 {{ site_info.body }}</span>
-        <span class="topbar-item">✉️ {{ site_info.title }}</span>
-        {% endif %}
-      </div>
-      <div>
-        {% if site_info %}
-        <a class="topbar-item" href="tel:{{ site_info.eyebrow }}">📞 {{ site_info.eyebrow }}</a>
-        <span class="topbar-item">🕒 {{ site_info.extra }}</span>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <header class="navbar">
-    <div class="container">
-      <a class="brand" href="{{ url_for('public.index') }}">
-        {% if site_logo and site_logo.image_path %}
-          <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Servitecho">
-        {% else %}
-          <span class="brand-mark"></span>
-        {% endif %}
-        SERVITECHO
-      </a>
-      <nav class="nav-links" id="navLinks">
-        <a href="{{ url_for('public.index') }}">{{ t('Inicio') }}</a>
-        {% for s in nav_services %}
-          <a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a>
-        {% endfor %}
-        <a href="{{ url_for('public.resenas') }}">{{ t('Reseñas') }}</a>
-        <a href="{{ url_for('public.cotizacion') }}">{{ t('Cotización') }}</a>
-      </nav>
-      <div class="nav-cta">
-        <div class="lang-switch" aria-label="Idioma / Language">
-          <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="Español">ES</a>
-          <span class="lang-divider"></span>
-          <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
+  <div class="site-header" id="siteHeader">
+    <div class="topbar">
+      <div class="container">
+        <div class="topbar-left">
+          {% if site_info %}
+          <span class="topbar-item">
+            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+            <span>{{ site_info.body }}</span>
+          </span>
+          <a class="topbar-item" href="mailto:{{ site_info.title }}">
+            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
+            <span>{{ site_info.title }}</span>
+          </a>
+          {% endif %}
         </div>
-        <a class="btn btn-rust" href="{{ url_for('public.cotizacion') }}"><span>{{ t('Solicita tu cotización') }}</span> →</a>
-        <button class="nav-toggle" id="navToggle" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+        <div class="topbar-right">
+          {% if site_info %}
+          <a class="topbar-item topbar-item--accent" href="tel:{{ site_info.eyebrow }}">
+            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+            <span>{{ site_info.eyebrow }}</span>
+          </a>
+          <span class="topbar-item">
+            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11H7v-2h4V7h2v6z"/></svg>
+            <span>{{ site_info.extra }}</span>
+          </span>
+          {% endif %}
+          <div class="lang-switch" aria-label="Idioma / Language">
+            <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="Español">ES</a>
+            <span class="lang-divider"></span>
+            <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
+          </div>
+        </div>
       </div>
     </div>
-  </header>
+
+    <header class="navbar">
+      <div class="container">
+        <a class="brand" href="{{ url_for('public.index') }}">
+          {% if site_logo and site_logo.image_path %}
+            <span class="brand-logo-wrap">
+              <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Tecuns Roofing">
+            </span>
+          {% else %}
+            <span class="brand-mark" aria-hidden="true"></span>
+          {% endif %}
+          <span class="brand-text">
+            <span class="brand-name">Tecuns Roofing</span>
+          </span>
+        </a>
+
+        <nav class="nav-links" id="navLinks">
+          <a href="{{ url_for('public.index') }}">{{ t('Inicio') }}</a>
+          {% for s in nav_services %}
+            <a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a>
+          {% endfor %}
+          <a href="{{ url_for('public.resenas') }}">{{ t('Reseñas') }}</a>
+          <a class="nav-link-mobile-only" href="{{ url_for('public.cotizacion') }}">{{ t('Cotización') }}</a>
+          <div class="nav-mobile-actions">
+            <div class="lang-switch lang-switch--mobile" aria-label="Idioma / Language">
+              <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="Español">ES</a>
+              <span class="lang-divider"></span>
+              <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
+            </div>
+            {% if site_info and site_info.eyebrow %}
+            <a class="btn btn-call" href="tel:{{ site_info.eyebrow }}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+              <span>{{ t('Llámenos Hoy') }}</span>
+            </a>
+            {% endif %}
+          </div>
+        </nav>
+
+        <div class="nav-cta">
+          {% if site_info and site_info.eyebrow %}
+          <a class="btn btn-call btn-call--desk" href="tel:{{ site_info.eyebrow }}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+            <span>{{ t('Llámenos Hoy') }}</span>
+          </a>
+          {% endif %}
+          <a class="btn btn-rust btn-nav-cta" href="{{ url_for('public.cotizacion') }}">
+            <span>{{ t('Solicitar Cotización') }}</span>
+            <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.172 12 8.222 7.05l1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/></svg>
+          </a>
+          <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+      <div class="navbar-glow" aria-hidden="true"></div>
+    </header>
+    <div class="header-accent" aria-hidden="true"></div>
+  </div>
 
   <main>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -116,8 +162,19 @@
   <script>
     const navToggle = document.getElementById('navToggle');
     const navLinks = document.getElementById('navLinks');
-    if (navToggle) {
-      navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+    const siteHeader = document.getElementById('siteHeader');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        const open = navLinks.classList.toggle('open');
+        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+    if (siteHeader) {
+      const onScroll = () => {
+        siteHeader.classList.toggle('is-scrolled', window.scrollY > 12);
+      };
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
     }
   </script>
   {% block extra_scripts %}{% endblock %}

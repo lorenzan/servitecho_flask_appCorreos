@@ -3,7 +3,7 @@
 {% block page_title %}Editar: {{ block.label }}{% endblock %}
 
 {% block admin_content %}
-<div class="card-panel" style="max-width:720px;">
+<div class="card-panel" style="max-width:780px;">
   <form method="POST" action="{{ url_for('admin.editar_contenido', section_key=block.section_key) }}" enctype="multipart/form-data">
 
     {% if block.section_key == 'logo' %}
@@ -46,7 +46,7 @@
         <input type="text" id="extra" name="extra" value="{{ block.extra or '' }}">
       </div>
 
-      {% if block.section_key != 'site_info' %}
+      {% if block.section_key != 'site_info' and block.section_key != 'hero' and block.section_key != 'about' %}
       <div class="form-row">
         <label for="image">Imagen</label>
         {% if block.image_path %}
@@ -62,4 +62,119 @@
     <a href="{{ url_for('admin.contenido') }}" class="btn btn-outline-dark">Cancelar</a>
   </form>
 </div>
+
+{% if block.section_key == 'hero' %}
+<div class="card-panel" style="max-width:780px; margin-top:8px;">
+  <h3 style="margin-top:0;">Galería del hero (carrusel)</h3>
+  <p class="text-steel" style="margin-bottom:18px;">
+    Sube hasta {{ max_hero_slides }} imágenes. Se muestran en rotación automática en la portada.
+    Actualmente: <strong>{{ hero_slides|length }}</strong> / {{ max_hero_slides }}.
+  </p>
+
+  {% if hero_slides %}
+  <div class="hero-gallery-admin">
+    {% for slide in hero_slides %}
+    <div class="hero-gallery-item {{ '' if slide.active else 'is-hidden' }}">
+      <img src="{{ url_for('static', filename=slide.image_path) }}" alt="Slide {{ loop.index }}">
+      <div class="hero-gallery-meta">
+        <form method="POST" action="{{ url_for('admin.hero_slide_caption', slide_id=slide.id) }}" class="hero-caption-form">
+          <input type="text" name="caption" value="{{ slide.caption or '' }}" placeholder="Leyenda opcional (ej. Standing Seam)">
+          <button type="submit" class="btn btn-sm btn-outline-dark">Guardar leyenda</button>
+        </form>
+        <div class="hero-gallery-actions">
+          <form method="POST" action="{{ url_for('admin.hero_slide_move', slide_id=slide.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="up">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.hero_slide_move', slide_id=slide.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="down">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.hero_slide_toggle', slide_id=slide.id) }}" class="inline-form">
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if slide.active else 'Mostrar' }}</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.hero_slide_delete', slide_id=slide.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta imagen?');">
+            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="hint">Aún no hay imágenes en la galería. Si tenías una imagen antigua del hero, se migrará sola al reiniciar la app; también puedes subir nuevas abajo.</p>
+  {% endif %}
+
+  {% if hero_slides|length < max_hero_slides %}
+  <form method="POST" action="{{ url_for('admin.hero_slides_add') }}" enctype="multipart/form-data" style="margin-top:22px;">
+    <div class="form-row">
+      <label for="images">Agregar imágenes</label>
+      <input type="file" id="images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
+      <p class="hint">Puedes seleccionar varias a la vez. Formatos: PNG, JPG, WEBP.</p>
+    </div>
+    <div class="form-row">
+      <label for="caption">Leyenda por defecto (opcional)</label>
+      <input type="text" id="caption" name="caption" placeholder="Standing Seam · Panel 5G · Módulos">
+    </div>
+    <button type="submit" class="btn btn-rust">Subir a la galería</button>
+  </form>
+  {% else %}
+  <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_hero_slides }}). Elimina alguna para subir otra.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if block.section_key == 'about' %}
+<div class="card-panel" style="max-width:780px; margin-top:8px;">
+  <h3 style="margin-top:0;">Galería 3D — Sobre nosotros</h3>
+  <p class="text-steel" style="margin-bottom:18px;">
+    Sube hasta {{ max_about_slides }} fotos de proyectos/equipo. Se muestran en el carrusel 3D del sitio.
+    Actualmente: <strong>{{ about_slides|length }}</strong> / {{ max_about_slides }}.
+  </p>
+  <p class="hint">Los valores (Calidad, Compromiso, etc.) se editan arriba en el campo “Valores (separados por coma)”.</p>
+
+  {% if about_slides %}
+  <div class="hero-gallery-admin">
+    {% for slide in about_slides %}
+    <div class="hero-gallery-item {{ '' if slide.active else 'is-hidden' }}">
+      <img src="{{ url_for('static', filename=slide.image_path) }}" alt="About {{ loop.index }}">
+      <div class="hero-gallery-meta">
+        <div class="hero-gallery-actions">
+          <form method="POST" action="{{ url_for('admin.about_slide_move', slide_id=slide.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="up">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.about_slide_move', slide_id=slide.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="down">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.about_slide_toggle', slide_id=slide.id) }}" class="inline-form">
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if slide.active else 'Mostrar' }}</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.about_slide_delete', slide_id=slide.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta imagen?');">
+            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="hint">Aún no hay fotos. Si había una imagen antigua del bloque, se migrará al reiniciar la app.</p>
+  {% endif %}
+
+  {% if about_slides|length < max_about_slides %}
+  <form method="POST" action="{{ url_for('admin.about_slides_add') }}" enctype="multipart/form-data" style="margin-top:22px;">
+    <div class="form-row">
+      <label for="about_images">Agregar imágenes</label>
+      <input type="file" id="about_images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
+      <p class="hint">Ideal: 6–10 fotos de obras, equipo o instalaciones.</p>
+    </div>
+    <button type="submit" class="btn btn-rust">Subir a la galería</button>
+  </form>
+  {% else %}
+  <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_about_slides }}).</p>
+  {% endif %}
+</div>
+{% endif %}
 {% endblock %}

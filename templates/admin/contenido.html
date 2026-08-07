@@ -3,10 +3,15 @@
 {% block page_title %}Contenido del sitio{% endblock %}
 
 {% block admin_content %}
-<p class="text-steel">Edita los textos e imágenes de cada sección de la página de inicio.</p>
+<p class="text-steel">Edita los textos e imágenes de cada sección. Hero y Sobre nosotros incluyen <strong>galerías</strong> editables.</p>
 <div class="content-block-grid">
   {% for b in blocks %}
   <div class="content-block-card">
+    {% if b.section_key == 'hero' and hero_slides_count %}
+      <div class="content-block-badge">Galería: {{ hero_slides_count }} foto{{ 's' if hero_slides_count != 1 else '' }}</div>
+    {% elif b.section_key == 'about' and about_slides_count %}
+      <div class="content-block-badge">Galería 3D: {{ about_slides_count }} foto{{ 's' if about_slides_count != 1 else '' }}</div>
+    {% endif %}
     {% if b.image_path %}
       <img src="{{ url_for('static', filename=b.image_path) }}" alt="{{ b.label }}">
     {% else %}

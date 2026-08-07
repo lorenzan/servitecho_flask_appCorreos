@@ -52,6 +52,34 @@ def create_app():
             db.session.commit()
         except Exception:
             pass
+        # Migrar imagen única del hero a la galería (una sola vez)
+        try:
+            from models import ContentBlock, HeroSlide, AboutSlide
+            if HeroSlide.query.count() == 0:
+                hero = ContentBlock.query.filter_by(section_key="hero").first()
+                if hero and hero.image_path:
+                    db.session.add(
+                        HeroSlide(
+                            image_path=hero.image_path,
+                            caption="Standing Seam · Panel 5G · Módulos",
+                            sort_order=0,
+                            active=True,
+                        )
+                    )
+                    db.session.commit()
+            if AboutSlide.query.count() == 0:
+                about = ContentBlock.query.filter_by(section_key="about").first()
+                if about and about.image_path:
+                    db.session.add(
+                        AboutSlide(
+                            image_path=about.image_path,
+                            sort_order=0,
+                            active=True,
+                        )
+                    )
+                    db.session.commit()
+        except Exception:
+            db.session.rollback()
 
     return app
 

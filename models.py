@@ -120,3 +120,26 @@ class EmailTemplate(db.Model):
     subject = db.Column(db.String(300), nullable=False)
     body = db.Column(db.Text, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class HeroSlide(db.Model):
+    """Imágenes del carrusel de la portada (editables desde el admin)."""
+    __tablename__ = "hero_slides"
+
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(300), nullable=False)
+    caption = db.Column(db.String(200))  # texto opcional sobre la imagen
+    sort_order = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AboutSlide(db.Model):
+    """Imágenes de la galería 3D del bloque Sobre nosotros."""
+    __tablename__ = "about_slides"
+
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(300), nullable=False)
+    sort_order = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

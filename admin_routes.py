@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import desc
 
 from extensions import db
-from models import Admin, Review, Quote, ContentBlock, Service, EmailSettings, EmailTemplate
+from models import Admin, Review, Quote, ContentBlock, Service, EmailSettings, EmailTemplate, HeroSlide, AboutSlide
 from utils import save_upload
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
@@ -180,17 +180,34 @@ def eliminar_cotizacion(quote_id):
 
 # ---------- Contenido del sitio (textos e imágenes) ----------
 
+MAX_HERO_SLIDES = 6
+MAX_ABOUT_SLIDES = 10
+
+
 @admin_bp.route("/contenido")
 @login_required
 def contenido():
     blocks = ContentBlock.query.order_by(ContentBlock.label).all()
-    return render_template("admin/contenido.html", blocks=blocks)
+    hero_slides_count = HeroSlide.query.count()
+    about_slides_count = AboutSlide.query.count()
+    return render_template(
+        "admin/contenido.html",
+        blocks=blocks,
+        hero_slides_count=hero_slides_count,
+        about_slides_count=about_slides_count,
+    )
 
 
 @admin_bp.route("/contenido/<section_key>", methods=["GET", "POST"])
 @login_required
 def editar_contenido(section_key):
     block = ContentBlock.query.filter_by(section_key=section_key).first_or_404()
+    hero_slides = []
+    about_slides = []
+    if section_key == "hero":
+        hero_slides = HeroSlide.query.order_by(HeroSlide.sort_order, HeroSlide.id).all()
+    elif section_key == "about":
+        about_slides = AboutSlide.query.order_by(AboutSlide.sort_order, AboutSlide.id).all()
 
     if request.method == "POST":
         if block.section_key != "logo":
@@ -199,17 +216,185 @@ def editar_contenido(section_key):
             block.body = request.form.get("body", "").strip()
             block.extra = request.form.get("extra", "").strip()
 
-        image = request.files.get("image")
-        if image and image.filename:
-            rel_path = save_upload(image, "content")
-            if rel_path:
-                block.image_path = rel_path
+        # Logo y bloques sin galería propia siguen con imagen única
+        if block.section_key not in ("hero", "about"):
+            image = request.files.get("image")
+            if image and image.filename:
+                rel_path = save_upload(image, "content")
+                if rel_path:
+                    block.image_path = rel_path
 
         db.session.commit()
         flash(f'Bloque "{block.label}" actualizado.', "success")
         return redirect(url_for("admin.contenido"))
 
-    return render_template("admin/editar_contenido.html", block=block)
+    return render_template(
+        "admin/editar_contenido.html",
+        block=block,
+        hero_slides=hero_slides,
+        about_slides=about_slides,
+        max_hero_slides=MAX_HERO_SLIDES,
+        max_about_slides=MAX_ABOUT_SLIDES,
+    )
+
+
+@admin_bp.route("/contenido/hero/slides", methods=["POST"])
+@login_required
+def hero_slides_add():
+    files = request.files.getlist("images")
+    current = HeroSlide.query.count()
+    added = 0
+    for f in files:
+        if current + added >= MAX_HERO_SLIDES:
+            break
+        if not f or not f.filename:
+            continue
+        rel_path = save_upload(f, "content")
+        if not rel_path:
+            continue
+        caption = request.form.get("caption", "").strip() or None
+        max_order = db.session.query(db.func.coalesce(db.func.max(HeroSlide.sort_order), -1)).scalar()
+        db.session.add(
+            HeroSlide(
+                image_path=rel_path,
+                caption=caption,
+                sort_order=(max_order or 0) + 1 + added,
+                active=True,
+            )
+        )
+        added += 1
+    if added:
+        db.session.commit()
+        flash(f"Se agregaron {added} imagen(es) a la galería del hero.", "success")
+    else:
+        flash("No se pudo agregar ninguna imagen. Revisa el formato (png/jpg/webp) y el límite de 6.", "warning")
+    return redirect(url_for("admin.editar_contenido", section_key="hero"))
+
+
+@admin_bp.route("/contenido/hero/slides/<int:slide_id>/eliminar", methods=["POST"])
+@login_required
+def hero_slide_delete(slide_id):
+    slide = HeroSlide.query.get_or_404(slide_id)
+    db.session.delete(slide)
+    db.session.commit()
+    flash("Imagen eliminada de la galería.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="hero"))
+
+
+@admin_bp.route("/contenido/hero/slides/<int:slide_id>/mover", methods=["POST"])
+@login_required
+def hero_slide_move(slide_id):
+    direction = request.form.get("direction", "up")
+    slides = HeroSlide.query.order_by(HeroSlide.sort_order, HeroSlide.id).all()
+    idx = next((i for i, s in enumerate(slides) if s.id == slide_id), None)
+    if idx is None:
+        flash("Imagen no encontrada.", "danger")
+        return redirect(url_for("admin.editar_contenido", section_key="hero"))
+    swap_with = idx - 1 if direction == "up" else idx + 1
+    if 0 <= swap_with < len(slides):
+        slides[idx].sort_order, slides[swap_with].sort_order = (
+            slides[swap_with].sort_order,
+            slides[idx].sort_order,
+        )
+        # Si tenían el mismo order, forzar diferencia
+        if slides[idx].sort_order == slides[swap_with].sort_order:
+            slides[idx].sort_order = swap_with
+            slides[swap_with].sort_order = idx
+        db.session.commit()
+    return redirect(url_for("admin.editar_contenido", section_key="hero"))
+
+
+@admin_bp.route("/contenido/hero/slides/<int:slide_id>/toggle", methods=["POST"])
+@login_required
+def hero_slide_toggle(slide_id):
+    slide = HeroSlide.query.get_or_404(slide_id)
+    slide.active = not slide.active
+    db.session.commit()
+    flash("Imagen " + ("visible" if slide.active else "ocultada") + " en el sitio.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="hero"))
+
+
+@admin_bp.route("/contenido/hero/slides/<int:slide_id>/caption", methods=["POST"])
+@login_required
+def hero_slide_caption(slide_id):
+    slide = HeroSlide.query.get_or_404(slide_id)
+    slide.caption = request.form.get("caption", "").strip() or None
+    db.session.commit()
+    flash("Leyenda actualizada.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="hero"))
+
+
+@admin_bp.route("/contenido/about/slides", methods=["POST"])
+@login_required
+def about_slides_add():
+    files = request.files.getlist("images")
+    current = AboutSlide.query.count()
+    added = 0
+    for f in files:
+        if current + added >= MAX_ABOUT_SLIDES:
+            break
+        if not f or not f.filename:
+            continue
+        rel_path = save_upload(f, "content")
+        if not rel_path:
+            continue
+        max_order = db.session.query(db.func.coalesce(db.func.max(AboutSlide.sort_order), -1)).scalar()
+        db.session.add(
+            AboutSlide(
+                image_path=rel_path,
+                sort_order=(max_order or 0) + 1 + added,
+                active=True,
+            )
+        )
+        added += 1
+    if added:
+        db.session.commit()
+        flash(f"Se agregaron {added} imagen(es) a la galería Sobre nosotros.", "success")
+    else:
+        flash("No se pudo agregar ninguna imagen. Revisa formato y el límite de 10.", "warning")
+    return redirect(url_for("admin.editar_contenido", section_key="about"))
+
+
+@admin_bp.route("/contenido/about/slides/<int:slide_id>/eliminar", methods=["POST"])
+@login_required
+def about_slide_delete(slide_id):
+    slide = AboutSlide.query.get_or_404(slide_id)
+    db.session.delete(slide)
+    db.session.commit()
+    flash("Imagen eliminada de la galería.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="about"))
+
+
+@admin_bp.route("/contenido/about/slides/<int:slide_id>/mover", methods=["POST"])
+@login_required
+def about_slide_move(slide_id):
+    direction = request.form.get("direction", "up")
+    slides = AboutSlide.query.order_by(AboutSlide.sort_order, AboutSlide.id).all()
+    idx = next((i for i, s in enumerate(slides) if s.id == slide_id), None)
+    if idx is None:
+        flash("Imagen no encontrada.", "danger")
+        return redirect(url_for("admin.editar_contenido", section_key="about"))
+    swap_with = idx - 1 if direction == "up" else idx + 1
+    if 0 <= swap_with < len(slides):
+        slides[idx].sort_order, slides[swap_with].sort_order = (
+            slides[swap_with].sort_order,
+            slides[idx].sort_order,
+        )
+        if slides[idx].sort_order == slides[swap_with].sort_order:
+            slides[idx].sort_order = swap_with
+            slides[swap_with].sort_order = idx
+        db.session.commit()
+    return redirect(url_for("admin.editar_contenido", section_key="about"))
+
+
+@admin_bp.route("/contenido/about/slides/<int:slide_id>/toggle", methods=["POST"])
+@login_required
+def about_slide_toggle(slide_id):
+    slide = AboutSlide.query.get_or_404(slide_id)
+    slide.active = not slide.active
+    db.session.commit()
+    flash("Imagen " + ("visible" if slide.active else "ocultada") + " en el sitio.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="about"))
 
 
 # ---------- Servicios / Productos ----------

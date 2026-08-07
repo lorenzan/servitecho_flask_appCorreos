@@ -4,9 +4,50 @@
 {% block content %}
 
 <section class="hero">
+  {# Capas decorativas — no afectan módulos editables del admin #}
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-bg__base"></div>
+    <div class="hero-bg__aurora"></div>
+    <div class="hero-bg__orb hero-bg__orb--1"></div>
+    <div class="hero-bg__orb hero-bg__orb--2"></div>
+    <div class="hero-bg__orb hero-bg__orb--3"></div>
+    <div class="hero-bg__beam"></div>
+    <div class="hero-bg__mesh"></div>
+    <div class="hero-bg__shimmer"></div>
+    <div class="hero-bg__hammers">
+      {% for i in range(1, 17) %}
+      <span class="hammer hammer--{{ i }}" aria-hidden="true">
+        <svg viewBox="0 0 40 40" focusable="false">
+          <!-- cabeza del martillo -->
+          <path fill="currentColor" d="M26 4h8c1.1 0 2 .9 2 2v6c0 1.1-.9 2-2 2h-3.2l-1.6 1.6a2 2 0 0 1-2.8 0L24 13.2V12h-2c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h4z"/>
+          <!-- cuello -->
+          <rect fill="currentColor" x="23.2" y="12" width="4.6" height="5" rx="1"/>
+          <!-- mango -->
+          <rect fill="currentColor" x="23.6" y="16.5" width="3.8" height="19" rx="1.6"/>
+          <!-- brillo cabeza -->
+          <rect fill="#fff" opacity=".22" x="27" y="5.5" width="6.5" height="2.2" rx="1"/>
+        </svg>
+      </span>
+      {% endfor %}
+    </div>
+    <div class="hero-bg__vignette"></div>
+  </div>
+
   <div class="container">
-    <div>
-      <div class="eyebrow">{{ blocks.hero.eyebrow if blocks.hero else t('Construyendo confianza en cada proyecto') }}</div>
+    <div class="hero-copy">
+      {% set eyebrow_text = blocks.hero.eyebrow if blocks.hero else t('Construyendo confianza en cada proyecto') %}
+      <div class="eyebrow eyebrow--shine">
+        <span class="eyebrow-shine">
+          {% for char in eyebrow_text %}
+            {% if char == ' ' %}
+              <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
+            {% else %}
+              <span class="eyebrow-shine__letter" style="--i:{{ loop.index0 }}">{{ char }}</span>
+            {% endif %}
+          {% endfor %}
+          <span class="eyebrow-shine__loader" aria-hidden="true"></span>
+        </span>
+      </div>
       <h1>{{ blocks.hero.title if blocks.hero else t('Techos, Fachadas y Módulos Prefabricados en El Salvador') }}</h1>
       <p class="lead">{{ blocks.hero.body if blocks.hero else '' }}</p>
       <div class="hero-actions">
@@ -14,122 +55,353 @@
         <a href="#productos" class="btn btn-outline">{{ t('Ver productos') }}</a>
       </div>
     </div>
-    <div class="hero-figure">
-      {% if blocks.hero and blocks.hero.image_path %}
-        <img src="{{ url_for('static', filename=blocks.hero.image_path) }}" alt="Proyecto de techo industrial Servitecho">
-      {% else %}
-        <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1200&auto=format&fit=crop" alt="Techo industrial metálico">
+    <div class="hero-figure" id="heroCarousel" {% if hero_slides and hero_slides|length > 1 %}data-autoplay="5500"{% endif %}>
+      <div class="hero-carousel">
+        {% if hero_slides %}
+          {% for slide in hero_slides %}
+          <figure class="hero-slide {{ 'is-active' if loop.first else '' }}" data-index="{{ loop.index0 }}">
+            <img src="{{ url_for('static', filename=slide.image_path) }}" alt="{{ slide.caption or ('Proyecto Tecuns Roofing ' ~ loop.index) }}" {% if not loop.first %}loading="lazy"{% endif %}>
+            {% if slide.caption %}
+              <span class="tag">{{ slide.caption }}</span>
+            {% endif %}
+          </figure>
+          {% endfor %}
+        {% else %}
+          <figure class="hero-slide is-active" data-index="0">
+            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1200&auto=format&fit=crop" alt="Techo industrial metálico">
+            <span class="tag">Standing Seam &middot; Panel 5G &middot; Módulos</span>
+          </figure>
+        {% endif %}
+      </div>
+      {% if hero_slides and hero_slides|length > 1 %}
+      <div class="hero-carousel-nav" aria-label="Controles del carrusel">
+        <button type="button" class="hero-carousel-btn" data-dir="prev" aria-label="Anterior">‹</button>
+        <div class="hero-carousel-dots" role="tablist">
+          {% for slide in hero_slides %}
+          <button type="button" class="hero-dot {{ 'is-active' if loop.first else '' }}" data-index="{{ loop.index0 }}" aria-label="Imagen {{ loop.index }}"></button>
+          {% endfor %}
+        </div>
+        <button type="button" class="hero-carousel-btn" data-dir="next" aria-label="Siguiente">›</button>
+      </div>
       {% endif %}
-      <span class="tag">Standing Seam &middot; Panel 5G &middot; Módulos</span>
     </div>
   </div>
 </section>
 <div class="corrugated"></div>
-
-<section class="section" id="productos">
+<section class="section section--dark why-section"
+  {% if blocks.why_us and blocks.why_us.image_path %}
+  style="background-image:linear-gradient(180deg, rgba(23,18,15,0.90), rgba(23,18,15,0.94)), url('{{ url_for('static', filename=blocks.why_us.image_path) }}'); background-size:cover; background-position:center;"
+  {% endif %}>
   <div class="container">
-    <div class="section-head">
-      <div class="eyebrow">{{ t('Productos') }}</div>
-      <h2>{{ t('Sistemas para cada tipo de proyecto') }}</h2>
-      <p class="text-steel">{{ t('Fabricación, suministro e instalación con garantía para proyectos residenciales, comerciales e industriales.') }}</p>
-    </div>
-    <div class="grid-3">
-      {% for s in services %}
-      <div class="spec-card">
-        <figure>
-          {% if s.image_path %}
-            <img src="{{ url_for('static', filename=s.image_path) }}" alt="{{ s.name }}">
-          {% else %}
-            <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop" alt="{{ s.name }}">
-          {% endif %}
-        </figure>
-        <h3>{{ s.name }}</h3>
-        <p>{{ s.short_description }}</p>
-        <a class="link" href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ t('Ver detalles') }} →</a>
+    <div class="why-seal" aria-label="{{ t('Más de 5 años de experiencia') }}">
+      <div class="why-seal__ring">
+        <svg class="why-seal__orbit" viewBox="0 0 120 120" aria-hidden="true">
+          <defs>
+            <path id="whySealPath" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/>
+          </defs>
+          <text class="why-seal__orbit-text">
+            <textPath href="#whySealPath" startOffset="0%" textLength="276" lengthAdjust="spacing">
+              TECUNS ROOFING · CALIDAD · EXPERIENCIA ·
+            </textPath>
+          </text>
+        </svg>
+        <div class="why-seal__core">
+          <span class="why-seal__years">+5</span>
+          <span class="why-seal__label">
+            <span>{{ t('Años de') }}</span>
+            <span>{{ t('experiencia') }}</span>
+          </span>
+        </div>
       </div>
+    </div>
+
+    <div class="section-head center why-section__head">
+      {% set why_eyebrow = blocks.why_us.eyebrow if blocks.why_us else t('Nuestro compromiso') %}
+      <div class="eyebrow eyebrow--shine">
+        <span class="eyebrow-shine">
+          {% for char in why_eyebrow %}
+            {% if char == ' ' %}
+              <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
+            {% else %}
+              <span class="eyebrow-shine__letter" style="--i:{{ loop.index0 }}">{{ char }}</span>
+            {% endif %}
+          {% endfor %}
+          <span class="eyebrow-shine__loader" aria-hidden="true"></span>
+        </span>
+      </div>
+      <h2>{{ blocks.why_us.title if blocks.why_us else t('¿Qué nos distingue?') }}</h2>
+      <p style="color:var(--silver);">{{ blocks.why_us.body if blocks.why_us else '' }}</p>
+    </div>
+
+    <div class="trust-grid">
+      <article class="trust-card trust-card--guarantee">
+        <div class="trust-coin" aria-hidden="true">
+          <div class="trust-coin__spin">
+            <div class="trust-coin__face trust-coin__face--front">
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M24 4 8 10v12c0 10.5 6.8 20.2 16 22.8C33.2 42.2 40 32.5 40 22V10L24 4zm0 4.2 12 4.5V22c0 8.1-5.1 15.7-12 18-6.9-2.3-12-9.9-12-18V12.7l12-4.5zm-1.5 20.3-5.2-5.2 2.1-2.1 3.1 3.1 7.1-7.1 2.1 2.1-9.2 9.2z"/></svg>
+            </div>
+            <div class="trust-coin__face trust-coin__face--back">
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M24 4 8 10v12c0 10.5 6.8 20.2 16 22.8C33.2 42.2 40 32.5 40 22V10L24 4zm0 4.2 12 4.5V22c0 8.1-5.1 15.7-12 18-6.9-2.3-12-9.9-12-18V12.7l12-4.5zm-1.5 20.3-5.2-5.2 2.1-2.1 3.1 3.1 7.1-7.1 2.1 2.1-9.2 9.2z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="trust-card__num">+30</div>
+        <h3 class="trust-card__title">{{ t('Años de garantía Standing Seam') }}</h3>
+        <p class="trust-card__desc">{{ t('Protección duradera con sistemas de techo certificados y respaldo real.') }}</p>
+      </article>
+
+      <article class="trust-card trust-card--support">
+        <div class="trust-coin" aria-hidden="true">
+          <div class="trust-coin__spin">
+            <div class="trust-coin__face trust-coin__face--front">
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M24 6a14 14 0 0 0-14 14v6H8a4 4 0 0 0-4 4v4a4 4 0 0 0 4 4h4v-18a10 10 0 1 1 20 0v18h4a4 4 0 0 0 4-4v-4a4 4 0 0 0-4-4h-2v-6A14 14 0 0 0 24 6zm-8 28v2a6 6 0 0 0 6 6h4a6 6 0 0 0 6-6v-2H16z"/></svg>
+            </div>
+            <div class="trust-coin__face trust-coin__face--back">
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M24 6a14 14 0 0 0-14 14v6H8a4 4 0 0 0-4 4v4a4 4 0 0 0 4 4h4v-18a10 10 0 1 1 20 0v18h4a4 4 0 0 0 4-4v-4a4 4 0 0 0-4-4h-2v-6A14 14 0 0 0 24 6zm-8 28v2a6 6 0 0 0 6 6h4a6 6 0 0 0 6-6v-2H16z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="trust-card__num">24/7</div>
+        <h3 class="trust-card__title">{{ t('Soporte a clientes') }}</h3>
+        <p class="trust-card__desc">{{ t('Atención continua para emergencias, mantenimiento y seguimiento de obra.') }}</p>
+      </article>
+
+      <article class="trust-card trust-card--install">
+        <div class="trust-coin" aria-hidden="true">
+          <div class="trust-coin__spin">
+            <div class="trust-coin__face trust-coin__face--front">
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M8 38h32v4H8v-4zm4-6 6-16h4l3 8h2l3-8h4l6 16h-4.2l-1.2-3.2H17.4L16.2 32H12zm7.2-6.8h9.6L26 18.6h-4l-2.8 6.6zM24 6l10 8H14l10-8z"/></svg>
+            </div>
+            <div class="trust-coin__face trust-coin__face--back">
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M8 38h32v4H8v-4zm4-6 6-16h4l3 8h2l3-8h4l6 16h-4.2l-1.2-3.2H17.4L16.2 32H12zm7.2-6.8h9.6L26 18.6h-4l-2.8 6.6zM24 6l10 8H14l10-8z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="trust-card__num">100%</div>
+        <h3 class="trust-card__title">{{ t('Instalación profesional') }}</h3>
+        <p class="trust-card__desc">{{ t('Cuadrillas especializadas, acabados impecables y seguridad en cada proyecto.') }}</p>
+      </article>
+
+      <article class="trust-card trust-card--systems">
+        <div class="trust-coin" aria-hidden="true">
+          <div class="trust-coin__spin">
+            <div class="trust-coin__face trust-coin__face--front">
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M6 18 24 8l18 10v4L24 12 6 22v-4zm0 8 18-10 18 10v4L24 20 6 30v-4zm0 8 18-10 18 10v4L24 28 6 38v-4z"/></svg>
+            </div>
+            <div class="trust-coin__face trust-coin__face--back">
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M6 18 24 8l18 10v4L24 12 6 22v-4zm0 8 18-10 18 10v4L24 20 6 30v-4zm0 8 18-10 18 10v4L24 28 6 38v-4z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="trust-card__num">3</div>
+        <h3 class="trust-card__title">{{ t('Sistemas constructivos') }}</h3>
+        <p class="trust-card__desc">{{ t('Standing Seam, paneles termoacústicos y módulos adaptados a cada obra.') }}</p>
+      </article>
+    </div>
+  </div>
+</section>
+<div class="section-blend section-blend--into-products" aria-hidden="true"></div>
+<section class="section section--from-dark section--products" id="productos">
+  <div class="products-bg" aria-hidden="true">
+    <div class="products-bg__base"></div>
+    <div class="products-bg__panels"></div>
+    <div class="products-bg__seam products-bg__seam--1"></div>
+    <div class="products-bg__seam products-bg__seam--2"></div>
+    <div class="products-bg__seam products-bg__seam--3"></div>
+    <div class="products-bg__roof"></div>
+    <div class="products-bg__shimmer"></div>
+    <div class="products-bg__orb products-bg__orb--1"></div>
+    <div class="products-bg__orb products-bg__orb--2"></div>
+  </div>
+  <div class="container">
+    <div class="section-head products-head">
+      {% set products_eyebrow = t('Productos') %}
+      <div class="eyebrow eyebrow--shine">
+        <span class="eyebrow-shine">
+          {% for char in products_eyebrow %}
+            {% if char == ' ' %}
+              <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
+            {% else %}
+              <span class="eyebrow-shine__letter" style="--i:{{ loop.index0 }}">{{ char }}</span>
+            {% endif %}
+          {% endfor %}
+          <span class="eyebrow-shine__loader" aria-hidden="true"></span>
+        </span>
+      </div>
+      <h2 class="products-head__title">
+        <span class="products-head__title-fill">{{ t('Sistemas para cada tipo de proyecto') }}</span>
+        <span class="products-head__title-stroke" aria-hidden="true">{{ t('Sistemas para cada tipo de proyecto') }}</span>
+      </h2>
+      <p class="products-head__lead">{{ t('Fabricación, suministro e instalación con garantía para proyectos residenciales, comerciales e industriales.') }}</p>
+      <div class="products-head__rule" aria-hidden="true"></div>
+    </div>
+    <div class="product-grid">
+      {% for s in services %}
+      <a class="product-card" href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">
+        <div class="product-card__border">
+          <div class="product-card__bg">
+            <figure class="product-card__media">
+              {% if s.image_path %}
+                <img src="{{ url_for('static', filename=s.image_path) }}" alt="{{ s.name }}">
+              {% else %}
+                <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop" alt="{{ s.name }}">
+              {% endif %}
+            </figure>
+
+            <div class="product-card__badge" aria-hidden="true">
+              <span class="product-card__badge-spin"></span>
+              <span class="product-card__badge-core"></span>
+            </div>
+
+            <div class="product-card__mist" aria-hidden="true"><span></span></div>
+
+            <div class="product-card__body">
+              <h3 class="product-card__title">
+                <span class="product-card__title-fill">{{ s.name }}</span>
+                <span class="product-card__title-stroke" aria-hidden="true">{{ s.name }}</span>
+              </h3>
+              <p class="product-card__desc">{{ s.short_description }}</p>
+              <span class="product-card__cta">{{ t('Ver detalles') }} →</span>
+            </div>
+          </div>
+        </div>
+      </a>
       {% endfor %}
     </div>
   </div>
 </section>
+<div class="section-blend section-blend--products-to-light" aria-hidden="true"></div>
 
-<section class="section section--dark"
-  {% if blocks.why_us and blocks.why_us.image_path %}
-  style="background-image:linear-gradient(180deg, rgba(20,23,26,0.88), rgba(20,23,26,0.92)), url('{{ url_for('static', filename=blocks.why_us.image_path) }}'); background-size:cover; background-position:center;"
-  {% endif %}>
-  <div class="container">
-    <div class="section-head center">
-      <div class="eyebrow">{{ blocks.why_us.eyebrow if blocks.why_us else t('Nuestro compromiso') }}</div>
-      <h2>{{ blocks.why_us.title if blocks.why_us else t('¿Qué nos distingue?') }}</h2>
-      <p style="color:var(--silver);">{{ blocks.why_us.body if blocks.why_us else '' }}</p>
-    </div>
-  </div>
-  <div class="stat-strip container" style="border-color:var(--line);">
-    <div class="stat"><div class="num">+30</div><div class="label">{{ t('Años de garantía Standing Seam') }}</div></div>
-    <div class="stat"><div class="num">24/7</div><div class="label">{{ t('Soporte a clientes') }}</div></div>
-    <div class="stat"><div class="num">100%</div><div class="label">{{ t('Instalación profesional') }}</div></div>
-    <div class="stat"><div class="num">3</div><div class="label">{{ t('Sistemas constructivos') }}</div></div>
-  </div>
-</section>
-
-<section class="section">
+<section class="section section--about">
   <div class="container">
     <div class="about-grid">
       <div class="about-figure">
-        {% if blocks.about and blocks.about.image_path %}
-          <img src="{{ url_for('static', filename=blocks.about.image_path) }}" alt="Equipo Servitecho">
-        {% else %}
-          <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=900&auto=format&fit=crop" alt="Equipo de instalación">
-        {% endif %}
+        {% set fallback_about = [
+          'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=600&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?q=80&w=600&auto=format&fit=crop'
+        ] %}
+        {% set gold_tones = [
+          '247, 221, 131',
+          '231, 170, 53',
+          '201, 138, 30',
+          '174, 106, 12',
+          '212, 175, 95',
+          '184, 148, 72',
+          '247, 221, 131',
+          '231, 170, 53',
+          '201, 138, 30',
+          '174, 106, 12'
+        ] %}
+        <div class="about-orbit">
+          <div class="about-orbit__glow" aria-hidden="true"></div>
+          <div class="about-orbit__wrapper">
+            {% if about_gallery %}
+            <div class="about-orbit__inner" style="--quantity: {{ about_gallery|length }};">
+              {% for slide in about_gallery %}
+              <div class="about-orbit__card" style="--index: {{ loop.index0 }}; --color-card: {{ gold_tones[loop.index0 % (gold_tones|length)] }};">
+                <div class="about-orbit__img" style="background-image:url('{{ url_for('static', filename=slide.image_path) }}');"></div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="about-orbit__inner" style="--quantity: {{ fallback_about|length }};">
+              {% for src in fallback_about %}
+              <div class="about-orbit__card" style="--index: {{ loop.index0 }}; --color-card: {{ gold_tones[loop.index0 % (gold_tones|length)] }};">
+                <div class="about-orbit__img" style="background-image:url('{{ src }}');"></div>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
       </div>
-      <div>
-        <div class="eyebrow">{{ blocks.about.eyebrow if blocks.about else t('Acerca de nosotros') }}</div>
+      <div class="about-copy">
+        {% set about_eyebrow = blocks.about.eyebrow if blocks.about else t('Acerca de nosotros') %}
+        <div class="eyebrow">{{ about_eyebrow }}</div>
         <h2>{{ blocks.about.title if blocks.about else t('Construimos Confianza') }}</h2>
         {% if blocks.about %}
           {% for para in blocks.about.body.split('\n\n') %}
             <p class="text-steel">{{ para }}</p>
           {% endfor %}
         {% endif %}
-        <div class="value-tags">
-          {% if blocks.about and blocks.about.extra %}
+        {% if blocks.about and blocks.about.extra %}
+        <div class="about-values" role="list">
+          <div class="about-values__label">{{ t('Nuestros valores') }}</div>
+          <ul class="about-values__list">
             {% for v in blocks.about.extra.split(',') %}
-              <span class="value-tag">{{ v.strip() }}</span>
+              {% if v.strip() %}
+              <li class="about-values__item" role="listitem" style="--vi:{{ loop.index0 }}">
+                <span class="about-values__mark" aria-hidden="true"></span>
+                <span class="about-values__text">{{ v.strip() }}</span>
+              </li>
+              {% endif %}
             {% endfor %}
-          {% endif %}
+          </ul>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section--tight" style="background:var(--charcoal-2);">
-  <div class="container">
-    <div class="grid-3">
-      <div class="mv-card">
-        {% if blocks.mission and blocks.mission.image_path %}<img src="{{ url_for('static', filename=blocks.mission.image_path) }}" alt="">{% endif %}
-        <div class="eyebrow">01</div>
-        <h3 style="color:var(--charcoal);">{{ blocks.mission.title if blocks.mission else t('Misión') }}</h3>
-        <p class="text-steel mb-0">{{ blocks.mission.body if blocks.mission else '' }}</p>
-      </div>
-      <div class="mv-card">
-        {% if blocks.vision and blocks.vision.image_path %}<img src="{{ url_for('static', filename=blocks.vision.image_path) }}" alt="">{% endif %}
-        <div class="eyebrow">02</div>
-        <h3 style="color:var(--charcoal);">{{ blocks.vision.title if blocks.vision else t('Visión') }}</h3>
-        <p class="text-steel mb-0">{{ blocks.vision.body if blocks.vision else '' }}</p>
-      </div>
-      <div class="mv-card">
-        {% if blocks.support and blocks.support.image_path %}<img src="{{ url_for('static', filename=blocks.support.image_path) }}" alt="">{% endif %}
-        <div class="eyebrow">03</div>
-        <h3 style="color:var(--charcoal);">{{ blocks.support.title if blocks.support else t('Soporte 24/7') }}</h3>
-        <p class="text-steel mb-0">{{ blocks.support.body if blocks.support else '' }}</p>
-        {% if blocks.support and blocks.support.extra %}
-          <a class="link" href="tel:{{ blocks.support.extra }}">{{ t('Llamar:') }} {{ blocks.support.extra }} →</a>
         {% endif %}
       </div>
     </div>
   </div>
 </section>
 
-<section class="section">
+<div class="section-blend section-blend--about-to-mv" aria-hidden="true"></div>
+<section class="section section--mv">
+  <div class="container">
+    <div class="mv-grid">
+      <article class="mv-card">
+        <div class="mv-card__top">
+          {% if blocks.mission and blocks.mission.image_path %}
+            <img class="mv-card__thumb" src="{{ url_for('static', filename=blocks.mission.image_path) }}" alt="">
+          {% else %}
+            <span class="mv-card__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v5c0 5.2 3.4 9.9 8 11 4.6-1.1 8-5.8 8-11V7l-8-4Z" stroke="currentColor" stroke-width="1.5"/><path d="m9.2 12.2 1.9 1.9 3.8-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          {% endif %}
+        </div>
+        <h3 class="mv-card__title">{{ blocks.mission.title if blocks.mission else t('Misión') }}</h3>
+        <p class="mv-card__body">{{ blocks.mission.body if blocks.mission else '' }}</p>
+      </article>
+
+      <article class="mv-card">
+        <div class="mv-card__top">
+          {% if blocks.vision and blocks.vision.image_path %}
+            <img class="mv-card__thumb" src="{{ url_for('static', filename=blocks.vision.image_path) }}" alt="">
+          {% else %}
+            <span class="mv-card__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 12S6.5 5.5 12 5.5 21.5 12 21.5 12 17.5 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.5"/></svg>
+            </span>
+          {% endif %}
+        </div>
+        <h3 class="mv-card__title">{{ blocks.vision.title if blocks.vision else t('Visión') }}</h3>
+        <p class="mv-card__body">{{ blocks.vision.body if blocks.vision else '' }}</p>
+      </article>
+
+      <article class="mv-card mv-card--accent">
+        <div class="mv-card__top">
+          {% if blocks.support and blocks.support.image_path %}
+            <img class="mv-card__thumb" src="{{ url_for('static', filename=blocks.support.image_path) }}" alt="">
+          {% else %}
+            <span class="mv-card__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 4.5h-2A2.5 2.5 0 0 0 4 7v1.2c0 6.2 5 11.2 11.2 11.2H16.5A2.5 2.5 0 0 0 19 17v-2l-3.2-1.2-1.5 1.5a12.4 12.4 0 0 1-5.6-5.6l1.5-1.5L9 4.5H8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </span>
+          {% endif %}
+        </div>
+        <h3 class="mv-card__title">{{ blocks.support.title if blocks.support else t('Soporte 24/7') }}</h3>
+        <p class="mv-card__body">{{ blocks.support.body if blocks.support else '' }}</p>
+        {% if blocks.support and blocks.support.extra %}
+          <a class="mv-card__link" href="tel:{{ blocks.support.extra }}">{{ t('Llamar:') }} {{ blocks.support.extra }} →</a>
+        {% endif %}
+      </article>
+    </div>
+  </div>
+</section>
+<div class="section-blend section-blend--mv-to-reviews" aria-hidden="true"></div>
+
+<section class="section section--reviews">
   <div class="container">
     <div class="section-head" style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px;">
       <div>
@@ -163,4 +435,63 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const root = document.getElementById('heroCarousel');
+  if (!root) return;
+  const slides = Array.from(root.querySelectorAll('.hero-slide'));
+  const dots = Array.from(root.querySelectorAll('.hero-dot'));
+  if (slides.length < 2) return;
+
+  let index = 0;
+  let timer = null;
+  const delay = parseInt(root.dataset.autoplay || '5500', 10);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function goTo(i) {
+    index = (i + slides.length) % slides.length;
+    slides.forEach((s, n) => s.classList.toggle('is-active', n === index));
+    dots.forEach((d, n) => d.classList.toggle('is-active', n === index));
+  }
+
+  function next() { goTo(index + 1); }
+  function prev() { goTo(index - 1); }
+
+  function start() {
+    if (reduceMotion) return;
+    stop();
+    timer = setInterval(next, delay);
+  }
+  function stop() {
+    if (timer) clearInterval(timer);
+    timer = null;
+  }
+
+  root.querySelectorAll('[data-dir="next"]').forEach(btn => btn.addEventListener('click', () => { next(); start(); }));
+  root.querySelectorAll('[data-dir="prev"]').forEach(btn => btn.addEventListener('click', () => { prev(); start(); }));
+  dots.forEach(dot => dot.addEventListener('click', () => {
+    goTo(parseInt(dot.dataset.index, 10));
+    start();
+  }));
+
+  root.addEventListener('mouseenter', stop);
+  root.addEventListener('mouseleave', start);
+  root.addEventListener('focusin', stop);
+  root.addEventListener('focusout', start);
+
+  let touchX = null;
+  root.addEventListener('touchstart', (e) => { touchX = e.changedTouches[0].screenX; }, { passive: true });
+  root.addEventListener('touchend', (e) => {
+    if (touchX == null) return;
+    const dx = e.changedTouches[0].screenX - touchX;
+    if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); start(); }
+    touchX = null;
+  }, { passive: true });
+
+  start();
+})();
+</script>
 {% endblock %}

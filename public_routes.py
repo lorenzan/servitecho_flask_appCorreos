@@ -1,8 +1,10 @@
+from types import SimpleNamespace
+
 from flask import Blueprint, g, render_template, request, redirect, url_for, flash
 from sqlalchemy import desc
 
 from extensions import db
-from models import ContentBlock, Service, Review, Quote, QuoteImage
+from models import ContentBlock, Service, Review, Quote, QuoteImage, HeroSlide, AboutSlide
 from utils import save_upload
 from utils_email import notify_new_review, notify_new_quote
 import translations
@@ -41,12 +43,46 @@ def index():
         .limit(6)
         .all()
     )
+    hero_slides = (
+        HeroSlide.query.filter_by(active=True)
+        .order_by(HeroSlide.sort_order, HeroSlide.id)
+        .all()
+    )
+    # Fallback: imagen única antigua del bloque hero
+    if not hero_slides and blocks.get("hero") and blocks["hero"].image_path:
+        hero_slides = [
+            SimpleNamespace(
+                image_path=blocks["hero"].image_path,
+                caption="Standing Seam · Panel 5G · Módulos",
+            )
+        ]
+
+    about_slides = (
+        AboutSlide.query.filter_by(active=True)
+        .order_by(AboutSlide.sort_order, AboutSlide.id)
+        .all()
+    )
+    if not about_slides and blocks.get("about") and blocks["about"].image_path:
+        about_slides = [SimpleNamespace(image_path=blocks["about"].image_path)]
+
+    # Repetir fotos si hay pocas para que el anillo 3D se vea completo
+    about_gallery = list(about_slides)
+    if about_gallery and len(about_gallery) < 6:
+        while len(about_gallery) < 6:
+            about_gallery.extend(about_slides)
+        about_gallery = about_gallery[:6]
+
     if getattr(g, "lang", "es") == "en":
         blocks = {k: translations.localize_block(b) for k, b in blocks.items()}
         services = [translations.localize_service(s) for s in services]
         reviews = [translations.localize_review(r) for r in reviews]
     return render_template(
-        "index.html", blocks=blocks, services=services, reviews=reviews
+        "index.html",
+        blocks=blocks,
+        services=services,
+        reviews=reviews,
+        hero_slides=hero_slides,
+        about_gallery=about_gallery,
     )
 
 
