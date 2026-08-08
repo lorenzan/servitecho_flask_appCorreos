@@ -1,0 +1,26 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Contenido del sitio | Servitecho Admin{% endblock %}
+{% block page_title %}Contenido del sitio{% endblock %}
+
+{% block admin_content %}
+<p class="text-steel">Edita los textos e imágenes de cada sección. Hero y Sobre nosotros incluyen <strong>galerías</strong> editables.</p>
+<div class="content-block-grid">
+  {% for b in blocks %}
+  <div class="content-block-card">
+    {% if b.section_key == 'hero' and hero_slides_count %}
+      <div class="content-block-badge">Galería: {{ hero_slides_count }} foto{{ 's' if hero_slides_count != 1 else '' }}</div>
+    {% elif b.section_key == 'about' and about_slides_count %}
+      <div class="content-block-badge">Galería 3D: {{ about_slides_count }} foto{{ 's' if about_slides_count != 1 else '' }}</div>
+    {% endif %}
+    {% if b.image_path %}
+      <img src="{{ url_for('static', filename=b.image_path) }}" alt="{{ b.label }}">
+    {% else %}
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='100%25' height='100%25' fill='%23242B2F'/%3E%3C/svg%3E" alt="Sin imagen">
+    {% endif %}
+    <h3>{{ b.label }}</h3>
+    <p>{{ (b.title or b.body or 'Sin contenido')[:80] }}...</p>
+    <a class="link" href="{{ url_for('admin.editar_contenido', section_key=b.section_key) }}">Editar →</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

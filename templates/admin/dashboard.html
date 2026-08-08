@@ -1,0 +1,58 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Panel principal | Servitecho Admin{% endblock %}
+{% block page_title %}Panel principal{% endblock %}
+
+{% block admin_content %}
+<div class="kpi-grid">
+  <div class="kpi"><div class="num">{{ stats.pending_quotes }}</div><div class="label">Cotizaciones pendientes</div></div>
+  <div class="kpi"><div class="num">{{ stats.total_quotes }}</div><div class="label">Cotizaciones totales</div></div>
+  <div class="kpi"><div class="num">{{ stats.pending_reviews }}</div><div class="label">Reseñas por aprobar</div></div>
+  <div class="kpi"><div class="num">{{ stats.total_reviews }}</div><div class="label">Reseñas totales</div></div>
+  <div class="kpi"><div class="num">{{ stats.total_services }}</div><div class="label">Productos publicados</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="card-panel">
+    <h3 style="text-transform:none; font-size:1rem;">Cotizaciones recientes</h3>
+    {% if recent_quotes %}
+      <table class="admin-table">
+        <thead><tr><th>Cliente</th><th>Ubicación</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for q in recent_quotes %}
+          <tr>
+            <td>{{ q.name }}</td>
+            <td>{{ q.location[:30] }}</td>
+            <td><span class="badge badge-{{ q.status }}">{{ q.status.replace('_',' ') }}</span></td>
+            <td><a href="{{ url_for('admin.cotizacion_detalle', quote_id=q.id) }}" class="link">Ver →</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-steel">No hay cotizaciones todavía.</p>
+    {% endif %}
+    <a href="{{ url_for('admin.cotizaciones') }}" class="link">Ver todas las cotizaciones →</a>
+  </div>
+
+  <div class="card-panel">
+    <h3 style="text-transform:none; font-size:1rem;">Reseñas por aprobar</h3>
+    {% if recent_reviews %}
+      <table class="admin-table">
+        <thead><tr><th>Cliente</th><th>Calificación</th><th></th></tr></thead>
+        <tbody>
+        {% for r in recent_reviews %}
+          <tr>
+            <td>{{ r.name }}</td>
+            <td>{{ '★' * r.rating }}</td>
+            <td><a href="{{ url_for('admin.resenas') }}" class="link">Revisar →</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-steel">No hay reseñas pendientes.</p>
+    {% endif %}
+    <a href="{{ url_for('admin.resenas') }}" class="link">Ver todas las reseñas →</a>
+  </div>
+</div>
+{% endblock %}

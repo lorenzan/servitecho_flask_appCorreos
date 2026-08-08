@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ servicio.name }} | Servitecho El Salvador{% endblock %}
+{% block meta_description %}{{ servicio.short_description }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">{{ t('Producto') }}</div>
+    <h1>{{ servicio.name }}</h1>
+    <p>{{ servicio.short_description }}</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="service-hero-figure" style="margin-bottom:40px;">
+      {% if servicio.image_path %}
+        <img src="{{ url_for('static', filename=servicio.image_path) }}" alt="{{ servicio.name }}">
+      {% else %}
+        <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=1400&auto=format&fit=crop" alt="{{ servicio.name }}">
+      {% endif %}
+    </div>
+
+    <div class="about-grid">
+      <div>
+        <div class="eyebrow">{{ t('Descripción técnica') }}</div>
+        <h2>{{ t('Sobre este sistema') }}</h2>
+        {% for para in servicio.description.split('\n\n') %}
+          <p class="text-steel">{{ para }}</p>
+        {% endfor %}
+        <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust" style="margin-top:10px;">{{ t('Cotiza este producto') }} →</a>
+      </div>
+      <div>
+        <div class="eyebrow">{{ t('Otros productos') }}</div>
+        <div class="related-services">
+          {% for o in otros %}
+            <a href="{{ url_for('public.servicio_detalle', slug=o.slug) }}">{{ o.name }} →</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

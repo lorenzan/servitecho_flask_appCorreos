@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}{{ t('Solicita tu cotización') }} | Servitecho El Salvador{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  #mapSearchResults div{ padding:10px 12px; font-size:.88rem; cursor:pointer; border-bottom:1px solid var(--line-dark); }
+  #mapSearchResults div:hover{ background:var(--offwhite); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">{{ t('Cotización') }}</div>
+    <h1>{{ t('Cuéntanos sobre tu proyecto') }}</h1>
+    <p>{{ t('Danos la ubicación, describe lo que necesitas y sube fotos del sitio. Nuestro equipo revisará tu solicitud y te contactará con una propuesta.') }}</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" style="max-width:760px;">
+    <form class="form-card" method="POST" action="{{ url_for('public.cotizacion') }}" enctype="multipart/form-data">
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label for="name">{{ t('Nombre completo') }}</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-row">
+          <label for="phone">{{ t('Teléfono / WhatsApp') }}</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label for="email">{{ t('Correo (opcional)') }}</label>
+          <input type="email" id="email" name="email">
+        </div>
+        <div class="form-row">
+          <label for="service_type">{{ t('Producto de interés') }}</label>
+          <select id="service_type" name="service_type">
+            <option value="">{{ t('Selecciona una opción') }}</option>
+            {% for s in services %}
+              <option value="{{ s.name }}">{{ s.name }}</option>
+            {% endfor %}
+            <option value="Otro / No estoy seguro">{{ t('Otro / No estoy seguro') }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="location">{{ t('Ubicación del proyecto') }}</label>
+        <input type="text" id="location" name="location" placeholder="{{ t('Departamento, municipio, dirección o punto de referencia') }}" required>
+        <p class="hint mb-0">{{ t('Escribe la dirección o usa el mapa de abajo para marcar el punto exacto — se autocompletará.') }}</p>
+      </div>
+
+      <div class="form-row">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+          <label class="mb-0" style="margin:0;">{{ t('Marca la ubicación en el mapa (opcional)') }}</label>
+          <button type="button" id="btnGeolocate" class="btn btn-outline-dark btn-sm" style="padding:8px 14px;">📍 {{ t('Usar mi ubicación actual') }}</button>
+        </div>
+        <div style="position:relative; margin-bottom:10px;">
+          <input type="text" id="mapSearch" placeholder="{{ t('Buscar dirección, colonia o ciudad...') }}" autocomplete="off">
+          <div id="mapSearchResults" style="position:absolute; top:100%; left:0; right:0; background:var(--white); border:1px solid var(--line-dark); border-top:none; z-index:500; display:none; max-height:200px; overflow-y:auto;"></div>
+        </div>
+        <div id="map" style="height:320px; border:1px solid var(--line-dark); border-radius:var(--radius);"></div>
+        <p class="hint" id="mapCoordsHint">{{ t('Aún no has marcado un punto — el mapa está centrado en El Salvador. Haz clic para colocar el pin.') }}</p>
+        <input type="hidden" id="latitude" name="latitude">
+        <input type="hidden" id="longitude" name="longitude">
+      </div>
+
+      <div class="form-row">
+        <label for="description">{{ t('Describe lo que necesitas') }}</label>
+        <textarea id="description" name="description" required placeholder="{{ t('Tipo de techo o fachada, dimensiones aproximadas, estado actual, plazos, etc.') }}"></textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="images">{{ t('Fotos del sitio (opcional, hasta 6 imágenes)') }}</label>
+        <div class="file-drop">
+          <input type="file" id="images" name="images" multiple accept="image/png, image/jpeg, image/webp">
+          <p class="hint mb-0">{{ t('Sube fotos del techo, fachada o área del proyecto — nos ayuda a preparar una cotización más precisa.') }}</p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-rust btn-block">{{ t('Enviar solicitud de cotización') }}</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  const defaultCenter = [13.6929, -89.2182]; // El Salvador
+  const map = L.map('map').setView(defaultCenter, 8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  let marker = null;
+  const latInput = document.getElementById('latitude');
+  const lngInput = document.getElementById('longitude');
+  const locationInput = document.getElementById('location');
+  const coordsHint = document.getElementById('mapCoordsHint');
+
+  function setMarker(lat, lng, updateAddress) {
+    if (marker) {
+      marker.setLatLng([lat, lng]);
+    } else {
+      marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+      marker.on('dragend', function () {
+        const pos = marker.getLatLng();
+        setMarker(pos.lat, pos.lng, true);
+      });
+    }
+    latInput.value = lat.toFixed(6);
+    lngInput.value = lng.toFixed(6);
+    coordsHint.textContent = 'Punto marcado: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ' — puedes arrastrar el pin para ajustarlo.';
+
+    if (updateAddress) {
+      fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.display_name && !locationInput.value.trim()) {
+            locationInput.value = data.display_name;
+          }
+        })
+        .catch(() => {});
+    }
+  }
+
+  map.on('click', function (e) {
+    setMarker(e.latlng.lat, e.latlng.lng, true);
+  });
+
+  document.getElementById('btnGeolocate').addEventListener('click', function () {
+    if (!navigator.geolocation) {
+      alert('Tu navegador no soporta geolocalización.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      const lat = pos.coords.latitude, lng = pos.coords.longitude;
+      map.setView([lat, lng], 16);
+      setMarker(lat, lng, true);
+    }, function () {
+      alert('No se pudo obtener tu ubicación. Marca el punto manualmente en el mapa.');
+    });
+  });
+
+  // Address search (Nominatim)
+  const searchInput = document.getElementById('mapSearch');
+  const resultsBox = document.getElementById('mapSearchResults');
+  let searchTimeout = null;
+
+  searchInput.addEventListener('input', function () {
+    clearTimeout(searchTimeout);
+    const q = searchInput.value.trim();
+    if (q.length < 3) { resultsBox.style.display = 'none'; return; }
+    searchTimeout = setTimeout(function () {
+      fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=sv&q=' + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(data => {
+          resultsBox.innerHTML = '';
+          if (!data.length) { resultsBox.style.display = 'none'; return; }
+          data.forEach(function (place) {
+            const item = document.createElement('div');
+            item.textContent = place.display_name;
+            item.addEventListener('click', function () {
+              const lat = parseFloat(place.lat), lng = parseFloat(place.lon);
+              map.setView([lat, lng], 16);
+              setMarker(lat, lng, false);
+              locationInput.value = place.display_name;
+              searchInput.value = '';
+              resultsBox.style.display = 'none';
+            });
+            resultsBox.appendChild(item);
+          });
+          resultsBox.style.display = 'block';
+        })
+        .catch(() => { resultsBox.style.display = 'none'; });
+    }, 400);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target !== searchInput) resultsBox.style.display = 'none';
+  });
+})();
+</script>
+{% endblock %}

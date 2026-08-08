@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="{{ 'en' if current_lang == 'en' else 'es' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Servitecho El Salvador{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% if ads_settings and ads_settings.enabled and ads_settings.google_ads_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ ads_settings.google_ads_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ ads_settings.google_ads_id }}');
+    {% if ads_settings.ga4_measurement_id %}
+    gtag('config', '{{ ads_settings.ga4_measurement_id }}');
+    {% endif %}
+  </script>
+  {% endif %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <div class="site-header" id="siteHeader">
+    <div class="topbar">
+      <div class="container">
+        <div class="topbar-left">
+          {% if site_info %}
+          <span class="topbar-item">
+            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+            <span>{{ site_info.body }}</span>
+          </span>
+          <a class="topbar-item" href="mailto:{{ site_info.title }}">
+            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
+            <span>{{ site_info.title }}</span>
+          </a>
+          {% endif %}
+        </div>
+        <div class="topbar-right">
+          {% if site_info %}
+          <a class="topbar-item topbar-item--accent" href="tel:{{ site_info.eyebrow }}">
+            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+            <span>{{ site_info.eyebrow }}</span>
+          </a>
+          <span class="topbar-item">
+            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11H7v-2h4V7h2v6z"/></svg>
+            <span>{{ site_info.extra }}</span>
+          </span>
+          {% endif %}
+          <div class="lang-switch" aria-label="Idioma / Language">
+            <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="Español">ES</a>
+            <span class="lang-divider"></span>
+            <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <header class="navbar">
+      <div class="container">
+        <a class="brand" href="{{ url_for('public.index') }}">
+          {% if site_logo and site_logo.image_path %}
+            <span class="brand-logo-wrap">
+              <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Tecuns Roofing">
+            </span>
+          {% else %}
+            <span class="brand-mark" aria-hidden="true"></span>
+          {% endif %}
+          <span class="brand-text">
+            <span class="brand-name">Tecuns Roofing</span>
+          </span>
+        </a>
+
+        <nav class="nav-links" id="navLinks">
+          <a href="{{ url_for('public.index') }}">{{ t('Inicio') }}</a>
+          {% for s in nav_services %}
+            <a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a>
+          {% endfor %}
+          <a href="{{ url_for('public.resenas') }}">{{ t('Reseñas') }}</a>
+          <a class="nav-link-mobile-only" href="{{ url_for('public.cotizacion') }}">{{ t('Cotización') }}</a>
+          <div class="nav-mobile-actions">
+            <div class="lang-switch lang-switch--mobile" aria-label="Idioma / Language">
+              <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="Español">ES</a>
+              <span class="lang-divider"></span>
+              <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
+            </div>
+            {% if site_info and site_info.eyebrow %}
+            <a class="btn btn-call" href="tel:{{ site_info.eyebrow }}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+              <span>{{ t('Llámenos Hoy') }}</span>
+            </a>
+            {% endif %}
+          </div>
+        </nav>
+
+        <div class="nav-cta">
+          {% if site_info and site_info.eyebrow %}
+          <a class="btn btn-call btn-call--desk" href="tel:{{ site_info.eyebrow }}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+            <span>{{ t('Llámenos Hoy') }}</span>
+          </a>
+          {% endif %}
+          <a class="btn btn-rust btn-nav-cta" href="{{ url_for('public.cotizacion') }}">
+            <span>{{ t('Solicitar Cotización') }}</span>
+            <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.172 12 8.222 7.05l1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/></svg>
+          </a>
+          <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+      <div class="navbar-glow" aria-hidden="true"></div>
+    </header>
+    <div class="header-accent" aria-hidden="true"></div>
+  </div>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container" style="padding-top:24px;">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__shell">
+      <div class="site-footer__ridge" aria-hidden="true">
+        <svg viewBox="0 0 100 22" preserveAspectRatio="none">
+          <polyline points="0,22 50,1.5 100,22" fill="none" stroke="url(#footerGold)" stroke-width="1.2" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="footerGold" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#AE6A0C"/>
+              <stop offset="50%" stop-color="#F7DD83"/>
+              <stop offset="100%" stop-color="#AE6A0C"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="site-footer__ridge-cap"></span>
+      </div>
+
+      <div class="container site-footer__content">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <h4 class="footer-brand__name">
+              {% if site_logo and site_logo.image_path %}
+                <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Tecuns Roofing" class="footer-brand__logo">
+              {% endif %}
+              <span>TECUNS ROOFING</span>
+            </h4>
+            <p class="footer-brand__text">{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}</p>
+          </div>
+
+          <div class="footer-col">
+            <h4>{{ t('Servicios') }}</h4>
+            <ul>
+              {% for s in nav_services %}
+                <li><a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>{{ t('Contacto') }}</h4>
+            <ul class="footer-contact">
+              {% if site_info %}
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                <span>{{ site_info.body }}</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+                <a href="tel:{{ site_info.eyebrow }}">{{ site_info.eyebrow }}</a>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
+                <a href="mailto:{{ site_info.title }}">{{ site_info.title }}</a>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11H7v-2h4V7h2v6z"/></svg>
+                <span>{{ site_info.extra }}</span>
+              </li>
+              {% endif %}
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <a href="{{ url_for('public.resenas') }}">{{ t('Dejar una reseña') }}</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>{{ t('Redes sociales') }}</h4>
+            <div class="footer-social">
+              {% if site_socials and site_socials.eyebrow %}
+              <a class="footer-social__btn footer-social__btn--wa" href="{{ site_socials.eyebrow }}" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l5.9-1.1A11 11 0 1 0 20.5 3.5zM12 20.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.5.7.7-3.4-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.7-5.9c-.3-.1-1.5-.8-1.8-.8-.2 0-.4-.1-.6.2s-.7.8-.8 1-.3.2-.6.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.3.1-.1 0-.3 0-.4s-.6-1.4-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3s-.8.8-.8 1.9.8 2.2.9 2.3a9 9 0 0 0 3.7 3.2c1.4.6 1.7.5 2 .4.3-.1 1.1-.4 1.2-.9.2-.4.2-.8.1-.9-.1 0-.2-.1-.5-.2z"/></svg>
+              </a>
+              {% elif site_info and site_info.eyebrow %}
+              <a class="footer-social__btn footer-social__btn--wa" href="https://wa.me/503{{ site_info.eyebrow|replace('-','')|replace(' ','')|replace('(','')|replace(')','')|replace('+','') }}" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l5.9-1.1A11 11 0 1 0 20.5 3.5zM12 20.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.5.7.7-3.4-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.7-5.9c-.3-.1-1.5-.8-1.8-.8-.2 0-.4-.1-.6.2s-.7.8-.8 1-.3.2-.6.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.3.1-.1 0-.3 0-.4s-.6-1.4-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3s-.8.8-.8 1.9.8 2.2.9 2.3a9 9 0 0 0 3.7 3.2c1.4.6 1.7.5 2 .4.3-.1 1.1-.4 1.2-.9.2-.4.2-.8.1-.9-.1 0-.2-.1-.5-.2z"/></svg>
+              </a>
+              {% endif %}
+              {% if site_socials and site_socials.title %}
+              <a class="footer-social__btn" href="{{ site_socials.title }}" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14 9h3V6h-3c-1.8 0-3 1.4-3 3v2H9v3h2v7h3v-7h2.4l.6-3H14V9z"/></svg>
+              </a>
+              {% endif %}
+              {% if site_socials and site_socials.body %}
+              <a class="footer-social__btn" href="{{ site_socials.body }}" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm5 4.2A4.8 4.8 0 1 0 16.8 12 4.8 4.8 0 0 0 12 7.2zm6.1-.9a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1zM12 9.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5z"/></svg>
+              </a>
+              {% endif %}
+              {% if site_socials and site_socials.extra %}
+              <a class="footer-social__btn" href="{{ site_socials.extra }}" target="_blank" rel="noopener" aria-label="TikTok" title="TikTok">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.5 3h2.2c.2 1.6 1.2 3 2.8 3.6V9c-1.1 0-2.1-.3-3-1v6.2A5.2 5.2 0 1 1 11.3 9v2.2a3 3 0 1 0 3.2 3V3z"/></svg>
+              </a>
+              {% endif %}
+            </div>
+            <p class="footer-social__hint">{{ t('Síguenos y contáctanos') }}</p>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <span>© {{ 2026 }} Tecuns Roofing. {{ t('Todos los derechos reservados.') }}</span>
+          <a href="{{ url_for('admin.login') }}">{{ t('Acceso administrador') }}</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    const siteHeader = document.getElementById('siteHeader');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        const open = navLinks.classList.toggle('open');
+        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+    if (siteHeader) {
+      const onScroll = () => {
+        siteHeader.classList.toggle('is-scrolled', window.scrollY > 12);
+      };
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

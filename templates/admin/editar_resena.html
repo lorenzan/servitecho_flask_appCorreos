@@ -1,0 +1,47 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Editar reseña | Servitecho Admin{% endblock %}
+{% block page_title %}Editar reseña{% endblock %}
+
+{% block admin_content %}
+<div class="card-panel" style="max-width:620px;">
+  <form method="POST">
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label for="name">Nombre del cliente</label>
+        <input type="text" id="name" name="name" required value="{{ review.name }}">
+      </div>
+      <div class="form-row">
+        <label for="email">Correo</label>
+        <input type="email" id="email" name="email" value="{{ review.email or '' }}">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="rating">Calificación</label>
+      <select id="rating" name="rating">
+        {% for i in range(1, 6) %}
+          <option value="{{ i }}" {{ 'selected' if review.rating == i }}>{{ i }} {{ '★' * i }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="comment">Comentario</label>
+      <textarea id="comment" name="comment" rows="5" required>{{ review.comment }}</textarea>
+    </div>
+
+    <div class="form-row">
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <input type="checkbox" name="approved" {{ 'checked' if review.approved else '' }}>
+        <span>Publicada en el sitio</span>
+      </label>
+      <div class="hint">Si está marcada, la reseña aparece públicamente; si no, queda pendiente de revisión.</div>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:28px;">
+      <button type="submit" class="btn btn-rust">Guardar cambios</button>
+      <a href="{{ url_for('admin.resenas') }}" class="btn btn-outline-dark">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

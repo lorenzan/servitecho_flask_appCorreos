@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ t('Reseñas de clientes') }} | Servitecho El Salvador{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">{{ t('Reseñas') }}</div>
+    <h1>{{ t('La experiencia de nuestros clientes') }}</h1>
+    <p>{{ t('Proyectos entregados, opiniones reales. Comparte también la tuya.') }}</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container about-grid" style="align-items:flex-start;">
+    <div>
+      <h2>{{ t('Opiniones publicadas') }}</h2>
+      {% if reviews %}
+        <div class="grid-2">
+          {% for r in reviews %}
+          <div class="review-card">
+            <div class="stars">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</div>
+            <p>{{ r.comment }}</p>
+            <div class="review-name">{{ r.name }} &middot; {{ r.created_at.strftime('%d/%m/%Y') }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-steel">{{ t('Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!') }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <div class="form-card">
+        <h3 style="margin-bottom:.2em;">{{ t('Deja tu reseña') }}</h3>
+        <p class="text-steel" style="font-size:.9rem;">{{ t('Tu reseña se publicará luego de ser revisada por nuestro equipo.') }}</p>
+        <form method="POST" action="{{ url_for('public.resenas') }}">
+          <div class="form-row">
+            <label for="name">{{ t('Nombre') }}</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="form-row">
+            <label for="email">{{ t('Correo (opcional)') }}</label>
+            <input type="email" id="email" name="email">
+          </div>
+          <div class="form-row">
+            <label>{{ t('Calificación') }}</label>
+            <div class="rating-select">
+              {% for i in range(5, 0, -1) %}
+              <label><input type="radio" name="rating" value="{{ i }}" {% if i == 5 %}checked{% endif %}> {{ i }}★</label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="comment">{{ t('Comentario') }}</label>
+            <textarea id="comment" name="comment" required placeholder="{{ t('Cuéntanos sobre tu proyecto y experiencia con Servitecho...') }}"></textarea>
+          </div>
+          <button type="submit" class="btn btn-rust btn-block">{{ t('Enviar reseña') }}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
