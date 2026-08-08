@@ -34,12 +34,14 @@ def create_app():
         nav_services = Service.query.filter_by(active=True).order_by(Service.order).all()
         site_info = ContentBlock.query.filter_by(section_key="site_info").first()
         site_logo = ContentBlock.query.filter_by(section_key="logo").first()
+        site_socials = ContentBlock.query.filter_by(section_key="socials").first()
         if getattr(g, "lang", "es") == "en":
             nav_services = [translations.localize_service(s) for s in nav_services]
         return {
             "nav_services": nav_services,
             "site_info": site_info,
             "site_logo": site_logo,
+            "site_socials": site_socials,
             "current_lang": getattr(g, "lang", "es"),
             "t": translations.t,
         }
@@ -78,6 +80,20 @@ def create_app():
                         )
                     )
                     db.session.commit()
+            # Crear bloque de redes sociales si no existe
+            if not ContentBlock.query.filter_by(section_key="socials").first():
+                db.session.add(
+                    ContentBlock(
+                        section_key="socials",
+                        label="Redes sociales (pie de página)",
+                        eyebrow="",  # WhatsApp URL opcional
+                        title="",  # Facebook URL
+                        body="",  # Instagram URL
+                        extra="",  # TikTok URL
+                        image_path=None,
+                    )
+                )
+                db.session.commit()
         except Exception:
             db.session.rollback()
 

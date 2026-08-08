@@ -119,42 +119,107 @@
     {% block content %}{% endblock %}
   </main>
 
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
-        <div>
-          <h4 style="display:flex; align-items:center; gap:10px;">
-            {% if site_logo and site_logo.image_path %}
-              <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Servitecho" style="height:28px; width:auto; border-radius:6px;">
-            {% endif %}
-            SERVITECHO
-          </h4>
-          <p class="text-steel" style="max-width:36ch;">{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}</p>
-        </div>
-        <div>
-          <h4>{{ t('Servicios') }}</h4>
-          <ul>
-            {% for s in nav_services %}
-              <li><a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a></li>
-            {% endfor %}
-          </ul>
-        </div>
-        <div>
-          <h4>{{ t('Contacto') }}</h4>
-          <ul>
-            {% if site_info %}
-            <li>{{ site_info.body }}</li>
-            <li><a href="tel:{{ site_info.eyebrow }}">{{ site_info.eyebrow }}</a></li>
-            <li><a href="mailto:{{ site_info.title }}">{{ site_info.title }}</a></li>
-            <li>{{ site_info.extra }}</li>
-            {% endif %}
-            <li><a href="{{ url_for('public.resenas') }}">{{ t('Dejar una reseña') }}</a></li>
-          </ul>
-        </div>
+  <footer class="site-footer">
+    <div class="site-footer__shell">
+      <div class="site-footer__ridge" aria-hidden="true">
+        <svg viewBox="0 0 100 22" preserveAspectRatio="none">
+          <polyline points="0,22 50,1.5 100,22" fill="none" stroke="url(#footerGold)" stroke-width="1.2" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="footerGold" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#AE6A0C"/>
+              <stop offset="50%" stop-color="#F7DD83"/>
+              <stop offset="100%" stop-color="#AE6A0C"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="site-footer__ridge-cap"></span>
       </div>
-      <div class="footer-bottom">
-        <span>© {{ 2026 }} Servitecho El Salvador. {{ t('Todos los derechos reservados.') }}</span>
-        <a href="{{ url_for('admin.login') }}">{{ t('Acceso administrador') }}</a>
+
+      <div class="container site-footer__content">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <h4 class="footer-brand__name">
+              {% if site_logo and site_logo.image_path %}
+                <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Tecuns Roofing" class="footer-brand__logo">
+              {% endif %}
+              <span>TECUNS ROOFING</span>
+            </h4>
+            <p class="footer-brand__text">{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}</p>
+          </div>
+
+          <div class="footer-col">
+            <h4>{{ t('Servicios') }}</h4>
+            <ul>
+              {% for s in nav_services %}
+                <li><a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>{{ t('Contacto') }}</h4>
+            <ul class="footer-contact">
+              {% if site_info %}
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                <span>{{ site_info.body }}</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+                <a href="tel:{{ site_info.eyebrow }}">{{ site_info.eyebrow }}</a>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
+                <a href="mailto:{{ site_info.title }}">{{ site_info.title }}</a>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11H7v-2h4V7h2v6z"/></svg>
+                <span>{{ site_info.extra }}</span>
+              </li>
+              {% endif %}
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <a href="{{ url_for('public.resenas') }}">{{ t('Dejar una reseña') }}</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h4>{{ t('Redes sociales') }}</h4>
+            <div class="footer-social">
+              {% if site_socials and site_socials.eyebrow %}
+              <a class="footer-social__btn footer-social__btn--wa" href="{{ site_socials.eyebrow }}" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l5.9-1.1A11 11 0 1 0 20.5 3.5zM12 20.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.5.7.7-3.4-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.7-5.9c-.3-.1-1.5-.8-1.8-.8-.2 0-.4-.1-.6.2s-.7.8-.8 1-.3.2-.6.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.3.1-.1 0-.3 0-.4s-.6-1.4-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3s-.8.8-.8 1.9.8 2.2.9 2.3a9 9 0 0 0 3.7 3.2c1.4.6 1.7.5 2 .4.3-.1 1.1-.4 1.2-.9.2-.4.2-.8.1-.9-.1 0-.2-.1-.5-.2z"/></svg>
+              </a>
+              {% elif site_info and site_info.eyebrow %}
+              <a class="footer-social__btn footer-social__btn--wa" href="https://wa.me/503{{ site_info.eyebrow|replace('-','')|replace(' ','')|replace('(','')|replace(')','')|replace('+','') }}" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l5.9-1.1A11 11 0 1 0 20.5 3.5zM12 20.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.5.7.7-3.4-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.7-5.9c-.3-.1-1.5-.8-1.8-.8-.2 0-.4-.1-.6.2s-.7.8-.8 1-.3.2-.6.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.6-1.3.1-.1 0-.3 0-.4s-.6-1.4-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3s-.8.8-.8 1.9.8 2.2.9 2.3a9 9 0 0 0 3.7 3.2c1.4.6 1.7.5 2 .4.3-.1 1.1-.4 1.2-.9.2-.4.2-.8.1-.9-.1 0-.2-.1-.5-.2z"/></svg>
+              </a>
+              {% endif %}
+              {% if site_socials and site_socials.title %}
+              <a class="footer-social__btn" href="{{ site_socials.title }}" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14 9h3V6h-3c-1.8 0-3 1.4-3 3v2H9v3h2v7h3v-7h2.4l.6-3H14V9z"/></svg>
+              </a>
+              {% endif %}
+              {% if site_socials and site_socials.body %}
+              <a class="footer-social__btn" href="{{ site_socials.body }}" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm5 4.2A4.8 4.8 0 1 0 16.8 12 4.8 4.8 0 0 0 12 7.2zm6.1-.9a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1zM12 9.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5z"/></svg>
+              </a>
+              {% endif %}
+              {% if site_socials and site_socials.extra %}
+              <a class="footer-social__btn" href="{{ site_socials.extra }}" target="_blank" rel="noopener" aria-label="TikTok" title="TikTok">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.5 3h2.2c.2 1.6 1.2 3 2.8 3.6V9c-1.1 0-2.1-.3-3-1v6.2A5.2 5.2 0 1 1 11.3 9v2.2a3 3 0 1 0 3.2 3V3z"/></svg>
+              </a>
+              {% endif %}
+            </div>
+            <p class="footer-social__hint">{{ t('Síguenos y contáctanos') }}</p>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <span>© {{ 2026 }} Tecuns Roofing. {{ t('Todos los derechos reservados.') }}</span>
+          <a href="{{ url_for('admin.login') }}">{{ t('Acceso administrador') }}</a>
+        </div>
       </div>
     </div>
   </footer>

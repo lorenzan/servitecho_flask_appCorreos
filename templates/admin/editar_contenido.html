@@ -20,33 +20,45 @@
     {% else %}
       <div class="form-row">
         <label for="eyebrow">
-          {% if block.section_key == 'site_info' %}Teléfono / WhatsApp{% else %}Etiqueta / antetítulo{% endif %}
+          {% if block.section_key == 'site_info' %}Teléfono / WhatsApp
+          {% elif block.section_key == 'socials' %}WhatsApp (URL completa, opcional)
+          {% else %}Etiqueta / antetítulo{% endif %}
         </label>
-        <input type="text" id="eyebrow" name="eyebrow" value="{{ block.eyebrow or '' }}">
+        <input type="text" id="eyebrow" name="eyebrow" value="{{ block.eyebrow or '' }}" {% if block.section_key == 'socials' %}placeholder="https://wa.me/50369561628"{% endif %}>
+        {% if block.section_key == 'socials' %}<p class="hint">Si lo dejas vacío, se usa el teléfono de contacto automáticamente.</p>{% endif %}
       </div>
       <div class="form-row">
         <label for="title">
-          {% if block.section_key == 'site_info' %}Correo electrónico{% else %}Título{% endif %}
+          {% if block.section_key == 'site_info' %}Correo electrónico
+          {% elif block.section_key == 'socials' %}Facebook (URL)
+          {% else %}Título{% endif %}
         </label>
-        <input type="text" id="title" name="title" value="{{ block.title or '' }}">
+        <input type="text" id="title" name="title" value="{{ block.title or '' }}" {% if block.section_key == 'socials' %}placeholder="https://facebook.com/tu-pagina"{% endif %}>
       </div>
       <div class="form-row">
         <label for="body">
-          {% if block.section_key == 'site_info' %}Dirección{% else %}Texto / contenido{% endif %}
+          {% if block.section_key == 'site_info' %}Dirección
+          {% elif block.section_key == 'socials' %}Instagram (URL)
+          {% else %}Texto / contenido{% endif %}
         </label>
-        <textarea id="body" name="body">{{ block.body or '' }}</textarea>
+        {% if block.section_key == 'socials' %}
+          <input type="text" id="body" name="body" value="{{ block.body or '' }}" placeholder="https://instagram.com/tu-cuenta">
+        {% else %}
+          <textarea id="body" name="body">{{ block.body or '' }}</textarea>
+        {% endif %}
       </div>
       <div class="form-row">
         <label for="extra">
           {% if block.section_key == 'site_info' %}Horario de atención
           {% elif block.section_key == 'about' %}Valores (separados por coma)
           {% elif block.section_key == 'support' %}Teléfono de soporte
+          {% elif block.section_key == 'socials' %}TikTok (URL, opcional)
           {% else %}Texto del botón (opcional){% endif %}
         </label>
-        <input type="text" id="extra" name="extra" value="{{ block.extra or '' }}">
+        <input type="text" id="extra" name="extra" value="{{ block.extra or '' }}" {% if block.section_key == 'socials' %}placeholder="https://tiktok.com/@tu-cuenta"{% endif %}>
       </div>
 
-      {% if block.section_key != 'site_info' and block.section_key != 'hero' and block.section_key != 'about' %}
+      {% if block.section_key != 'site_info' and block.section_key != 'hero' and block.section_key != 'about' and block.section_key != 'socials' %}
       <div class="form-row">
         <label for="image">Imagen</label>
         {% if block.image_path %}

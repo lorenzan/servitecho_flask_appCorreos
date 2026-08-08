@@ -50,7 +50,7 @@ _STATIC_STRINGS = [
     "Expertos en techos residenciales y comerciales",
     "Ver productos", "Ver detalles",
     "Ver todas / dejar reseña", "Dejar una reseña", "Volver al inicio",
-    "Ver reseñas", "Acceso administrador", "Servicios", "Contacto",
+    "Ver reseñas", "Acceso administrador", "Servicios", "Contacto", "Redes sociales",
     "Todos los derechos reservados.",
     # Inicio
     "Techos, Fachadas y Módulos Prefabricados",
@@ -72,9 +72,12 @@ _STATIC_STRINGS = [
     "Standing Seam, paneles termoacústicos y módulos adaptados a cada obra.",
     "Acerca de nosotros", "Construimos Confianza", "Nuestros valores",
     "Misión", "Visión", "Soporte 24/7", "Llamar:",
-    "Lo que dicen nuestros clientes",
+    "Servicios", "Contacto", "Redes sociales", "Síguenos y contáctanos",
+    "Dejar una reseña", "Todos los derechos reservados.", "Acceso administrador",
+    "Cliente Tecuns", "estrellas",
     "Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!",
     "¿Listo para construir tu próximo proyecto?",
+    "Sin compromiso · Respuesta rápida · Proyectos a medida",
     "Cuéntanos la ubicación, lo que necesitas y sube fotos del sitio. "
     "Te enviamos tu cotización sin compromiso.",
     # Reseñas

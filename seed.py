@@ -96,6 +96,15 @@ CONTENT_BLOCKS = [
         extra="Lun - Vie (8AM - 6PM)",  # hours
         image_path=None,
     ),
+    dict(
+        section_key="socials",
+        label="Redes sociales (pie de página)",
+        eyebrow="",  # WhatsApp URL (vacío = se arma desde el teléfono)
+        title="",  # Facebook URL
+        body="",  # Instagram URL
+        extra="",  # TikTok URL
+        image_path=None,
+    ),
 ]
 
 SERVICES = [
