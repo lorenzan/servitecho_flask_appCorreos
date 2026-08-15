@@ -90,3 +90,282 @@ table.admin-table tr:hover td{ background:var(--offwhite); }
   .admin-nav a{ white-space:nowrap; margin:0 6px; }
   .admin-nav-foot{ display:none; }
 }
+
+/* ---------- Enlaces "en construcción" ---------- */
+.admin-nav a.under-construction{
+  position:relative;
+  color:var(--steel);
+  background:transparent;
+  border:1px dashed var(--rust);
+  opacity:.75;
+  cursor:not-allowed;
+}
+.admin-nav a.under-construction:hover{
+  background:rgba(229, 70, 42, 0.08);
+  color:var(--rust);
+}
+.admin-nav a.under-construction .construction-badge{
+  position:absolute; top:6px; right:8px;
+  background:var(--rust); color:#fff;
+  font-size:.6rem; font-weight:600;
+  padding:1px 6px; border-radius:999px;
+  text-transform:uppercase; letter-spacing:.05em;
+}
+.admin-nav a.under-construction::after{
+  content:"🚧";
+  position:absolute; top:10px; right:12px;
+  font-size:.9rem;
+  pointer-events:none;
+}
+
+/* ---------- Modal de construcción ---------- */
+.modal{
+  position:fixed; inset:0; z-index:1000;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .3s ease;
+}
+.modal.open{ opacity:1; }
+.modal[hidden]{ display:none; }
+.modal-overlay{
+  position:absolute; inset:0;
+  background:rgba(20, 22, 26, .65);
+  backdrop-filter:blur(4px);
+  cursor:pointer;
+}
+.modal-content{
+  position:relative; z-index:1;
+  width:min(92%, 480px);
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);
+  padding:36px 32px 32px;
+  transform:translateY(16px) scale(.98);
+  transition:transform .3s ease;
+  overflow:hidden;
+  text-align:center;
+}
+.modal.open .modal-content{ transform:translateY(0) scale(1); }
+
+/* ---------- Animación de casa en construcción ---------- */
+.construction-animation{
+  position:relative;
+  width:200px; height:200px;
+  margin:0 auto 24px;
+  display:flex; align-items:center; justify-content:center;
+}
+.house{
+  position:relative;
+  width:160px; height:160px;
+}
+/* Pared de la casa */
+.house-base{
+  position:absolute; bottom:0; left:30px;
+  width:100px; height:90px;
+  background:linear-gradient(135deg, #E8E8E8, #D0D0D0);
+  border:2px solid #B8B8B8;
+  border-radius:4px 4px 0 0;
+}
+.house-base .wall{
+  position:absolute; inset:4px;
+  background:repeating-linear-gradient(
+    0deg, transparent 0, transparent 22px,
+    rgba(0,0,0,.04) 22px, rgba(0,0,0,.04) 24px
+  );
+}
+.house-base .window{
+  position:absolute; top:18px;
+  width:24px; height:24px;
+  background:linear-gradient(135deg, #8ED1FC, #4DA8DA);
+  border:2px solid #5A5A5A;
+  border-radius:3px;
+}
+.house-base .window.left{ left:14px; }
+.house-base .window.right{ right:14px; }
+.house-base .door{
+  position:absolute; bottom:0; left:38px;
+  width:24px; height:38px;
+  background:#8B5A2B;
+  border:2px solid #5A3A1A;
+  border-radius:3px 3px 0 0;
+}
+/* Techo en construcción */
+.roof.construction{
+  position:absolute; top:0; left:20px;
+  width:120px; height:55px;
+}
+.roof-frame{
+  position:absolute; bottom:0; left:0; right:0;
+  height:8px;
+  background:#C9A227;
+  border-radius:4px 4px 0 0;
+}
+.roof-frame .beam{
+  position:absolute; bottom:8px;
+  width:4px; height:40px;
+  background:#A0841C;
+  transform:rotate(26deg);
+  transform-origin:bottom center;
+  animation:beamSway 2.4s ease-in-out infinite;
+}
+.roof-frame .beam:nth-child(1){ left:8px;  animation-delay:0s; }
+.roof-frame .beam:nth-child(2){ left:35px; animation-delay:.3s; }
+.roof-frame .beam:nth-child(3){ left:62px; animation-delay:.6s; }
+.roof-frame .beam:nth-child(4){ left:90px; animation-delay:.9s; }
+@keyframes beamSway{
+  0%, 100%{ transform:rotate(26deg); }
+  50%{ transform:rotate(30deg); }
+}
+.roof-tiles{
+  position:absolute; bottom:8px; left:0; right:0;
+  display:flex; flex-direction:column; align-items:center;
+}
+.tile-row{
+  display:flex; gap:3px; margin-top:2px;
+  opacity:0;
+  animation:tileAppear .6s ease forwards;
+}
+.tile-row:nth-child(1){ animation-delay:.2s; }
+.tile-row:nth-child(2){ animation-delay:.7s; }
+.tile-row:nth-child(3){ animation-delay:1.2s; }
+.tile{
+  width:18px; height:12px;
+  background:linear-gradient(180deg, #E5502A, #C43A21);
+  border-radius:0 0 8px 8px;
+  box-shadow:inset 0 -2px 3px rgba(0,0,0,.2);
+}
+@keyframes tileAppear{
+  from{ opacity:0; transform:translateY(-8px) scale(.8); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+/* Obreros */
+.worker{
+  position:absolute; bottom:0;
+  width:14px; height:22px;
+}
+.worker-body{
+  position:absolute; bottom:0; left:0;
+  width:14px; height:18px;
+  background:#FFB347;
+  border-radius:4px 4px 0 0;
+}
+.worker-1{ left:30px; }
+.worker-1 .worker-hammer{
+  position:absolute; top:-6px; left:8px;
+  width:3px; height:14px;
+  background:#555;
+  border-radius:2px;
+  transform-origin:bottom center;
+  animation:hammerHit .8s ease-in-out infinite;
+}
+.worker-1 .worker-hammer::after{
+  content:""; position:absolute; top:-3px; left:-2px;
+  width:7px; height:6px;
+  background:#777;
+  border-radius:2px;
+}
+@keyframes hammerHit{
+  0%, 100%{ transform:rotate(-35deg); }
+  50%{ transform:rotate(15deg); }
+}
+.worker-2{ right:30px; }
+.worker-2 .worker-trowel{
+  position:absolute; top:2px; right:-5px;
+  width:10px; height:4px;
+  background:silver;
+  border-radius:2px;
+  transform-origin:left center;
+  animation:trowelSpread 1.2s ease-in-out infinite;
+}
+@keyframes trowelSpread{
+  0%, 100%{ transform:rotate(0deg); }
+  50%{ transform:rotate(-25deg); }
+}
+/* Herramientas */
+.toolbox{
+  position:absolute; bottom:2px; left:10px;
+  width:22px; height:14px;
+  background:#FF8C00;
+  border-radius:0 0 4px 4px;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.15);
+  animation:toolboxBob 2s ease-in-out infinite;
+}
+@keyframes toolboxBob{
+  0%, 100%{ transform:translateY(0); }
+  50%{ transform:translateY(-3px); }
+}
+.ladder{
+  position:absolute; bottom:0; right:10px;
+  width:14px; height:50px;
+  background:repeating-linear-gradient(
+    0deg, transparent 0, transparent 8px,
+    #B87333 8px, #B87333 10px
+  );
+  border-left:2px solid #8B5A2B;
+  border-right:2px solid #8B5A2B;
+  transform:rotate(-4deg);
+}
+/* Chimenea */
+.chimney{
+  position:absolute; top:0; right:35px;
+  width:14px; height:28px;
+  background:#A0522D;
+  border:1px solid #7A3D1F;
+  border-radius:2px 2px 0 0;
+  animation:chimneySmoke 3s ease-in-out infinite;
+}
+.chimney::after{
+  content:""; position:absolute; top:-8px; left:-2px;
+  width:18px; height:8px;
+  background:rgba(150,150,150,.4);
+  border-radius:8px;
+  filter:blur(1px);
+  animation:smokeRise 3s ease-in-out infinite;
+}
+@keyframes smokeRise{
+  0%{ opacity:.3; transform:translateY(0) scale(1); }
+  100%{ opacity:0; transform:translateY(-14px) scale(1.4); }
+}
+/* Partículas de polvo */
+.dust-particles{
+  position:absolute; inset:0;
+  pointer-events:none;
+}
+.dust-particles span{
+  position:absolute;
+  width:4px; height:4px;
+  background:rgba(180, 180, 180, .7);
+  border-radius:50%;
+  animation:dustFall 2s ease-in infinite;
+}
+.dust-particles span:nth-child(1){ left:20%; top:20%; animation-delay:0s; }
+.dust-particles span:nth-child(2){ left:40%; top:30%; animation-delay:.3s; }
+.dust-particles span:nth-child(3){ left:60%; top:15%; animation-delay:.6s; }
+.dust-particles span:nth-child(4){ left:80%; top:25%; animation-delay:.9s; }
+.dust-particles span:nth-child(5){ left:30%; top:40%; animation-delay:1.2s; }
+.dust-particles span:nth-child(6){ left:50%; top:10%; animation-delay:1.5s; }
+.dust-particles span:nth-child(7){ left:70%; top:35%; animation-delay:1.8s; }
+.dust-particles span:nth-child(8){ left:15%; top:50%; animation-delay:2.1s; }
+.dust-particles span:nth-child(9){ left:85%; top:45%; animation-delay:2.4s; }
+.dust-particles span:nth-child(10){ left:60%; top:50%; animation-delay:2.7s; }
+@keyframes dustFall{
+  0%{ opacity:0; transform:translateY(-10px) scale(.6); }
+  20%{ opacity:1; }
+  100%{ opacity:0; transform:translateY(16px) scale(1); }
+}
+.construction-text h2{
+  font-family:var(--font-display);
+  font-size:1.4rem;
+  color:var(--charcoal);
+  margin-bottom:8px;
+}
+.construction-text p{
+  font-family:var(--font-body);
+  color:var(--steel);
+  font-size:.9rem;
+  margin-bottom:20px;
+}
+.construction-text .btn{ padding:10px 28px; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001s !important; }
+}

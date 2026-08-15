@@ -41,21 +41,30 @@
         </div>
         <div class="topbar-right">
           {% if site_info %}
-          <a class="topbar-item topbar-item--accent" href="tel:{{ site_info.eyebrow }}">
-            <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
-            <span>{{ site_info.eyebrow }}</span>
-          </a>
-          <span class="topbar-item">
+          <div class="topbar-phones">
+            {% if site_info.eyebrow %}
+            <a class="topbar-item topbar-item--phone" href="tel:{{ site_info.eyebrow }}">
+              <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+              <span>{{ site_info.eyebrow }}</span>
+            </a>
+            {% endif %}
+            {% if site_info.image_path %}
+            <a class="topbar-item topbar-item--phone" href="tel:{{ site_info.image_path }}">
+              <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+              <span>{{ site_info.image_path }}</span>
+            </a>
+            {% endif %}
+            <span class="topbar-item">
             <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11H7v-2h4V7h2v6z"/></svg>
             <span>{{ site_info.extra }}</span>
           </span>
-          {% endif %}
           <div class="lang-switch" aria-label="Idioma / Language">
             <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="Español">ES</a>
             <span class="lang-divider"></span>
             <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
           </div>
         </div>
+        {% endif %}
       </div>
     </div>
 
@@ -87,21 +96,21 @@
               <span class="lang-divider"></span>
               <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
             </div>
-            {% if site_info and site_info.eyebrow %}
-            <a class="btn btn-call" href="tel:{{ site_info.eyebrow }}">
+            {% if site_info %}
+            <button class="btn btn-call" id="mobile-phone-btn" type="button" aria-haspopup="dialog" aria-label="Llamar">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
               <span>{{ t('Llámenos Hoy') }}</span>
-            </a>
+            </button>
             {% endif %}
           </div>
         </nav>
 
         <div class="nav-cta">
-          {% if site_info and site_info.eyebrow %}
-          <a class="btn btn-call btn-call--desk" href="tel:{{ site_info.eyebrow }}">
+          {% if site_info %}
+          <button class="btn btn-call btn-call--desk" id="nav-phone-btn" type="button" aria-haspopup="dialog" aria-label="Llamar">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
             <span>{{ t('Llámenos Hoy') }}</span>
-          </a>
+          </button>
           {% endif %}
           <a class="btn btn-rust btn-nav-cta" href="{{ url_for('public.cotizacion') }}">
             <span>{{ t('Solicitar Cotización') }}</span>
@@ -180,6 +189,12 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
                 <a href="tel:{{ site_info.eyebrow }}">{{ site_info.eyebrow }}</a>
               </li>
+              {% if site_info.image_path %}
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+                <a href="tel:{{ site_info.image_path }}">{{ site_info.image_path }}</a>
+              </li>
+              {% endif %}
               <li>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
                 <a href="mailto:{{ site_info.title }}">{{ site_info.title }}</a>
@@ -236,24 +251,104 @@
     </div>
   </footer>
 
-  <script>
-    const navToggle = document.getElementById('navToggle');
-    const navLinks = document.getElementById('navLinks');
-    const siteHeader = document.getElementById('siteHeader');
-    if (navToggle && navLinks) {
-      navToggle.addEventListener('click', () => {
-        const open = navLinks.classList.toggle('open');
-        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  <!-- Modal para selección de teléfono -->
+<div id="phone-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="phone-modal-title" hidden>
+  <div class="modal-overlay" tabindex="-1"></div>
+  <div class="modal-content phone-modal-content">
+    <button class="modal-close" id="phone-modal-close" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7a1 1 0 0 0-1.41 1.41L10.59 12 5.7 16.89a1 1 0 0 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.41z"/></svg>
+    </button>
+    <h2 id="phone-modal-title">{{ t('Llámenos Hoy') }}</h2>
+    <p class="phone-modal-text">{{ t('Selecciona el número al que deseas llamar:') }}</p>
+    <div class="phone-options">
+      {% if site_info and site_info.eyebrow %}
+      <a class="phone-option" href="tel:{{ site_info.eyebrow }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+        <div class="phone-option-info">
+          <span class="phone-option-label">{{ t('Principal') }}</span>
+          <span class="phone-option-number">{{ site_info.eyebrow }}</span>
+        </div>
+      </a>
+      {% endif %}
+      {% if site_info and site_info.image_path %}
+      <a class="phone-option" href="tel:{{ site_info.image_path }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+        <div class="phone-option-info">
+          <span class="phone-option-label">{{ t('Alternativo') }}</span>
+          <span class="phone-option-number">{{ site_info.image_path }}</span>
+        </div>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  const siteHeader = document.getElementById('siteHeader');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+  if (siteHeader) {
+    const onScroll = () => {
+      siteHeader.classList.toggle('is-scrolled', window.scrollY > 12);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  // Modal de teléfono
+  (function() {
+    const modal = document.getElementById('phone-modal');
+    const overlay = modal.querySelector('.modal-overlay');
+    const closeBtn = document.getElementById('phone-modal-close');
+    const phoneButtons = document.querySelectorAll('#topbar-phone-btn, #nav-phone-btn, #mobile-phone-btn');
+
+    function openModal() {
+      modal.hidden = false;
+      requestAnimationFrame(() => {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
       });
     }
-    if (siteHeader) {
-      const onScroll = () => {
-        siteHeader.classList.toggle('is-scrolled', window.scrollY > 12);
-      };
-      onScroll();
-      window.addEventListener('scroll', onScroll, { passive: true });
+
+    function closeModal() {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        if (!modal.classList.contains('open')) {
+          modal.hidden = true;
+        }
+      }, 300);
     }
-  </script>
-  {% block extra_scripts %}{% endblock %}
+
+    phoneButtons.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        openModal();
+      });
+      btn.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openModal();
+        }
+      });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) {
+        closeModal();
+      }
+    });
+  })();
+</script>
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

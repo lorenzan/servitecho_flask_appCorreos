@@ -306,6 +306,23 @@ p{ margin:0 0 1em; }
 }
 .topbar-item--accent .topbar-ico{ color:var(--gold-bright); }
 
+.topbar-item--phone{
+  color:var(--silver-light);
+  font-weight:500;
+  transition:color .2s ease;
+}
+.topbar-item--phone:hover{
+  color:var(--gold-bright);
+}
+.topbar-item--phone .topbar-ico{
+  color:var(--gold-bright);
+  opacity:1;
+}
+
+.topbar-phones{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+
 .navbar{
   position:relative; z-index:2;
   background:transparent;
@@ -541,7 +558,7 @@ p{ margin:0 0 1em; }
 /* ---------------- Hero ---------------- */
 .hero{
   position:relative; overflow:hidden;
-  background:var(--negro);
+  background:transparent;
   color:var(--white);
   padding:110px 0 96px;
   isolation:isolate;
@@ -824,24 +841,24 @@ p{ margin:0 0 1em; }
 .hero-bg__base{
   position:absolute; inset:0;
   background:
-    radial-gradient(ellipse 90% 70% at 78% 18%, rgba(231,170,53,0.18) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 8% 88%, rgba(101,54,8,0.45) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 35% at 50% 50%, rgba(174,106,12,0.12) 0%, transparent 70%),
-    linear-gradient(165deg, #120E0C 0%, var(--negro) 40%, #1F1712 72%, #241C16 100%);
+    radial-gradient(ellipse 90% 70% at 78% 18%, rgba(231,170,53,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 8% 88%, rgba(101,54,8,0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 35% at 50% 50%, rgba(174,106,12,0.06) 0%, transparent 70%),
+    linear-gradient(165deg, rgba(18,14,12,0.6) 0%, rgba(23,18,15,0.5) 40%, rgba(31,23,18,0.6) 72%, rgba(36,28,22,0.5) 100%);
 }
 .hero-bg__aurora{
   position:absolute; inset:-20%;
   background:
     conic-gradient(from 120deg at 70% 30%,
       transparent 0deg,
-      rgba(247,221,131,0.08) 40deg,
-      rgba(231,170,53,0.14) 80deg,
+      rgba(247,221,131,0.04) 40deg,
+      rgba(231,170,53,0.07) 80deg,
       transparent 140deg,
-      rgba(201,138,30,0.08) 200deg,
+      rgba(201,138,30,0.04) 200deg,
       transparent 280deg);
   filter:blur(40px);
   animation:heroAurora 18s ease-in-out infinite alternate;
-  opacity:.85;
+  opacity:.5;
 }
 .hero-bg__orb{
   position:absolute; border-radius:50%;
@@ -851,28 +868,28 @@ p{ margin:0 0 1em; }
 .hero-bg__orb--1{
   width:min(52vw, 520px); height:min(52vw, 520px);
   top:-12%; right:-6%;
-  background:radial-gradient(circle, rgba(247,221,131,0.45) 0%, rgba(231,170,53,0.18) 28%, transparent 68%);
+  background:radial-gradient(circle, rgba(247,221,131,0.2) 0%, rgba(231,170,53,0.08) 28%, transparent 68%);
   animation:heroOrbFloat 14s ease-in-out infinite;
 }
 .hero-bg__orb--2{
   width:min(38vw, 380px); height:min(38vw, 380px);
   bottom:-8%; left:-4%;
-  background:radial-gradient(circle, rgba(201,138,30,0.35) 0%, rgba(101,54,8,0.22) 40%, transparent 70%);
+  background:radial-gradient(circle, rgba(201,138,30,0.15) 0%, rgba(101,54,8,0.1) 40%, transparent 70%);
   animation:heroOrbFloat 17s ease-in-out infinite reverse;
   animation-delay:-4s;
 }
 .hero-bg__orb--3{
   width:min(28vw, 280px); height:min(28vw, 280px);
   top:42%; left:38%;
-  background:radial-gradient(circle, rgba(214,214,212,0.16) 0%, rgba(231,170,53,0.08) 35%, transparent 70%);
+  background:radial-gradient(circle, rgba(214,214,212,0.08) 0%, rgba(231,170,53,0.04) 35%, transparent 70%);
   animation:heroOrbPulse 9s ease-in-out infinite;
 }
 .hero-bg__beam{
   position:absolute; top:-30%; right:8%; width:2px; height:160%;
-  background:linear-gradient(180deg, transparent 0%, rgba(247,221,131,0.55) 35%, rgba(231,170,53,0.15) 55%, transparent 100%);
+  background:linear-gradient(180deg, transparent 0%, rgba(247,221,131,0.25) 35%, rgba(231,170,53,0.08) 55%, transparent 100%);
   transform:rotate(18deg);
   filter:blur(1px);
-  opacity:.35;
+  opacity:.2;
   animation:heroBeam 7s ease-in-out infinite;
 }
 .hero-bg__beam::before,
@@ -883,10 +900,10 @@ p{ margin:0 0 1em; }
 .hero-bg__beam::before{ left:-28px; transform:rotate(-4deg); opacity:.25; }
 .hero-bg__beam::after{ left:22px; height:80%; top:10%; opacity:.2; }
 .hero-bg__mesh{
-  position:absolute; inset:0; opacity:.28;
+  position:absolute; inset:0; opacity:.15;
   background-image:
-    linear-gradient(rgba(214,214,212,0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(214,214,212,0.045) 1px, transparent 1px);
+    linear-gradient(rgba(214,214,212,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(214,214,212,0.025) 1px, transparent 1px);
   background-size:56px 56px;
   mask-image:radial-gradient(ellipse 80% 70% at 50% 30%, #000 20%, transparent 75%);
   animation:heroMesh 22s linear infinite;
@@ -897,9 +914,9 @@ p{ margin:0 0 1em; }
     115deg,
     transparent 0%,
     transparent 38%,
-    rgba(247,221,131,0.07) 46%,
-    rgba(255,255,255,0.10) 50%,
-    rgba(247,221,131,0.07) 54%,
+    rgba(247,221,131,0.035) 46%,
+    rgba(255,255,255,0.05) 50%,
+    rgba(247,221,131,0.035) 54%,
     transparent 62%,
     transparent 100%
   );
@@ -910,8 +927,8 @@ p{ margin:0 0 1em; }
 .hero-bg__vignette{
   position:absolute; inset:0;
   background:
-    radial-gradient(ellipse 75% 65% at 50% 45%, transparent 35%, rgba(23,18,15,0.55) 100%),
-    linear-gradient(180deg, rgba(23,18,15,0.15) 0%, transparent 30%, transparent 70%, rgba(23,18,15,0.35) 100%);
+    radial-gradient(ellipse 75% 65% at 50% 45%, transparent 35%, rgba(23,18,15,0.3) 100%),
+    linear-gradient(180deg, rgba(23,18,15,0.08) 0%, transparent 30%, transparent 70%, rgba(23,18,15,0.18) 100%);
 }
 .hero-bg__hammers{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
 

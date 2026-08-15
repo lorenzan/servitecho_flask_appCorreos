@@ -94,7 +94,7 @@ CONTENT_BLOCKS = [
         title="info@tecunsroofing.com",  # email
         body="Jardines de Cuscatlán, Pol F #25 | Antiguo Cuscatlán, La Libertad",  # address
         extra="Lun - Vie (8AM - 6PM)",  # hours
-        image_path=None,
+        image_path="",  # teléfono secundario (opcional)
     ),
     dict(
         section_key="socials",

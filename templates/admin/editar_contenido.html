@@ -20,13 +20,20 @@
     {% else %}
       <div class="form-row">
         <label for="eyebrow">
-          {% if block.section_key == 'site_info' %}Teléfono / WhatsApp
+          {% if block.section_key == 'site_info' %}Teléfono principal / WhatsApp
           {% elif block.section_key == 'socials' %}WhatsApp (URL completa, opcional)
           {% else %}Etiqueta / antetítulo{% endif %}
         </label>
         <input type="text" id="eyebrow" name="eyebrow" value="{{ block.eyebrow or '' }}" {% if block.section_key == 'socials' %}placeholder="https://wa.me/50369561628"{% endif %}>
         {% if block.section_key == 'socials' %}<p class="hint">Si lo dejas vacío, se usa el teléfono de contacto automáticamente.</p>{% endif %}
       </div>
+      {% if block.section_key == 'site_info' %}
+      <div class="form-row">
+        <label for="image_path">Teléfono secundario (opcional)</label>
+        <input type="text" id="image_path" name="image_path" value="{{ block.image_path or '' }}" placeholder="ej. 2200-1234">
+        <p class="hint">Se mostrará junto al teléfono principal en el encabezado y pie de página.</p>
+      </div>
+      {% endif %}
       <div class="form-row">
         <label for="title">
           {% if block.section_key == 'site_info' %}Correo electrónico

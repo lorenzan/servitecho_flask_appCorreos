@@ -244,8 +244,12 @@ def editar_contenido(section_key):
             block.body = request.form.get("body", "").strip()
             block.extra = request.form.get("extra", "").strip()
 
+        # site_info usa image_path como teléfono secundario (texto, no imagen)
+        if block.section_key == "site_info":
+            block.image_path = request.form.get("image_path", "").strip()
+
         # Logo y bloques sin galería propia siguen con imagen única
-        if block.section_key not in ("hero", "about"):
+        if block.section_key not in ("hero", "about", "site_info"):
             image = request.files.get("image")
             if image and image.filename:
                 rel_path = save_upload(image, "content")
