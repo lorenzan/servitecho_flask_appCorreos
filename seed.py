@@ -32,7 +32,7 @@ CONTENT_BLOCKS = [
         label="Sobre nosotros",
         eyebrow="Acerca de nosotros",
         title="Construimos Confianza",
-        body="En Servitecho nos especializamos en el diseño, fabricación e instalación "
+        body="En Tecuns Roofing nos especializamos en el diseño, fabricación e instalación "
         "de sistemas de techos metálicos, fachadas, paneles termoacústicos y soluciones "
         "modulares. Nuestro compromiso es desarrollar proyectos con los más altos "
         "estándares de calidad, ofreciendo soluciones eficientes, duraderas y adaptadas "
@@ -91,7 +91,7 @@ CONTENT_BLOCKS = [
         section_key="site_info",
         label="Datos de contacto (encabezado y pie de página)",
         eyebrow="6956-1628",  # phone / whatsapp
-        title="info@servitecho.com.sv",  # email
+        title="info@tecunsroofing.com",  # email
         body="Jardines de Cuscatlán, Pol F #25 | Antiguo Cuscatlán, La Libertad",  # address
         extra="Lun - Vie (8AM - 6PM)",  # hours
         image_path=None,
@@ -165,7 +165,7 @@ EMAIL_TEMPLATES = [
         subject="⭐ Nueva reseña recibida — {{ nombre }}",
         body=(
             "Hola,\n\n"
-            "Se recibió una nueva reseña en el sitio web de Servitecho.\n\n"
+            "Se recibió una nueva reseña en el sitio web de Tecuns Roofing.\n\n"
             "Cliente: {{ nombre }}\n"
             "Correo: {{ email }}\n"
             "Calificación: {{ calificacion }} / 5\n"
@@ -194,18 +194,94 @@ EMAIL_TEMPLATES = [
     dict(
         key="respuesta_cotizacion",
         label="Respuesta de cotización (al cliente)",
-        subject="Respuesta a tu solicitud de cotización — Servitecho",
+        subject="Respuesta a tu solicitud de cotización — Tecuns Roofing",
         body=(
             "Hola {{ nombre }},\n\n"
-            "Gracias por contactar a Servitecho. Aquí tienes la respuesta a tu solicitud de "
+            "Gracias por contactar a Tecuns Roofing. Aquí tienes la respuesta a tu solicitud de "
             "cotización para el proyecto en {{ ubicacion }}:\n\n"
             "{{ respuesta }}\n\n"
             "Estado actual de tu solicitud: {{ estado }}\n\n"
             "Si tienes alguna pregunta, no dudes en responder este correo o escribirnos.\n\n"
-            "Saludos,\nEquipo Servitecho"
+            "Saludos,\nEquipo Tecuns Roofing"
         ),
     ),
 ]
+
+
+def _rebrand_text(value):
+    if not value or not isinstance(value, str):
+        return value
+    text = value
+    for old, new in (
+        ("Servitecho El Salvador", "Tecuns Roofing"),
+        ("Equipo Servitecho", "Equipo Tecuns Roofing"),
+        ("info@servitecho.com.sv", "info@tecunsroofing.com"),
+        ("admin@servitecho.com.sv", "admin@tecunsroofing.com"),
+        ("Servitecho", "Tecuns Roofing"),
+        ("servitecho.com.sv", "tecunsroofing.com"),
+    ):
+        text = text.replace(old, new)
+    return text
+
+
+def _sync_branding():
+    """Actualiza textos de marca en registros ya existentes (Servitecho → Tecuns Roofing)."""
+    updated = 0
+
+    for data in CONTENT_BLOCKS:
+        block = ContentBlock.query.filter_by(section_key=data["section_key"]).first()
+        if not block:
+            continue
+        changed = False
+        for field in ("eyebrow", "title", "body", "extra"):
+            desired = data.get(field)
+            current = getattr(block, field)
+            if desired is None:
+                continue
+            # Solo reescribe si el valor actual aún menciona Servitecho,
+            # o si es un campo de marca que debe quedar alineado al seed.
+            if current and "Servitecho" in str(current):
+                setattr(block, field, desired)
+                changed = True
+            elif data["section_key"] in {"about", "site_info"} and current != desired:
+                # about/site_info llevan el nombre de marca
+                if field in {"body", "title"} and (
+                    (current and "Servitecho" in str(current))
+                    or data["section_key"] == "site_info" and field == "title"
+                    or data["section_key"] == "about" and field == "body"
+                ):
+                    setattr(block, field, desired)
+                    changed = True
+        if changed:
+            updated += 1
+
+    for data in EMAIL_TEMPLATES:
+        tpl = EmailTemplate.query.filter_by(key=data["key"]).first()
+        if not tpl:
+            continue
+        changed = False
+        for field in ("subject", "body", "label"):
+            current = getattr(tpl, field)
+            desired = data.get(field)
+            if current and ("Servitecho" in str(current) or "servitecho" in str(current).lower()):
+                setattr(tpl, field, desired)
+                changed = True
+        if changed:
+            updated += 1
+
+    settings = EmailSettings.query.first()
+    if settings:
+        if settings.sender_name and "Servitecho" in settings.sender_name:
+            settings.sender_name = "Tecuns Roofing"
+            updated += 1
+        if settings.notify_email and "servitecho" in settings.notify_email.lower():
+            settings.notify_email = _rebrand_text(settings.notify_email)
+            updated += 1
+        if settings.smtp_email and "servitecho" in settings.smtp_email.lower():
+            settings.smtp_email = _rebrand_text(settings.smtp_email)
+            updated += 1
+
+    return updated
 
 
 def run():
@@ -214,9 +290,9 @@ def run():
 
         if not Admin.query.filter_by(username="admin").first():
             admin = Admin(username="admin", is_superadmin=True)
-            admin.set_password("Servitecho2024!")
+            admin.set_password("Tecuns2024!")
             db.session.add(admin)
-            print("Admin creado -> usuario: admin / contraseña: Servitecho2024!")
+            print("Admin creado -> usuario: admin / contraseña: Tecuns2024!")
         else:
             print("Admin ya existe, se omite.")
 
@@ -236,7 +312,12 @@ def run():
             print(f"Reseñas de ejemplo creadas ({len(SAMPLE_REVIEWS)}).")
 
         if not EmailSettings.query.first():
-            db.session.add(EmailSettings(smtp_host="smtp.gmail.com", smtp_port=587, enabled=False))
+            db.session.add(EmailSettings(
+                smtp_host="smtp.gmail.com",
+                smtp_port=587,
+                enabled=False,
+                sender_name="Tecuns Roofing",
+            ))
             print("Configuración de correo inicializada (desactivada por defecto).")
 
         for data in EMAIL_TEMPLATES:
@@ -247,6 +328,10 @@ def run():
         if not AdsSettings.query.first():
             db.session.add(AdsSettings(enabled=False, google_ads_id="", conversion_label="", ga4_measurement_id=""))
             print("Configuración de Google Ads inicializada (desactivada por defecto).")
+
+        brand_updates = _sync_branding()
+        if brand_updates:
+            print(f"Marca actualizada en {brand_updates} registro(s) existente(s) (Servitecho -> Tecuns Roofing).")
 
         db.session.commit()
         print("Base de datos inicializada correctamente.")

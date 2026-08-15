@@ -47,7 +47,7 @@ def send_email(to_addr, subject, body, settings=None):
 
     try:
         msg = MIMEMultipart()
-        msg["From"] = f"{settings.sender_name or 'Servitecho'} <{settings.smtp_email}>"
+        msg["From"] = f"{settings.sender_name or 'Tecuns Roofing'} <{settings.smtp_email}>"
         msg["To"] = to_addr
         msg["Subject"] = subject
         msg.attach(MIMEText(body, "plain", "utf-8"))
@@ -139,8 +139,8 @@ def send_quote_response(quote):
 def send_test_email(settings):
     return send_email(
         settings.notify_email or settings.smtp_email,
-        "Correo de prueba — Servitecho",
-        "Este es un correo de prueba enviado desde el panel de administración de Servitecho. "
+        "Correo de prueba — Tecuns Roofing",
+        "Este es un correo de prueba enviado desde el panel de administración de Tecuns Roofing. "
         "Si lo recibiste, la configuración de correo está funcionando correctamente.",
         settings,
     )

@@ -105,7 +105,7 @@ class EmailSettings(db.Model):
     smtp_port = db.Column(db.Integer, default=587)
     smtp_email = db.Column(db.String(150))
     smtp_app_password = db.Column(db.String(255))
-    sender_name = db.Column(db.String(150), default="Servitecho El Salvador")
+    sender_name = db.Column(db.String(150), default="Tecuns Roofing")
     notify_email = db.Column(db.String(150))  # where admin notifications are sent
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

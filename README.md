@@ -1,6 +1,6 @@
-# Servitecho El Salvador — Sitio web + Panel de administración
+# Tecuns Roofing — Sitio web + Panel de administración
 
-Réplica funcional del sitio [servitecho.com.sv](https://servitecho.com.sv/index.html), construida
+Réplica funcional del sitio [tecunsroofing.com](https://tecunsroofing.com/index.html), construida
 con **Flask** y **SQLite**, con 4 módulos adicionales:
 
 - ⭐ **Reseñas** — los clientes dejan una reseña pública que **se publica de inmediato**; el administrador puede ocultarla o **eliminarla en cualquier momento** desde el panel.
@@ -16,7 +16,7 @@ con **Flask** y **SQLite**, con 4 módulos adicionales:
 ## 2. Instalación
 
 ```bash
-cd servitecho
+cd tecuns-roofing
 python3 -m venv venv
 source venv/bin/activate        # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -28,11 +28,11 @@ pip install -r requirements.txt
 python seed.py
 ```
 
-Esto crea el archivo `instance/servitecho.db` con:
+Esto crea el archivo `instance/tecuns.db` con:
 
 - Un usuario administrador:
   - **Usuario:** `admin`
-  - **Contraseña:** `Servitecho2024!`
+  - **Contraseña:** `Tecuns2024!`
   - ⚠️ Cámbiala después de tu primer inicio de sesión (ver sección 6).
 - Los 3 productos (Standing Seam, Panel Termoacústico, Módulos Constructivos).
 - Los bloques de texto de la página de inicio (hero, misión, visión, etc.).
@@ -52,7 +52,7 @@ Abre tu navegador en **http://127.0.0.1:5000**
 ## 5. Estructura del proyecto
 
 ```
-servitecho/
+tecuns-roofing/
 ├── app.py                 # Application factory / punto de entrada
 ├── config.py               # Configuración (rutas, límites de subida)
 ├── extensions.py           # Instancias de SQLAlchemy / Flask-Login
@@ -73,7 +73,7 @@ servitecho/
 │   │   cotizacion.html, cotizacion_gracias.html
 │   └── admin/                 # Login, dashboard y CRUD del panel
 └── instance/
-    └── servitecho.db          # Base de datos SQLite (se genera con seed.py)
+    └── tecuns.db          # Base de datos SQLite (se genera con seed.py)
 ```
 
 ## 6. Cambiar la contraseña del administrador
@@ -110,7 +110,7 @@ with app.app_context():
 Todo se configura desde el panel, en **Correo → Configuración** (`/admin/configuracion/correo`), sin tocar código:
 
 1. **Activa la verificación en 2 pasos** en la cuenta de Gmail que enviará los correos: [myaccount.google.com/security](https://myaccount.google.com/security)
-2. Ve a [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) y crea una **contraseña de aplicación** nueva (por ejemplo, nómbrala "Servitecho Web"). Google te dará un código de 16 caracteres — cópialo.
+2. Ve a [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) y crea una **contraseña de aplicación** nueva (por ejemplo, nómbrala "Tecuns Roofing Web"). Google te dará un código de 16 caracteres — cópialo.
    > ⚠️ Gmail ya no permite enviar correos usando la contraseña normal de la cuenta. Se necesita esta "contraseña de aplicación" (no es literalmente una "API key", pero cumple la misma función: autenticar el envío sin exponer tu contraseña real).
 3. En el panel, entra a **Correo → Configuración** y llena:
    - ✅ Activar el envío de correos
@@ -148,20 +148,20 @@ Las 3 plantillas se editan libremente desde **Correo → Plantillas**, incluyend
 
 ### Paso 1 — Sube el proyecto
 1. Crea tu cuenta en [pythonanywhere.com](https://www.pythonanywhere.com) e inicia sesión.
-2. Ve a la pestaña **Files**, sube el archivo `servitecho_flask_app.zip` (o sube el proyecto vía GitHub con `git clone` desde una consola Bash).
+2. Ve a la pestaña **Files**, sube el archivo `tecuns_roofing_flask_app.zip` (o sube el proyecto vía GitHub con `git clone` desde una consola Bash).
 3. Abre una consola **Bash** desde el Dashboard y descomprime:
    ```bash
-   unzip servitecho_flask_app.zip -d servitecho
-   cd servitecho
+   unzip tecuns_roofing_flask_app.zip -d tecuns-roofing
+   cd tecuns-roofing
    ```
 
 ### Paso 2 — Crea el entorno virtual e instala dependencias
 En la misma consola Bash:
 ```bash
-mkvirtualenv --python=/usr/bin/python3.10 servitecho-venv
+mkvirtualenv --python=/usr/bin/python3.10 tecuns-venv
 pip install -r requirements.txt
 ```
-(Si `mkvirtualenv` no está disponible, usa `python3.10 -m venv servitecho-venv && source servitecho-venv/bin/activate`)
+(Si `mkvirtualenv` no está disponible, usa `python3.10 -m venv tecuns-venv && source tecuns-venv/bin/activate`)
 
 ### Paso 3 — Inicializa la base de datos
 ```bash
@@ -176,15 +176,15 @@ python seed.py
 ### Paso 5 — Configura el Web App
 En la página de configuración de tu Web App:
 
-- **Source code:** `/home/tuusuario/servitecho`
-- **Working directory:** `/home/tuusuario/servitecho`
-- **Virtualenv:** `/home/tuusuario/.virtualenvs/servitecho-venv`
+- **Source code:** `/home/tuusuario/tecuns-roofing`
+- **Working directory:** `/home/tuusuario/tecuns-roofing`
+- **Virtualenv:** `/home/tuusuario/.virtualenvs/tecuns-venv`
 - **WSGI configuration file:** haz clic en el link para abrir el editor, borra el contenido y pega el de `wsgi_pythonanywhere_example.py` (incluido en este proyecto), ajustando `tuusuario` por tu usuario real.
 
 En la sección **Static files**, agrega:
 | URL | Directory |
 |---|---|
-| `/static/` | `/home/tuusuario/servitecho/static` |
+| `/static/` | `/home/tuusuario/tecuns-roofing/static` |
 
 ### Paso 6 — Variables de entorno (opcional pero recomendado)
 En la sección **Environment variables** de la pestaña Web, agrega:
@@ -197,5 +197,5 @@ Haz clic en el botón verde **Reload** en la parte superior de la pestaña Web. 
 - El plan gratuito de PythonAnywhere solo permite conexiones salientes del **servidor** hacia una lista blanca de dominios. Esto **no afecta** al mapa de ubicación (Leaflet/OpenStreetMap/Nominatim), ya que esas peticiones las hace el **navegador del cliente**, no el servidor.
 - El plan gratuito da 512 MB de espacio en disco — suficiente para empezar, pero si subes muchas fotos de cotizaciones, considera limpiarlas periódicamente o subir de plan.
 - Cada vez que subas cambios de código, recuerda volver a presionar **Reload** en la pestaña Web para que se apliquen.
-- El archivo `instance/servitecho.db` y la carpeta `static/uploads/` deben persistir entre despliegues — no los borres al actualizar el código, solo reemplaza los archivos `.py`, `.html` y `.css`.
+- El archivo `instance/tecuns.db` y la carpeta `static/uploads/` deben persistir entre despliegues — no los borres al actualizar el código, solo reemplaza los archivos `.py`, `.html` y `.css`.
 

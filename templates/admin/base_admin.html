@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Panel administrador | Servitecho{% endblock %}</title>
+  <title>{% block title %}Panel administrador | Tecuns Roofing{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -13,7 +13,7 @@
 <body class="admin-body">
   <div class="admin-shell">
     <aside class="admin-sidebar">
-      <div class="admin-brand">SERVITECHO <span>/ admin</span></div>
+      <div class="admin-brand">TECUNS <span>/ admin</span></div>
       <nav class="admin-nav">
         <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">Panel principal</a>
         <a href="{{ url_for('admin.resenas') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin.') and 'resena' in request.endpoint }}">Reseñas</a>

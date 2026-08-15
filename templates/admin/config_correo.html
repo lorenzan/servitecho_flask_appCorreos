@@ -1,5 +1,5 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Configuración de correo | Servitecho Admin{% endblock %}
+{% block title %}Configuración de correo | Tecuns Admin{% endblock %}
 {% block page_title %}Configuración de correo{% endblock %}
 
 {% block admin_content %}
@@ -9,7 +9,7 @@
     Gmail no usa una "API key" tradicional para enviar correos por este método — usa una
     <strong>contraseña de aplicación</strong>. Pasos: 1) Activa la verificación en 2 pasos en tu cuenta de Google
     (myaccount.google.com/security). 2) Ve a <strong>myaccount.google.com/apppasswords</strong>. 3) Crea una nueva
-    contraseña de aplicación (elige "Otra" y ponle un nombre como "Servitecho Web"). 4) Copia el código de 16
+    contraseña de aplicación (elige "Otra" y ponle un nombre como "Tecuns Roofing Web"). 4) Copia el código de 16
     caracteres que te da Google y pégalo abajo en "Contraseña de aplicación" — no es la contraseña normal de tu
     cuenta de Gmail.
   </div>
@@ -36,11 +36,11 @@
     <div class="form-grid-2">
       <div class="form-row">
         <label for="sender_name">Nombre del remitente</label>
-        <input type="text" id="sender_name" name="sender_name" value="{{ settings.sender_name or 'Servitecho El Salvador' }}">
+        <input type="text" id="sender_name" name="sender_name" value="{{ settings.sender_name or 'Tecuns Roofing' }}">
       </div>
       <div class="form-row">
         <label for="notify_email">Correo donde recibirás las notificaciones</label>
-        <input type="text" id="notify_email" name="notify_email" value="{{ settings.notify_email or '' }}" placeholder="admin@servitecho.com.sv">
+        <input type="text" id="notify_email" name="notify_email" value="{{ settings.notify_email or '' }}" placeholder="admin@tecunsroofing.com">
         <p class="hint mb-0">Aquí llegará el aviso cada vez que se reciba una nueva reseña o cotización.</p>
       </div>
     </div>

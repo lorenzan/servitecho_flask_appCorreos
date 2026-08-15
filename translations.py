@@ -87,7 +87,7 @@ _STATIC_STRINGS = [
     "Opiniones publicadas", "Deja tu reseña",
     "Tu reseña se publicará luego de ser revisada por nuestro equipo.",
     "Nombre", "Correo (opcional)", "Calificación", "Comentario",
-    "Cuéntanos sobre tu proyecto y experiencia con Servitecho...",
+    "Cuéntanos sobre tu proyecto y experiencia con Tecuns Roofing...",
     "Enviar reseña",
     # Cotización
     "Cuéntanos sobre tu proyecto",

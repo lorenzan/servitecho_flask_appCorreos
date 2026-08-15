@@ -12,7 +12,7 @@ import sys
 import os
 
 # 1. Ruta donde subiste el proyecto (ajusta "tuusuario")
-project_home = '/home/tuusuario/servitecho'
+project_home = '/home/tuusuario/tecuns-roofing'
 if project_home not in sys.path:
     sys.path.insert(0, project_home)
 
