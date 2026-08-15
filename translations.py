@@ -70,6 +70,7 @@ _STATIC_STRINGS = [
     "Atención continua para emergencias, mantenimiento y seguimiento de obra.",
     "Cuadrillas especializadas, acabados impecables y seguridad en cada proyecto.",
     "Standing Seam, paneles termoacústicos y módulos adaptados a cada obra.",
+    "Galería de proyectos",
     "Acerca de nosotros", "Construimos Confianza", "Nuestros valores",
     "Misión", "Visión", "Soporte 24/7", "Llamar:",
     "Servicios", "Contacto", "Redes sociales", "Síguenos y contáctanos",

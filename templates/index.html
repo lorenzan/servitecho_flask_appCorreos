@@ -62,35 +62,40 @@
         </a>
       </div>
     </div>
-    <div class="hero-figure" id="heroCarousel" {% if hero_slides and hero_slides|length > 1 %}data-autoplay="5500"{% endif %}>
-      <div class="hero-carousel">
-        {% if hero_slides %}
-          {% for slide in hero_slides %}
-          <figure class="hero-slide {{ 'is-active' if loop.first else '' }}" data-index="{{ loop.index0 }}">
-            <img src="{{ url_for('static', filename=slide.image_path) }}" alt="{{ slide.caption or ('Proyecto Tecuns Roofing ' ~ loop.index) }}" {% if not loop.first %}loading="lazy"{% endif %}>
-            {% if slide.caption %}
-              <span class="tag">{{ slide.caption }}</span>
-            {% endif %}
-          </figure>
+    <div class="hero-figure">
+      {% set fallback_hero_cards = [
+        {'src': 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800&auto=format&fit=crop', 'caption': 'Standing Seam'},
+        {'src': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=800&auto=format&fit=crop', 'caption': 'Panel 5G'},
+        {'src': 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop', 'caption': 'Módulos'}
+      ] %}
+      <div class="wrap_card" aria-label="{{ t('Galería de proyectos') }}">
+        {% if hero_cards %}
+          {% for slide in hero_cards %}
+          <div class="card">
+            <div class="content">
+              <img src="{{ url_for('static', filename=slide.image_path) }}" alt="{{ slide.caption or ('Proyecto ' ~ loop.index) }}" {% if not loop.first %}loading="lazy"{% endif %}>
+              {% if slide.caption %}
+              <em class="card-caption">{{ slide.caption }}</em>
+              {% endif %}
+            </div>
+          </div>
           {% endfor %}
         {% else %}
-          <figure class="hero-slide is-active" data-index="0">
-            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1200&auto=format&fit=crop" alt="Techo industrial metálico">
-            <span class="tag">Standing Seam &middot; Panel 5G &middot; Módulos</span>
-          </figure>
-        {% endif %}
-      </div>
-      {% if hero_slides and hero_slides|length > 1 %}
-      <div class="hero-carousel-nav" aria-label="Controles del carrusel">
-        <button type="button" class="hero-carousel-btn" data-dir="prev" aria-label="Anterior">‹</button>
-        <div class="hero-carousel-dots" role="tablist">
-          {% for slide in hero_slides %}
-          <button type="button" class="hero-dot {{ 'is-active' if loop.first else '' }}" data-index="{{ loop.index0 }}" aria-label="Imagen {{ loop.index }}"></button>
+          {% for item in fallback_hero_cards %}
+          <div class="card">
+            <div class="content">
+              <img src="{{ item.src }}" alt="{{ item.caption }}">
+              <em class="card-caption">{{ item.caption }}</em>
+            </div>
+          </div>
           {% endfor %}
+        {% endif %}
+
+        <div class="lines" aria-hidden="true">
+          <div class="line"></div>
+          <div class="line"></div>
         </div>
-        <button type="button" class="hero-carousel-btn" data-dir="next" aria-label="Siguiente">›</button>
       </div>
-      {% endif %}
     </div>
   </div>
 </section>
@@ -461,60 +466,4 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-(function () {
-  const root = document.getElementById('heroCarousel');
-  if (!root) return;
-  const slides = Array.from(root.querySelectorAll('.hero-slide'));
-  const dots = Array.from(root.querySelectorAll('.hero-dot'));
-  if (slides.length < 2) return;
-
-  let index = 0;
-  let timer = null;
-  const delay = parseInt(root.dataset.autoplay || '5500', 10);
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function goTo(i) {
-    index = (i + slides.length) % slides.length;
-    slides.forEach((s, n) => s.classList.toggle('is-active', n === index));
-    dots.forEach((d, n) => d.classList.toggle('is-active', n === index));
-  }
-
-  function next() { goTo(index + 1); }
-  function prev() { goTo(index - 1); }
-
-  function start() {
-    if (reduceMotion) return;
-    stop();
-    timer = setInterval(next, delay);
-  }
-  function stop() {
-    if (timer) clearInterval(timer);
-    timer = null;
-  }
-
-  root.querySelectorAll('[data-dir="next"]').forEach(btn => btn.addEventListener('click', () => { next(); start(); }));
-  root.querySelectorAll('[data-dir="prev"]').forEach(btn => btn.addEventListener('click', () => { prev(); start(); }));
-  dots.forEach(dot => dot.addEventListener('click', () => {
-    goTo(parseInt(dot.dataset.index, 10));
-    start();
-  }));
-
-  root.addEventListener('mouseenter', stop);
-  root.addEventListener('mouseleave', start);
-  root.addEventListener('focusin', stop);
-  root.addEventListener('focusout', start);
-
-  let touchX = null;
-  root.addEventListener('touchstart', (e) => { touchX = e.changedTouches[0].screenX; }, { passive: true });
-  root.addEventListener('touchend', (e) => {
-    if (touchX == null) return;
-    const dx = e.changedTouches[0].screenX - touchX;
-    if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); start(); }
-    touchX = null;
-  }, { passive: true });
-
-  start();
-})();
-</script>
 {% endblock %}

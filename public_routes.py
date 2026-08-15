@@ -57,6 +57,13 @@ def index():
             )
         ]
 
+    # Animación de 3 cards en el hero (usa las primeras 3 activas)
+    hero_cards = list(hero_slides[:3]) if hero_slides else []
+    if hero_cards and len(hero_cards) < 3:
+        while len(hero_cards) < 3:
+            hero_cards.extend(hero_slides[:3])
+        hero_cards = hero_cards[:3]
+
     about_slides = (
         AboutSlide.query.filter_by(active=True)
         .order_by(AboutSlide.sort_order, AboutSlide.id)
@@ -82,6 +89,7 @@ def index():
         services=services,
         reviews=reviews,
         hero_slides=hero_slides,
+        hero_cards=hero_cards,
         about_gallery=about_gallery,
     )
 

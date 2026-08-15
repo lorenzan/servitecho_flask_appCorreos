@@ -77,9 +77,9 @@
 
 {% if block.section_key == 'hero' %}
 <div class="card-panel" style="max-width:780px; margin-top:8px;">
-  <h3 style="margin-top:0;">Galería del hero (carrusel)</h3>
+  <h3 style="margin-top:0;">Galería del hero (3 cards animadas)</h3>
   <p class="text-steel" style="margin-bottom:18px;">
-    Sube hasta {{ max_hero_slides }} imágenes. Se muestran en rotación automática en la portada.
+    Sube hasta {{ max_hero_slides }} imágenes. Las <strong>primeras 3 activas</strong> alimentan la animación de cards en la portada.
     Actualmente: <strong>{{ hero_slides|length }}</strong> / {{ max_hero_slides }}.
   </p>
 
