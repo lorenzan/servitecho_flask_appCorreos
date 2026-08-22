@@ -3,87 +3,146 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-  #mapSearchResults div{ padding:10px 12px; font-size:.88rem; cursor:pointer; border-bottom:1px solid var(--line-dark); }
-  #mapSearchResults div:hover{ background:var(--offwhite); }
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div class="container">
-    <div class="eyebrow">{{ t('Cotización') }}</div>
-    <h1>{{ t('Cuéntanos sobre tu proyecto') }}</h1>
-    <p>{{ t('Danos la ubicación, describe lo que necesitas y sube fotos del sitio. Nuestro equipo revisará tu solicitud y te contactará con una propuesta.') }}</p>
+<section class="quote-page">
+  <div class="quote-page__hero">
+    <div class="container">
+      {% set quote_eyebrow = t('Cotización') %}
+      <div class="eyebrow eyebrow--shine">
+        <span class="eyebrow-shine">
+          {% for char in quote_eyebrow %}
+            {% if char == ' ' %}
+              <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
+            {% else %}
+              <span class="eyebrow-shine__letter" style="--i:{{ loop.index0 }}">{{ char }}</span>
+            {% endif %}
+          {% endfor %}
+          <span class="eyebrow-shine__loader" aria-hidden="true"></span>
+        </span>
+      </div>
+      <h1>{{ t('Cuéntanos sobre tu proyecto') }}</h1>
+      <p class="quote-page__lead">{{ t('Danos la ubicación, describe lo que necesitas y sube fotos del sitio. Nuestro equipo revisará tu solicitud y te contactará con una propuesta.') }}</p>
+
+      <ul class="quote-page__perks" aria-label="{{ t('Beneficios') }}">
+        <li>{{ t('Sin compromiso') }}</li>
+        <li>{{ t('Respuesta rápida') }}</li>
+        <li>{{ t('Proyectos a medida') }}</li>
+      </ul>
+    </div>
   </div>
-</div>
 
-<section class="section">
-  <div class="container" style="max-width:760px;">
-    <form class="form-card" method="POST" action="{{ url_for('public.cotizacion') }}" enctype="multipart/form-data">
-      <div class="form-grid-2">
+  <div class="container quote-page__body">
+    <form class="quote-form" method="POST" action="{{ url_for('public.cotizacion') }}" enctype="multipart/form-data">
+      <div class="quote-form__section">
+        <div class="quote-form__section-head">
+          <span class="quote-form__step">1</span>
+          <div>
+            <h2>{{ t('Datos de contacto') }}</h2>
+            <p>{{ t('Así te contactamos con tu cotización.') }}</p>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="name">{{ t('Nombre completo') }}</label>
+            <input type="text" id="name" name="name" required autocomplete="name">
+          </div>
+          <div class="form-row">
+            <label for="phone">{{ t('Teléfono / WhatsApp') }}</label>
+            <input type="tel" id="phone" name="phone" required autocomplete="tel">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label for="email">{{ t('Correo (opcional)') }}</label>
+            <input type="email" id="email" name="email" autocomplete="email">
+          </div>
+          <div class="form-row">
+            <label for="service_type">{{ t('Producto de interés') }}</label>
+            <select id="service_type" name="service_type">
+              <option value="">{{ t('Selecciona una opción') }}</option>
+              {% for s in services %}
+                <option value="{{ s.name }}">{{ s.name }}</option>
+              {% endfor %}
+              <option value="Otro / No estoy seguro">{{ t('Otro / No estoy seguro') }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="quote-form__section">
+        <div class="quote-form__section-head">
+          <span class="quote-form__step">2</span>
+          <div>
+            <h2>{{ t('Ubicación del proyecto') }}</h2>
+            <p>{{ t('Escribe la dirección o marca el punto en el mapa.') }}</p>
+          </div>
+        </div>
+
         <div class="form-row">
-          <label for="name">{{ t('Nombre completo') }}</label>
-          <input type="text" id="name" name="name" required>
+          <label for="location">{{ t('Ubicación del proyecto') }}</label>
+          <input type="text" id="location" name="location" placeholder="{{ t('Departamento, municipio, dirección o punto de referencia') }}" required>
+          <p class="hint mb-0">{{ t('Escribe la dirección o usa el mapa de abajo para marcar el punto exacto — se autocompletará.') }}</p>
         </div>
+
+        <div class="form-row quote-map-block">
+          <div class="quote-map-toolbar">
+            <label class="mb-0" style="margin:0;">{{ t('Marca la ubicación en el mapa (opcional)') }}</label>
+            <button type="button" id="btnGeolocate" class="btn btn-outline btn-sm quote-geo-btn">
+              <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 8a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm8.94 3A8.99 8.99 0 0 0 13 3.06V1h-2v2.06A8.99 8.99 0 0 0 3.06 11H1v2h2.06A8.99 8.99 0 0 0 11 20.94V23h2v-2.06A8.99 8.99 0 0 0 20.94 13H23v-2zM12 19a7 7 0 1 1 7-7 7 7 0 0 1-7 7z"/></svg>
+              <span>{{ t('Usar mi ubicación actual') }}</span>
+            </button>
+          </div>
+
+          <div class="quote-map-search">
+            <input type="text" id="mapSearch" placeholder="{{ t('Buscar dirección, colonia o ciudad...') }}" autocomplete="off">
+            <div id="mapSearchResults" class="quote-map-results" hidden></div>
+          </div>
+
+          <div id="map" class="quote-map"></div>
+          <p class="hint" id="mapCoordsHint">{{ t('Aún no has marcado un punto — el mapa está centrado en El Salvador. Haz clic para colocar el pin.') }}</p>
+          <input type="hidden" id="latitude" name="latitude">
+          <input type="hidden" id="longitude" name="longitude">
+        </div>
+      </div>
+
+      <div class="quote-form__section">
+        <div class="quote-form__section-head">
+          <span class="quote-form__step">3</span>
+          <div>
+            <h2>{{ t('Detalles del trabajo') }}</h2>
+            <p>{{ t('Mientras más claro, más precisa será tu cotización.') }}</p>
+          </div>
+        </div>
+
         <div class="form-row">
-          <label for="phone">{{ t('Teléfono / WhatsApp') }}</label>
-          <input type="tel" id="phone" name="phone" required>
+          <label for="description">{{ t('Describe lo que necesitas') }}</label>
+          <textarea id="description" name="description" required placeholder="{{ t('Tipo de techo o fachada, dimensiones aproximadas, estado actual, plazos, etc.') }}"></textarea>
         </div>
-      </div>
 
-      <div class="form-grid-2">
         <div class="form-row">
-          <label for="email">{{ t('Correo (opcional)') }}</label>
-          <input type="email" id="email" name="email">
-        </div>
-        <div class="form-row">
-          <label for="service_type">{{ t('Producto de interés') }}</label>
-          <select id="service_type" name="service_type">
-            <option value="">{{ t('Selecciona una opción') }}</option>
-            {% for s in services %}
-              <option value="{{ s.name }}">{{ s.name }}</option>
-            {% endfor %}
-            <option value="Otro / No estoy seguro">{{ t('Otro / No estoy seguro') }}</option>
-          </select>
+          <label for="images">{{ t('Fotos del sitio (opcional, hasta 6 imágenes)') }}</label>
+          <label class="quote-file-drop" for="images">
+            <input type="file" id="images" name="images" multiple accept="image/png, image/jpeg, image/webp">
+            <span class="quote-file-drop__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 15v4H5v-4H3v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4zM11 5.83V16h2V5.83l3.59 3.58L18 8l-6-6-6 6 1.41 1.41z"/></svg>
+            </span>
+            <strong>{{ t('Arrastra o selecciona fotos') }}</strong>
+            <span class="hint mb-0">{{ t('Sube fotos del techo, fachada o área del proyecto — nos ayuda a preparar una cotización más precisa.') }}</span>
+          </label>
         </div>
       </div>
 
-      <div class="form-row">
-        <label for="location">{{ t('Ubicación del proyecto') }}</label>
-        <input type="text" id="location" name="location" placeholder="{{ t('Departamento, municipio, dirección o punto de referencia') }}" required>
-        <p class="hint mb-0">{{ t('Escribe la dirección o usa el mapa de abajo para marcar el punto exacto — se autocompletará.') }}</p>
+      <div class="quote-form__footer">
+        <p class="quote-form__note">{{ t('Sin compromiso · Respuesta rápida · Proyectos a medida') }}</p>
+        <button type="submit" class="btn btn-rust quote-form__submit">
+          <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm7 1.5V9h4.5L14 4.5zM9 12h6v1.5H9V12zm0 3.5h6V17H9v-1.5zm0-7h3V10H9V8.5z"/></svg>
+          <span>{{ t('Enviar solicitud de cotización') }}</span>
+        </button>
       </div>
-
-      <div class="form-row">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-          <label class="mb-0" style="margin:0;">{{ t('Marca la ubicación en el mapa (opcional)') }}</label>
-          <button type="button" id="btnGeolocate" class="btn btn-outline-dark btn-sm" style="padding:8px 14px;">📍 {{ t('Usar mi ubicación actual') }}</button>
-        </div>
-        <div style="position:relative; margin-bottom:10px;">
-          <input type="text" id="mapSearch" placeholder="{{ t('Buscar dirección, colonia o ciudad...') }}" autocomplete="off">
-          <div id="mapSearchResults" style="position:absolute; top:100%; left:0; right:0; background:var(--white); border:1px solid var(--line-dark); border-top:none; z-index:500; display:none; max-height:200px; overflow-y:auto;"></div>
-        </div>
-        <div id="map" style="height:320px; border:1px solid var(--line-dark); border-radius:var(--radius);"></div>
-        <p class="hint" id="mapCoordsHint">{{ t('Aún no has marcado un punto — el mapa está centrado en El Salvador. Haz clic para colocar el pin.') }}</p>
-        <input type="hidden" id="latitude" name="latitude">
-        <input type="hidden" id="longitude" name="longitude">
-      </div>
-
-      <div class="form-row">
-        <label for="description">{{ t('Describe lo que necesitas') }}</label>
-        <textarea id="description" name="description" required placeholder="{{ t('Tipo de techo o fachada, dimensiones aproximadas, estado actual, plazos, etc.') }}"></textarea>
-      </div>
-
-      <div class="form-row">
-        <label for="images">{{ t('Fotos del sitio (opcional, hasta 6 imágenes)') }}</label>
-        <div class="file-drop">
-          <input type="file" id="images" name="images" multiple accept="image/png, image/jpeg, image/webp">
-          <p class="hint mb-0">{{ t('Sube fotos del techo, fachada o área del proyecto — nos ayuda a preparar una cotización más precisa.') }}</p>
-        </div>
-      </div>
-
-      <button type="submit" class="btn btn-rust btn-block">{{ t('Enviar solicitud de cotización') }}</button>
     </form>
   </div>
 </section>
@@ -136,6 +195,9 @@
     setMarker(e.latlng.lat, e.latlng.lng, true);
   });
 
+  // Leaflet a veces necesita un refresh cuando el contenedor ya tiene tamaño final
+  setTimeout(function () { map.invalidateSize(); }, 200);
+
   document.getElementById('btnGeolocate').addEventListener('click', function () {
     if (!navigator.geolocation) {
       alert('Tu navegador no soporta geolocalización.');
@@ -158,15 +220,17 @@
   searchInput.addEventListener('input', function () {
     clearTimeout(searchTimeout);
     const q = searchInput.value.trim();
-    if (q.length < 3) { resultsBox.style.display = 'none'; return; }
+    if (q.length < 3) { resultsBox.hidden = true; return; }
     searchTimeout = setTimeout(function () {
       fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=sv&q=' + encodeURIComponent(q))
         .then(r => r.json())
         .then(data => {
           resultsBox.innerHTML = '';
-          if (!data.length) { resultsBox.style.display = 'none'; return; }
+          if (!data.length) { resultsBox.hidden = true; return; }
           data.forEach(function (place) {
-            const item = document.createElement('div');
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'quote-map-results__item';
             item.textContent = place.display_name;
             item.addEventListener('click', function () {
               const lat = parseFloat(place.lat), lng = parseFloat(place.lon);
@@ -174,19 +238,35 @@
               setMarker(lat, lng, false);
               locationInput.value = place.display_name;
               searchInput.value = '';
-              resultsBox.style.display = 'none';
+              resultsBox.hidden = true;
             });
             resultsBox.appendChild(item);
           });
-          resultsBox.style.display = 'block';
+          resultsBox.hidden = false;
         })
-        .catch(() => { resultsBox.style.display = 'none'; });
+        .catch(() => { resultsBox.hidden = true; });
     }, 400);
   });
 
   document.addEventListener('click', function (e) {
-    if (e.target !== searchInput) resultsBox.style.display = 'none';
+    if (e.target !== searchInput && !resultsBox.contains(e.target)) resultsBox.hidden = true;
   });
+
+  // Feedback visual al elegir fotos
+  var imagesInput = document.getElementById('images');
+  var drop = document.querySelector('.quote-file-drop');
+  if (imagesInput && drop) {
+    imagesInput.addEventListener('change', function () {
+      var n = imagesInput.files ? imagesInput.files.length : 0;
+      var strong = drop.querySelector('strong');
+      if (!strong) return;
+      strong.textContent = n
+        ? (n + ' foto' + (n === 1 ? '' : 's') + ' seleccionada' + (n === 1 ? '' : 's'))
+        : strong.getAttribute('data-default') || strong.textContent;
+    });
+    var strongEl = drop.querySelector('strong');
+    if (strongEl) strongEl.setAttribute('data-default', strongEl.textContent);
+  }
 })();
 </script>
 {% endblock %}

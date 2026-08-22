@@ -28,6 +28,9 @@
             {% else %}
               <span class="badge badge-pendiente">Pendiente</span>
             {% endif %}
+            {% if r.featured %}
+              <span class="badge badge-en_revision" style="margin-left:4px;">Destacada</span>
+            {% endif %}
           </td>
           <td>
             {% if not r.approved %}

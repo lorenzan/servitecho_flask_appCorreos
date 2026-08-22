@@ -38,6 +38,14 @@
       <div class="hint">Si está marcada, la reseña aparece públicamente; si no, queda pendiente de revisión.</div>
     </div>
 
+    <div class="form-row">
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <input type="checkbox" name="featured" {{ 'checked' if review.featured else '' }}>
+        <span>Destacada en el carrusel</span>
+      </label>
+      <div class="hint">Las reseñas destacadas se muestran primero en el carrusel de la página pública.</div>
+    </div>
+
     <div style="display:flex; gap:12px; margin-top:28px;">
       <button type="submit" class="btn btn-rust">Guardar cambios</button>
       <a href="{{ url_for('admin.resenas') }}" class="btn btn-outline-dark">Cancelar</a>

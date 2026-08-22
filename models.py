@@ -44,9 +44,31 @@ class Service(db.Model):
     name = db.Column(db.String(150), nullable=False)
     short_description = db.Column(db.String(400))
     description = db.Column(db.Text)
-    image_path = db.Column(db.String(300))
+    image_path = db.Column(db.String(300))  # imagen de portada / fallback del hero
+    video_path = db.Column(db.String(300))  # video opcional del hero (mp4/webm)
     order = db.Column(db.Integer, default=0)
     active = db.Column(db.Boolean, default=True)
+
+    gallery_images = db.relationship(
+        "ServiceGalleryImage",
+        backref="service",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="ServiceGalleryImage.sort_order",
+    )
+
+
+class ServiceGalleryImage(db.Model):
+    """Galería de fotos por servicio (editable desde el admin)."""
+    __tablename__ = "service_gallery_images"
+
+    id = db.Column(db.Integer, primary_key=True)
+    service_id = db.Column(db.Integer, db.ForeignKey("services.id"), nullable=False)
+    image_path = db.Column(db.String(300), nullable=False)
+    caption = db.Column(db.String(200))
+    sort_order = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class Review(db.Model):
@@ -58,6 +80,7 @@ class Review(db.Model):
     rating = db.Column(db.Integer, nullable=False)  # 1-5
     comment = db.Column(db.Text, nullable=False)
     approved = db.Column(db.Boolean, default=True)  # published immediately; admin can always delete
+    featured = db.Column(db.Boolean, default=False)  # aparece en el carrusel destacado
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 

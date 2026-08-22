@@ -15,4 +15,5 @@ class Config:
     UPLOAD_FOLDER_CONTENT = os.path.join(BASE_DIR, "static", "uploads", "content")
     UPLOAD_FOLDER_QUOTES = os.path.join(BASE_DIR, "static", "uploads", "quotes")
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB total per request
+    ALLOWED_VIDEO_EXTENSIONS = {"mp4", "webm", "mov"}
+    MAX_CONTENT_LENGTH = 64 * 1024 * 1024  # 64 MB (imágenes + videos de servicio)

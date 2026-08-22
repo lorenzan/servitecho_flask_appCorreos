@@ -74,6 +74,18 @@ def create_app():
             db.session.commit()
         except Exception:
             pass
+        # Migración: video opcional en servicios
+        try:
+            db.session.execute(db.text("ALTER TABLE services ADD COLUMN video_path VARCHAR(300)"))
+            db.session.commit()
+        except Exception:
+            pass
+        # Migración: reseñas destacadas (carrusel)
+        try:
+            db.session.execute(db.text("ALTER TABLE reviews ADD COLUMN featured BOOLEAN DEFAULT 0"))
+            db.session.commit()
+        except Exception:
+            pass
         # Migrar imagen única del hero a la galería (una sola vez)
         try:
             from models import ContentBlock, HeroSlide, AboutSlide

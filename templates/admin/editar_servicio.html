@@ -3,7 +3,7 @@
 {% block page_title %}{{ 'Editar producto' if servicio else 'Nuevo producto' }}{% endblock %}
 
 {% block admin_content %}
-<div class="card-panel" style="max-width:720px;">
+<div class="card-panel" style="max-width:820px;">
   <form method="POST"
         action="{{ url_for('admin.editar_servicio', service_id=servicio.id) if servicio else url_for('admin.nuevo_servicio') }}"
         enctype="multipart/form-data">
@@ -14,7 +14,7 @@
       </div>
       <div class="form-row">
         <label for="slug">Slug (URL)</label>
-        <input type="text" id="slug" name="slug" value="{{ servicio.slug if servicio else '' }}" placeholder="ej. standing-seam" required>
+        <input type="text" id="slug" name="slug" value="{{ servicio.slug if servicio else '' }}" placeholder="ej. instalacion-de-techos" required>
       </div>
     </div>
 
@@ -29,11 +29,25 @@
     </div>
 
     <div class="form-row">
-      <label for="image">Imagen del producto</label>
+      <label for="image">Imagen de portada (hero / cards)</label>
       {% if servicio and servicio.image_path %}
-        <img src="{{ url_for('static', filename=servicio.image_path) }}" alt="{{ servicio.name }}" style="max-width:220px; border-radius:2px; margin-bottom:10px;">
+        <img src="{{ url_for('static', filename=servicio.image_path) }}" alt="{{ servicio.name }}" style="max-width:220px; border-radius:8px; margin-bottom:10px;">
       {% endif %}
       <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
+      <p class="hint">Se usa como fondo del hero si no hay video, y en el listado de productos.</p>
+    </div>
+
+    <div class="form-row">
+      <label for="video">Video del hero (opcional)</label>
+      {% if servicio and servicio.video_path %}
+        <video src="{{ url_for('static', filename=servicio.video_path) }}" controls muted playsinline style="max-width:320px; border-radius:8px; margin-bottom:10px; background:#111;"></video>
+        <label style="display:flex; align-items:center; gap:8px; text-transform:none; font-family:var(--font-body); margin-bottom:10px;">
+          <input type="checkbox" name="remove_video" style="width:auto;">
+          Quitar video actual (volver a usar solo la imagen)
+        </label>
+      {% endif %}
+      <input type="file" id="video" name="video" accept="video/mp4,video/webm,video/quicktime">
+      <p class="hint">Formatos: MP4, WebM o MOV. Máx. ~64 MB. Si subes un video, se reproduce en el hero (con la imagen como respaldo).</p>
     </div>
 
     <div class="form-grid-2">
@@ -53,4 +67,68 @@
     <a href="{{ url_for('admin.servicios') }}" class="btn btn-outline-dark">Cancelar</a>
   </form>
 </div>
+
+{% if servicio %}
+<div class="card-panel" style="max-width:820px; margin-top:8px;">
+  <h3 style="margin-top:0;">Galería de fotos del servicio</h3>
+  <p class="text-steel" style="margin-bottom:18px;">
+    Fotos propias de este servicio (hasta {{ max_gallery }}). Actualmente:
+    <strong>{{ gallery|length }}</strong> / {{ max_gallery }}.
+  </p>
+
+  {% if gallery %}
+  <div class="hero-gallery-admin">
+    {% for slide in gallery %}
+    <div class="hero-gallery-item {{ '' if slide.active else 'is-hidden' }}">
+      <img src="{{ url_for('static', filename=slide.image_path) }}" alt="Foto {{ loop.index }}">
+      <div class="hero-gallery-meta">
+        <form method="POST" action="{{ url_for('admin.service_gallery_caption', image_id=slide.id) }}" class="hero-caption-form">
+          <input type="text" name="caption" value="{{ slide.caption or '' }}" placeholder="Leyenda opcional">
+          <button type="submit" class="btn btn-sm btn-outline-dark">Guardar leyenda</button>
+        </form>
+        <div class="hero-gallery-actions">
+          <form method="POST" action="{{ url_for('admin.service_gallery_move', image_id=slide.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="up">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.service_gallery_move', image_id=slide.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="down">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.service_gallery_toggle', image_id=slide.id) }}" class="inline-form">
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if slide.active else 'Mostrar' }}</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.service_gallery_delete', image_id=slide.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta foto?');">
+            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="hint">Aún no hay fotos en la galería de este servicio.</p>
+  {% endif %}
+
+  {% if gallery|length < max_gallery %}
+  <form method="POST" action="{{ url_for('admin.service_gallery_add', service_id=servicio.id) }}" enctype="multipart/form-data" style="margin-top:18px;">
+    <div class="form-row">
+      <label for="gallery_images">Agregar fotos</label>
+      <input type="file" id="gallery_images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
+    </div>
+    <div class="form-row">
+      <label for="gallery_caption">Leyenda (opcional, se aplica a las nuevas)</label>
+      <input type="text" id="gallery_caption" name="caption" placeholder="ej. Obra residencial">
+    </div>
+    <button type="submit" class="btn btn-rust">Subir a la galería</button>
+  </form>
+  {% else %}
+  <p class="hint">Llegaste al máximo de {{ max_gallery }} fotos. Elimina alguna para agregar más.</p>
+  {% endif %}
+</div>
+{% else %}
+<div class="card-panel" style="max-width:820px; margin-top:8px;">
+  <p class="hint" style="margin:0;">Guarda el producto primero para poder subir la galería de fotos.</p>
+</div>
+{% endif %}
 {% endblock %}

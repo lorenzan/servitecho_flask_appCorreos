@@ -102,10 +102,23 @@ def servicio_detalle(slug):
         .order_by(Service.order)
         .all()
     )
+    gallery = [
+        img
+        for img in sorted(
+            servicio.gallery_images,
+            key=lambda g: (g.sort_order or 0, g.id or 0),
+        )
+        if img.active
+    ]
     if getattr(g, "lang", "es") == "en":
         servicio = translations.localize_service(servicio)
         otros = [translations.localize_service(o) for o in otros]
-    return render_template("servicio_detalle.html", servicio=servicio, otros=otros)
+    return render_template(
+        "servicio_detalle.html",
+        servicio=servicio,
+        otros=otros,
+        gallery=gallery,
+    )
 
 
 @public_bp.route("/resenas", methods=["GET", "POST"])
@@ -144,9 +157,24 @@ def resenas():
         .order_by(desc(Review.created_at))
         .all()
     )
+    featured = (
+        Review.query.filter_by(approved=True, featured=True)
+        .order_by(desc(Review.rating), desc(Review.created_at))
+        .limit(8)
+        .all()
+    )
+    # Si nadie está marcada como destacada, usamos las mejor calificadas
+    if not featured:
+        featured = (
+            Review.query.filter_by(approved=True)
+            .order_by(desc(Review.rating), desc(Review.created_at))
+            .limit(6)
+            .all()
+        )
     if getattr(g, "lang", "es") == "en":
         reviews = [translations.localize_review(r) for r in reviews]
-    return render_template("resenas.html", reviews=reviews)
+        featured = [translations.localize_review(r) for r in featured]
+    return render_template("resenas.html", reviews=reviews, featured=featured)
 
 
 @public_bp.route("/cotizacion", methods=["GET", "POST"])

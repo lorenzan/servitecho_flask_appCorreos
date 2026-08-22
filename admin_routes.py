@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import desc
 
 from extensions import db
-from models import Admin, Review, Quote, ContentBlock, Service, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide
+from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide
 from utils import save_upload
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
@@ -133,6 +133,7 @@ def editar_resena(review_id):
         review.rating = rating
         review.comment = comment
         review.approved = request.form.get("approved") == "on"
+        review.featured = request.form.get("featured") == "on"
         db.session.commit()
         flash("Reseña actualizada.", "success")
         return redirect(url_for("admin.resenas"))
@@ -210,6 +211,7 @@ def eliminar_cotizacion(quote_id):
 
 MAX_HERO_SLIDES = 6
 MAX_ABOUT_SLIDES = 10
+MAX_SERVICE_GALLERY = 12
 
 
 @admin_bp.route("/contenido")
@@ -443,7 +445,12 @@ def servicios():
 def nuevo_servicio():
     if request.method == "POST":
         return _guardar_servicio(None)
-    return render_template("admin/editar_servicio.html", servicio=None)
+    return render_template(
+        "admin/editar_servicio.html",
+        servicio=None,
+        gallery=[],
+        max_gallery=MAX_SERVICE_GALLERY,
+    )
 
 
 @admin_bp.route("/servicios/<int:service_id>/editar", methods=["GET", "POST"])
@@ -452,7 +459,17 @@ def editar_servicio(service_id):
     servicio = Service.query.get_or_404(service_id)
     if request.method == "POST":
         return _guardar_servicio(servicio)
-    return render_template("admin/editar_servicio.html", servicio=servicio)
+    gallery = (
+        ServiceGalleryImage.query.filter_by(service_id=servicio.id)
+        .order_by(ServiceGalleryImage.sort_order, ServiceGalleryImage.id)
+        .all()
+    )
+    return render_template(
+        "admin/editar_servicio.html",
+        servicio=servicio,
+        gallery=gallery,
+        max_gallery=MAX_SERVICE_GALLERY,
+    )
 
 
 def _guardar_servicio(servicio):
@@ -486,10 +503,118 @@ def _guardar_servicio(servicio):
         rel_path = save_upload(image, "content")
         if rel_path:
             servicio.image_path = rel_path
+        else:
+            flash("La imagen de portada no se pudo subir (usa png/jpg/webp).", "warning")
+
+    video = request.files.get("video")
+    if video and video.filename:
+        rel_path = save_upload(video, "content", media="video")
+        if rel_path:
+            servicio.video_path = rel_path
+        else:
+            flash("El video no se pudo subir (usa mp4/webm/mov, máx. 64 MB).", "warning")
+
+    if request.form.get("remove_video") == "on":
+        servicio.video_path = None
 
     db.session.commit()
     flash(f'Servicio "{servicio.name}" guardado.', "success")
-    return redirect(url_for("admin.servicios"))
+    return redirect(url_for("admin.editar_servicio", service_id=servicio.id))
+
+
+@admin_bp.route("/servicios/<int:service_id>/galeria", methods=["POST"])
+@login_required
+def service_gallery_add(service_id):
+    servicio = Service.query.get_or_404(service_id)
+    files = request.files.getlist("images")
+    current = ServiceGalleryImage.query.filter_by(service_id=servicio.id).count()
+    added = 0
+    for f in files:
+        if current + added >= MAX_SERVICE_GALLERY:
+            break
+        if not f or not f.filename:
+            continue
+        rel_path = save_upload(f, "content")
+        if not rel_path:
+            continue
+        caption = request.form.get("caption", "").strip() or None
+        max_order = db.session.query(
+            db.func.coalesce(db.func.max(ServiceGalleryImage.sort_order), -1)
+        ).filter(ServiceGalleryImage.service_id == servicio.id).scalar()
+        db.session.add(
+            ServiceGalleryImage(
+                service_id=servicio.id,
+                image_path=rel_path,
+                caption=caption,
+                sort_order=(max_order or 0) + 1 + added,
+                active=True,
+            )
+        )
+        added += 1
+    if added:
+        db.session.commit()
+        flash(f"Se agregaron {added} foto(s) a la galería.", "success")
+    else:
+        flash("No se pudo agregar ninguna foto. Revisa formato (png/jpg/webp) y el límite.", "warning")
+    return redirect(url_for("admin.editar_servicio", service_id=servicio.id))
+
+
+@admin_bp.route("/servicios/galeria/<int:image_id>/eliminar", methods=["POST"])
+@login_required
+def service_gallery_delete(image_id):
+    img = ServiceGalleryImage.query.get_or_404(image_id)
+    service_id = img.service_id
+    db.session.delete(img)
+    db.session.commit()
+    flash("Foto eliminada de la galería.", "success")
+    return redirect(url_for("admin.editar_servicio", service_id=service_id))
+
+
+@admin_bp.route("/servicios/galeria/<int:image_id>/mover", methods=["POST"])
+@login_required
+def service_gallery_move(image_id):
+    direction = request.form.get("direction", "up")
+    img = ServiceGalleryImage.query.get_or_404(image_id)
+    slides = (
+        ServiceGalleryImage.query.filter_by(service_id=img.service_id)
+        .order_by(ServiceGalleryImage.sort_order, ServiceGalleryImage.id)
+        .all()
+    )
+    idx = next((i for i, s in enumerate(slides) if s.id == image_id), None)
+    if idx is None:
+        flash("Imagen no encontrada.", "danger")
+        return redirect(url_for("admin.editar_servicio", service_id=img.service_id))
+    swap_with = idx - 1 if direction == "up" else idx + 1
+    if 0 <= swap_with < len(slides):
+        slides[idx].sort_order, slides[swap_with].sort_order = (
+            slides[swap_with].sort_order,
+            slides[idx].sort_order,
+        )
+        if slides[idx].sort_order == slides[swap_with].sort_order:
+            slides[idx].sort_order = swap_with
+            slides[swap_with].sort_order = idx
+        db.session.commit()
+    return redirect(url_for("admin.editar_servicio", service_id=img.service_id))
+
+
+@admin_bp.route("/servicios/galeria/<int:image_id>/toggle", methods=["POST"])
+@login_required
+def service_gallery_toggle(image_id):
+    img = ServiceGalleryImage.query.get_or_404(image_id)
+    img.active = not img.active
+    db.session.commit()
+    flash("Visibilidad de la foto actualizada.", "success")
+    return redirect(url_for("admin.editar_servicio", service_id=img.service_id))
+
+
+@admin_bp.route("/servicios/galeria/<int:image_id>/caption", methods=["POST"])
+@login_required
+def service_gallery_caption(image_id):
+    img = ServiceGalleryImage.query.get_or_404(image_id)
+    img.caption = request.form.get("caption", "").strip() or None
+    db.session.commit()
+    flash("Leyenda guardada.", "success")
+    return redirect(url_for("admin.editar_servicio", service_id=img.service_id))
 
 
 @admin_bp.route("/servicios/<int:service_id>/eliminar", methods=["POST"])

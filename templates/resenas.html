@@ -2,62 +2,272 @@
 {% block title %}{{ t('Reseñas de clientes') }} | Tecuns Roofing{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div class="container">
-    <div class="eyebrow">{{ t('Reseñas') }}</div>
-    <h1>{{ t('La experiencia de nuestros clientes') }}</h1>
-    <p>{{ t('Proyectos entregados, opiniones reales. Comparte también la tuya.') }}</p>
+<section class="reviews-page">
+  <div class="reviews-page__hero">
+    <div class="container">
+      {% set rev_eyebrow = t('Reseñas') %}
+      <div class="eyebrow eyebrow--shine">
+        <span class="eyebrow-shine">
+          {% for char in rev_eyebrow %}
+            {% if char == ' ' %}
+              <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
+            {% else %}
+              <span class="eyebrow-shine__letter" style="--i:{{ loop.index0 }}">{{ char }}</span>
+            {% endif %}
+          {% endfor %}
+          <span class="eyebrow-shine__loader" aria-hidden="true"></span>
+        </span>
+      </div>
+      <h1>{{ t('La experiencia de nuestros clientes') }}</h1>
+      <p class="reviews-page__lead">{{ t('Proyectos entregados, opiniones reales. Comparte también la tuya.') }}</p>
+    </div>
   </div>
-</div>
 
-<section class="section">
-  <div class="container about-grid" style="align-items:flex-start;">
-    <div>
-      <h2>{{ t('Opiniones publicadas') }}</h2>
-      {% if reviews %}
-        <div class="grid-2">
-          {% for r in reviews %}
-          <div class="review-card">
-            <div class="stars">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</div>
-            <p>{{ r.comment }}</p>
-            <div class="review-name">{{ r.name }} &middot; {{ r.created_at.strftime('%d/%m/%Y') }}</div>
-          </div>
+  {% if featured %}
+  <section class="reviews-featured">
+    <div class="container">
+      <div class="reviews-featured__head">
+        <h2>{{ t('Opiniones destacadas') }}</h2>
+        <div class="reviews-carousel__controls" aria-hidden="false">
+          <button type="button" class="reviews-carousel__btn" data-rev-prev aria-label="{{ t('Anterior') }}">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M14.7 6.3a1 1 0 0 1 0 1.4L10.4 12l4.3 4.3a1 1 0 1 1-1.4 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.4 0z"/></svg>
+          </button>
+          <button type="button" class="reviews-carousel__btn" data-rev-next aria-label="{{ t('Siguiente') }}">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.3 6.3a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4l-5 5a1 1 0 1 1-1.4-1.4L13.6 12 9.3 7.7a1 1 0 0 1 0-1.4z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="reviews-carousel" data-rev-carousel>
+        <div class="reviews-carousel__track" data-rev-track>
+          {% for r in featured %}
+          <article class="review-card reviews-carousel__slide">
+            <header class="review-card__head">
+              <div class="review-card__avatar" aria-hidden="true">{{ r.name[:1]|upper }}</div>
+              <div class="review-card__meta">
+                <div class="review-card__name">{{ r.name }}</div>
+                <div class="review-card__role">{{ t('Cliente Tecuns') }}</div>
+              </div>
+              <div class="review-card__stars" aria-label="{{ r.rating }} {{ t('estrellas') }}">
+                {% for i in range(1, 6) %}
+                  <span class="review-card__star {{ 'is-on' if i <= r.rating else '' }}" aria-hidden="true">★</span>
+                {% endfor %}
+              </div>
+            </header>
+            <p class="review-card__body">{{ r.comment }}</p>
+            <p class="review-card__date">{{ r.created_at.strftime('%d/%m/%Y') }}</p>
+          </article>
           {% endfor %}
         </div>
-      {% else %}
-        <p class="text-steel">{{ t('Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!') }}</p>
-      {% endif %}
+      </div>
     </div>
+  </section>
+  {% endif %}
 
-    <div>
-      <div class="form-card">
-        <h3 style="margin-bottom:.2em;">{{ t('Deja tu reseña') }}</h3>
-        <p class="text-steel" style="font-size:.9rem;">{{ t('Tu reseña se publicará luego de ser revisada por nuestro equipo.') }}</p>
-        <form method="POST" action="{{ url_for('public.resenas') }}">
-          <div class="form-row">
-            <label for="name">{{ t('Nombre') }}</label>
-            <input type="text" id="name" name="name" required>
+  <section class="reviews-form-section" id="dejar-resena">
+    <div class="container reviews-form-wrap">
+      <div class="reviews-form-intro">
+        <div class="eyebrow">{{ t('Tu opinión') }}</div>
+        <h2>{{ t('Deja tu reseña') }}</h2>
+        <p>{{ t('Cuéntanos cómo te fue. Tu reseña se publicará luego de ser revisada por nuestro equipo.') }}</p>
+      </div>
+
+      <div class="reviews-form-card">
+        <form method="POST" action="{{ url_for('public.resenas') }}" class="reviews-form">
+          <div class="reviews-form__grid">
+            <div class="form-row">
+              <label for="name">{{ t('Nombre') }}</label>
+              <input type="text" id="name" name="name" required autocomplete="name">
+            </div>
+            <div class="form-row">
+              <label for="email">{{ t('Correo (opcional)') }}</label>
+              <input type="email" id="email" name="email" autocomplete="email">
+            </div>
           </div>
-          <div class="form-row">
-            <label for="email">{{ t('Correo (opcional)') }}</label>
-            <input type="email" id="email" name="email">
-          </div>
+
           <div class="form-row">
             <label>{{ t('Calificación') }}</label>
-            <div class="rating-select">
+            <div class="rating-pills" role="radiogroup" aria-label="{{ t('Calificación') }}">
               {% for i in range(5, 0, -1) %}
-              <label><input type="radio" name="rating" value="{{ i }}" {% if i == 5 %}checked{% endif %}> {{ i }}★</label>
+              <label class="rating-pill">
+                <input type="radio" name="rating" value="{{ i }}" {% if i == 5 %}checked{% endif %}>
+                <span>{{ i }}★</span>
+              </label>
               {% endfor %}
             </div>
           </div>
+
           <div class="form-row">
             <label for="comment">{{ t('Comentario') }}</label>
-            <textarea id="comment" name="comment" required placeholder="{{ t('Cuéntanos sobre tu proyecto y experiencia con Tecuns Roofing...') }}"></textarea>
+            <textarea id="comment" name="comment" required rows="5" placeholder="{{ t('Cuéntanos sobre tu proyecto y experiencia con Tecuns Roofing...') }}"></textarea>
           </div>
-          <button type="submit" class="btn btn-rust btn-block">{{ t('Enviar reseña') }}</button>
+
+          <button type="submit" class="btn btn-rust">
+            <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            <span>{{ t('Enviar reseña') }}</span>
+          </button>
         </form>
       </div>
     </div>
-  </div>
+  </section>
+
+  <section class="reviews-all">
+    <div class="container">
+      <div class="reviews-all__head">
+        <div class="eyebrow">{{ t('Comunidad') }}</div>
+        <h2>{{ t('Todas las reseñas') }}</h2>
+      </div>
+
+      {% if reviews %}
+      <div class="reviews-grid reviews-grid--page">
+        {% for r in reviews %}
+        <article class="review-card">
+          <header class="review-card__head">
+            <div class="review-card__avatar" aria-hidden="true">{{ r.name[:1]|upper }}</div>
+            <div class="review-card__meta">
+              <div class="review-card__name">{{ r.name }}</div>
+              <div class="review-card__role">{{ r.created_at.strftime('%d/%m/%Y') }}</div>
+            </div>
+            <div class="review-card__stars" aria-label="{{ r.rating }} {{ t('estrellas') }}">
+              {% for i in range(1, 6) %}
+                <span class="review-card__star {{ 'is-on' if i <= r.rating else '' }}" aria-hidden="true">★</span>
+              {% endfor %}
+            </div>
+          </header>
+          <p class="review-card__body">{{ r.comment }}</p>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="reviews-empty">{{ t('Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!') }}</p>
+      {% endif %}
+    </div>
+  </section>
 </section>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if featured %}
+<script>
+(function () {
+  var root = document.querySelector("[data-rev-carousel]");
+  var track = document.querySelector("[data-rev-track]");
+  if (!root || !track) return;
+
+  var prev = document.querySelector("[data-rev-prev]");
+  var next = document.querySelector("[data-rev-next]");
+  var slides = track.querySelectorAll(".reviews-carousel__slide");
+  if (slides.length < 2) return;
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var paused = false;
+  var pos = 0;
+  var speed = 0.8; // px por frame
+  var resumeTimer = null;
+
+  // Duplicar para loop continuo
+  Array.prototype.forEach.call(slides, function (node) {
+    var clone = node.cloneNode(true);
+    clone.setAttribute("aria-hidden", "true");
+    track.appendChild(clone);
+  });
+
+  track.style.scrollSnapType = "none";
+  track.style.scrollBehavior = "auto";
+
+  function halfWidth() {
+    return track.scrollWidth / 2;
+  }
+
+  function applyPos() {
+    var half = halfWidth();
+    if (half <= 0) return;
+    if (pos >= half) pos -= half;
+    if (pos < 0) pos += half;
+    track.scrollLeft = pos;
+  }
+
+  function loop() {
+    if (!paused && !reduceMotion) {
+      pos += speed;
+      applyPos();
+    } else {
+      pos = track.scrollLeft;
+    }
+    window.requestAnimationFrame(loop);
+  }
+
+  function pause() {
+    paused = true;
+    pos = track.scrollLeft;
+    if (resumeTimer) {
+      window.clearTimeout(resumeTimer);
+      resumeTimer = null;
+    }
+  }
+
+  function resume(delay) {
+    if (reduceMotion) return;
+    if (resumeTimer) window.clearTimeout(resumeTimer);
+    resumeTimer = window.setTimeout(function () {
+      paused = false;
+      pos = track.scrollLeft;
+      resumeTimer = null;
+    }, delay || 0);
+  }
+
+  function stepSize() {
+    var slide = track.querySelector(".reviews-carousel__slide");
+    if (!slide) return 320;
+    var styles = window.getComputedStyle(track);
+    var gap = parseFloat(styles.columnGap || styles.gap || "16") || 16;
+    return slide.getBoundingClientRect().width + gap;
+  }
+
+  function nudge(dir) {
+    pause();
+    var start = track.scrollLeft;
+    var target = start + dir * stepSize();
+    var dist = target - start;
+    var t0 = null;
+    var dur = 700;
+
+    function ease(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function anim(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      pos = start + dist * ease(p);
+      applyPos();
+      if (p < 1) {
+        window.requestAnimationFrame(anim);
+      } else {
+        resume(1000);
+      }
+    }
+    window.requestAnimationFrame(anim);
+  }
+
+  if (prev) prev.addEventListener("click", function (e) { e.preventDefault(); nudge(-1); });
+  if (next) next.addEventListener("click", function (e) { e.preventDefault(); nudge(1); });
+
+  root.addEventListener("mouseenter", pause);
+  root.addEventListener("mouseleave", function () { resume(250); });
+  root.addEventListener("focusin", pause);
+  root.addEventListener("focusout", function () { resume(250); });
+  root.addEventListener("touchstart", pause, { passive: true });
+  root.addEventListener("touchend", function () { resume(1400); });
+
+  // Asegurar ancho limitado para que haya scroll
+  root.style.minWidth = "0";
+  track.style.minWidth = "0";
+  track.style.width = "100%";
+
+  pos = track.scrollLeft || 0;
+  window.requestAnimationFrame(loop);
+})();
+</script>
+{% endif %}
 {% endblock %}
