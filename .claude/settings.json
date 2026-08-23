@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"from admin_routes import admin_bp; print\\('OK'\\)\")",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

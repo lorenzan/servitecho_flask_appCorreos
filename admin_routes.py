@@ -1,10 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from collections import defaultdict
 
 from functools import wraps
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
-from sqlalchemy import desc
+from sqlalchemy import desc, func, extract
 
 from extensions import db
 from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard
@@ -48,6 +49,7 @@ def logout():
 @admin_bp.route("/")
 @login_required
 def dashboard():
+    # Basic stats
     stats = {
         "pending_reviews": Review.query.filter_by(approved=False).count(),
         "total_reviews": Review.query.count(),
@@ -55,6 +57,73 @@ def dashboard():
         "total_quotes": Quote.query.count(),
         "total_services": Service.query.count(),
     }
+
+    # --- Chart data: Reviews by rating (1-5 stars) ---
+    reviews_by_rating = db.session.query(
+        Review.rating, func.count(Review.id)
+    ).filter_by(approved=True).group_by(Review.rating).all()
+    reviews_rating_data = [0] * 5
+    for rating, count in reviews_by_rating:
+        if 1 <= rating <= 5:
+            reviews_rating_data[rating - 1] = count
+
+    # --- Chart data: Reviews by month (last 12 months) ---
+    twelve_months_ago = datetime.utcnow() - timedelta(days=365)
+    reviews_by_month = db.session.query(
+        extract('year', Review.created_at).label('year'),
+        extract('month', Review.created_at).label('month'),
+        func.count(Review.id)
+    ).filter(Review.created_at >= twelve_months_ago).group_by('year', 'month').order_by('year', 'month').all()
+
+    review_months = []
+    review_monthly_counts = []
+    for year, month, count in reviews_by_month:
+        review_months.append(f"{int(month):02d}/{int(year)}")
+        review_monthly_counts.append(count)
+
+    # --- Chart data: Quotes by status ---
+    quotes_by_status = db.session.query(
+        Quote.status, func.count(Quote.id)
+    ).group_by(Quote.status).all()
+    quote_status_labels = []
+    quote_status_counts = []
+    for status, count in quotes_by_status:
+        quote_status_labels.append(status.replace('_', ' ').title())
+        quote_status_counts.append(count)
+
+    # --- Chart data: Top 5 most quoted services ---
+    top_services = db.session.query(
+        Quote.service_type, func.count(Quote.id)
+    ).filter(Quote.service_type.isnot(None), Quote.service_type != '').group_by(Quote.service_type).order_by(func.count(Quote.id).desc()).limit(5).all()
+    top_service_labels = [s[0] for s in top_services]
+    top_service_counts = [s[1] for s in top_services]
+
+    # --- Chart data: Quotes by month (last 12 months) ---
+    quotes_by_month = db.session.query(
+        extract('year', Quote.created_at).label('year'),
+        extract('month', Quote.created_at).label('month'),
+        func.count(Quote.id)
+    ).filter(Quote.created_at >= twelve_months_ago).group_by('year', 'month').order_by('year', 'month').all()
+
+    quote_months = []
+    quote_monthly_counts = []
+    for year, month, count in quotes_by_month:
+        quote_months.append(f"{int(month):02d}/{int(year)}")
+        quote_monthly_counts.append(count)
+
+    # --- Chart data: Average rating over time (last 12 months) ---
+    avg_rating_by_month = db.session.query(
+        extract('year', Review.created_at).label('year'),
+        extract('month', Review.created_at).label('month'),
+        func.avg(Review.rating)
+    ).filter(Review.approved == True, Review.created_at >= twelve_months_ago).group_by('year', 'month').order_by('year', 'month').all()
+
+    avg_rating_months = []
+    avg_rating_values = []
+    for year, month, avg in avg_rating_by_month:
+        avg_rating_months.append(f"{int(month):02d}/{int(year)}")
+        avg_rating_values.append(round(float(avg), 1) if avg else 0)
+
     recent_quotes = Quote.query.order_by(desc(Quote.created_at)).limit(5).all()
     recent_reviews = (
         Review.query.filter_by(approved=False).order_by(desc(Review.created_at)).limit(5).all()
@@ -64,6 +133,18 @@ def dashboard():
         stats=stats,
         recent_quotes=recent_quotes,
         recent_reviews=recent_reviews,
+        # Chart data
+        reviews_rating_data=reviews_rating_data,
+        review_months=review_months,
+        review_monthly_counts=review_monthly_counts,
+        quote_status_labels=quote_status_labels,
+        quote_status_counts=quote_status_counts,
+        top_service_labels=top_service_labels,
+        top_service_counts=top_service_counts,
+        quote_months=quote_months,
+        quote_monthly_counts=quote_monthly_counts,
+        avg_rating_months=avg_rating_months,
+        avg_rating_values=avg_rating_values,
     )
 
 

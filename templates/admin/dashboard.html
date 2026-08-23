@@ -11,6 +11,66 @@
   <div class="kpi"><div class="num">{{ stats.total_services }}</div><div class="label">Productos publicados</div></div>
 </div>
 
+<!-- Gráficos principales -->
+<div class="grid-2">
+  <!-- Reseñas por calificación (estrellas) -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <h3>Reseñas por calificación</h3>
+      <div class="chart-filter">
+        <select id="reviewFilter" class="chart-select">
+          <option value="all">Todas</option>
+          <option value="1">1 estrella</option>
+          <option value="2">2 estrellas</option>
+          <option value="3">3 estrellas</option>
+          <option value="4">4 estrellas</option>
+          <option value="5">5 estrellas</option>
+        </select>
+      </div>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="reviewsRatingChart"></canvas>
+    </div>
+    <p class="chart-caption" id="reviewFilterCaption">Mostrando todas las reseñas aprobadas</p>
+  </div>
+
+  <!-- Cotizaciones por estado -->
+  <div class="card-panel">
+    <h3>Cotizaciones por estado</h3>
+    <div class="chart-wrapper">
+      <canvas id="quotesStatusChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <!-- Productos más cotizados -->
+  <div class="card-panel">
+    <h3>Productos más cotizados</h3>
+    <div class="chart-wrapper">
+      <canvas id="topServicesChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Promedio de calificación por mes -->
+  <div class="card-panel">
+    <h3>Promedio de calificación por mes</h3>
+    <div class="chart-wrapper">
+      <canvas id="avgRatingChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="grid-1">
+  <!-- Tendencias mensuales: Reseñas vs Cotizaciones -->
+  <div class="card-panel">
+    <h3>Tendencia mensual: Reseñas vs Cotizaciones (últimos 12 meses)</h3>
+    <div class="chart-wrapper chart-wrapper-wide">
+      <canvas id="monthlyTrendChart"></canvas>
+    </div>
+  </div>
+</div>
+
 <div class="grid-2">
   <div class="card-panel">
     <h3 style="text-transform:none; font-size:1rem;">Cotizaciones recientes</h3>
@@ -55,4 +115,292 @@
     <a href="{{ url_for('admin.resenas') }}" class="link">Ver todas las reseñas →</a>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+  // Colores de la paleta TECUNS (metálica: dorado · bronce · plata · negro)
+  const COLORS = {
+    // Dorados
+    goldBright: '#F7DD83',    // --gold-bright
+    gold: '#E7AA35',          // --gold / --rust (principal)
+    goldMid: '#C98A1E',       // --gold-mid / --rust-dark
+    goldDark: '#AE6A0C',      // --gold-dark
+    bronze: '#653608',        // --bronze
+    // Platas
+    silverBright: '#D6D6D4',  // --silver-bright
+    silver: '#C2C1BF',        // --silver-light / --silver
+    silverMid: '#999794',     // --silver-mid / --metal
+    // Neutros
+    charcoal: '#17120F',      // --charcoal / --negro
+    charcoal2: '#241C16',     // --charcoal-2
+    charcoal3: '#43413E',     // --charcoal-3 / --gris-oscuro
+    offwhite: '#F4F3F1',      // --offwhite
+  };
+
+  const GRID = 'rgba(23,18,15,0.06)';
+  const GRID_DARK = 'rgba(23,18,15,0.1)';
+  const FONT = "'Inter', sans-serif";
+
+  Chart.defaults.font.family = FONT;
+  Chart.defaults.color = COLORS.silverMid;
+
+  // ===== Reviews by Rating Chart (Bar) =====
+  const reviewsRatingData = {{ reviews_rating_data | tojson }};
+  const reviewsRatingCtx = document.getElementById('reviewsRatingChart');
+  const reviewsRatingChart = new Chart(reviewsRatingCtx, {
+    type: 'bar',
+    data: {
+      labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
+      datasets: [{
+        label: 'Cantidad de reseñas',
+        data: reviewsRatingData,
+        // Degradado bronce → dorado brillante
+        backgroundColor: [
+          COLORS.bronze,        // 1 estrella - bronce
+          COLORS.goldDark,      // 2 estrellas - dorado oscuro
+          COLORS.goldMid,       // 3 estrellas - dorado medio
+          COLORS.gold,          // 4 estrellas - dorado principal
+          COLORS.goldBright     // 5 estrellas - dorado brillante
+        ],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: COLORS.charcoal,
+          titleColor: COLORS.goldBright,
+          bodyColor: COLORS.silverBright,
+          padding: 12,
+          callbacks: {
+            label: function(ctx) {
+              const val = ctx.parsed.y;
+              return `${val} ${val === 1 ? 'reseña' : 'reseñas'}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: GRID }, ticks: { precision: 0, color: COLORS.silverMid } },
+        x: { grid: { display: false }, ticks: { color: COLORS.silverMid } }
+      }
+    }
+  });
+
+  // ===== Review Filter =====
+  const reviewFilter = document.getElementById('reviewFilter');
+  const reviewCaption = document.getElementById('reviewFilterCaption');
+  reviewFilter.addEventListener('change', function() {
+    const val = this.value;
+    if (val === 'all') {
+      reviewsRatingChart.data.datasets[0].data = reviewsRatingData;
+      reviewCaption.textContent = 'Mostrando todas las reseñas aprobadas';
+    } else {
+      const starIndex = parseInt(val) - 1;
+      const filtered = reviewsRatingData.map((v, i) => i === starIndex ? v : 0);
+      reviewsRatingChart.data.datasets[0].data = filtered;
+      reviewCaption.textContent = `Mostrando reseñas de ${val} ${val === '1' ? 'estrella' : 'estrellas'}`;
+    }
+    reviewsRatingChart.update();
+  });
+
+  // ===== Quotes by Status (Doughnut) =====
+  const quoteStatusCtx = document.getElementById('quotesStatusChart');
+  new Chart(quoteStatusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ quote_status_labels | tojson }},
+      datasets: [{
+        data: {{ quote_status_counts | tojson }},
+        // Paleta dorada consistente
+        backgroundColor: [
+          COLORS.gold,          // Pendiente
+          COLORS.goldMid,       // En revisión
+          COLORS.goldBright,    // Cotizado
+          COLORS.bronze         // Rechazado
+        ],
+        borderWidth: 2,
+        borderColor: COLORS.white || '#FFFFFF'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 16,
+            usePointStyle: true,
+            color: COLORS.silverMid,
+            font: { size: 12 }
+          }
+        },
+        tooltip: {
+          backgroundColor: COLORS.charcoal,
+          titleColor: COLORS.goldBright,
+          bodyColor: COLORS.silverBright,
+          padding: 12
+        }
+      }
+    }
+  });
+
+  // ===== Top Services (Horizontal Bar) =====
+  const topServicesCtx = document.getElementById('topServicesChart');
+  new Chart(topServicesCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ top_service_labels | tojson }},
+      datasets: [{
+        label: 'Cotizaciones',
+        data: {{ top_service_counts | tojson }},
+        backgroundColor: COLORS.gold,
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: COLORS.charcoal,
+          titleColor: COLORS.goldBright,
+          bodyColor: COLORS.silverBright,
+          padding: 12,
+          callbacks: {
+            label: function(ctx) {
+              return `${ctx.parsed.x} cotizaciones`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { beginAtZero: true, grid: { color: GRID }, ticks: { precision: 0, color: COLORS.silverMid } },
+        y: { grid: { display: false }, ticks: { color: COLORS.silverMid } }
+      }
+    }
+  });
+
+  // ===== Average Rating by Month (Line) =====
+  const avgRatingCtx = document.getElementById('avgRatingChart');
+  new Chart(avgRatingCtx, {
+    type: 'line',
+    data: {
+      labels: {{ avg_rating_months | tojson }},
+      datasets: [{
+        label: 'Promedio de calificación',
+        data: {{ avg_rating_values | tojson }},
+        borderColor: COLORS.gold,
+        backgroundColor: 'rgba(231, 170, 53, 0.12)',  // gold con 12% opacity
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.35,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: COLORS.goldBright,
+        pointBorderColor: COLORS.gold,
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: COLORS.charcoal,
+          titleColor: COLORS.goldBright,
+          bodyColor: COLORS.silverBright,
+          padding: 12,
+          callbacks: {
+            label: function(ctx) {
+              return `Promedio: ${ctx.parsed.y} ★`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, max: 5, grid: { color: GRID }, ticks: { stepSize: 1, color: COLORS.silverMid } },
+        x: { grid: { display: false }, ticks: { color: COLORS.silverMid } }
+      }
+    }
+  });
+
+  // ===== Monthly Trend: Reviews vs Quotes (Line) =====
+  const monthlyTrendCtx = document.getElementById('monthlyTrendChart');
+  new Chart(monthlyTrendCtx, {
+    type: 'line',
+    data: {
+      labels: {{ review_months | tojson }},
+      datasets: [
+        {
+          label: 'Reseñas',
+          data: {{ review_monthly_counts | tojson }},
+          borderColor: COLORS.gold,
+          backgroundColor: 'rgba(231, 170, 53, 0.1)',
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: COLORS.goldBright,
+          pointBorderColor: COLORS.gold,
+          pointBorderWidth: 2
+        },
+        {
+          label: 'Cotizaciones',
+          data: {{ quote_monthly_counts | tojson }},
+          borderColor: COLORS.bronze,
+          backgroundColor: 'rgba(101, 54, 8, 0.1)',
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: COLORS.goldMid,
+          pointBorderColor: COLORS.bronze,
+          pointBorderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            usePointStyle: true,
+            padding: 16,
+            color: COLORS.silverMid,
+            font: { size: 12 }
+          }
+        },
+        tooltip: {
+          backgroundColor: COLORS.charcoal,
+          titleColor: COLORS.goldBright,
+          bodyColor: COLORS.silverBright,
+          padding: 12
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: GRID }, ticks: { precision: 0, color: COLORS.silverMid } },
+        x: { grid: { display: false }, ticks: { color: COLORS.silverMid } }
+      }
+    }
+  });
+})();
+</script>
 {% endblock %}

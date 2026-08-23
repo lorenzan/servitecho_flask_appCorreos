@@ -8,6 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <!-- Chart.js for dashboard charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   {% block extra_head %}{% endblock %}
 </head>
 <body class="admin-body">
@@ -21,10 +23,8 @@
         <a href="{{ url_for('admin.servicios') }}" class="{{ 'active' if request.endpoint and 'servicio' in request.endpoint }}">Productos / Servicios</a>
         <a href="{{ url_for('admin.contenido') }}" class="{{ 'active' if request.endpoint and 'contenido' in request.endpoint }}">Contenido del sitio</a>
         <a href="{{ url_for('admin.config_correo') }}" class="{{ 'active' if request.endpoint == 'admin.config_correo' }}">Correo — Configuración</a>
-        <!-- Correo - Plantillas - oculto, en construcción -->
-        <a href="{{ url_for('admin.plantillas') }}" class="under-construction" data-section="plantillas">Correo — Plantillas</a>
-        <!-- Marketing - Google Ads - oculto, en construcción -->
-        <a href="{{ url_for('admin.config_marketing') }}" class="under-construction" data-section="marketing">Marketing — Google Ads</a>
+        <a href="{{ url_for('admin.plantillas') }}" class="{{ 'active' if request.endpoint == 'admin.plantillas' }}">Correo — Plantillas</a>
+        <a href="{{ url_for('admin.config_marketing') }}" class="{{ 'active' if request.endpoint == 'admin.config_marketing' }}">Marketing — Google Ads</a>
         {% if current_user.is_superadmin %}
         <a href="{{ url_for('admin.usuarios') }}" class="{{ 'active' if request.endpoint and 'usuario' in request.endpoint }}">Usuarios admin</a>
         {% endif %}
@@ -54,138 +54,5 @@
   </div>
   {% block extra_scripts %}{% endblock %}
 
-<!-- Modal "Sitio en construcción" -->
-<div id="construction-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="construction-title" hidden>
-  <div class="modal-overlay" tabindex="-1"></div>
-  <div class="modal-content">
-    <div class="construction-animation" aria-hidden="true">
-      <!-- Casa con techo en construcción -->
-      <div class="house">
-        <!-- Base de la casa -->
-        <div class="house-base">
-          <div class="wall"></div>
-          <div class="window left"></div>
-          <div class="window right"></div>
-          <div class="door"></div>
-        </div>
-        <!-- Techo en construcción -->
-        <div class="roof construction">
-          <div class="roof-frame">
-            <div class="beam"></div>
-            <div class="beam"></div>
-            <div class="beam"></div>
-            <div class="beam"></div>
-          </div>
-          <div class="roof-tiles">
-            <div class="tile-row">
-              <div class="tile"></div>
-              <div class="tile"></div>
-              <div class="tile"></div>
-              <div class="tile"></div>
-              <div class="tile"></div>
-            </div>
-            <div class="tile-row">
-              <div class="tile"></div>
-              <div class="tile"></div>
-              <div class="tile"></div>
-              <div class="tile"></div>
-            </div>
-            <div class="tile-row">
-              <div class="tile"></div>
-              <div class="tile"></div>
-              <div class="tile"></div>
-            </div>
-          </div>
-          <!-- Obreros -->
-          <div class="worker worker-1">
-            <div class="worker-body"></div>
-            <div class="worker-hammer"></div>
-          </div>
-          <div class="worker worker-2">
-            <div class="worker-body"></div>
-            <div class="worker-trowel"></div>
-          </div>
-          <!-- Herramientas -->
-          <div class="toolbox"></div>
-          <div class="ladder"></div>
-        </div>
-        <!-- Chimenea -->
-        <div class="chimney"></div>
-      </div>
-      <!-- Partículas de polvo/escombros -->
-      <div class="dust-particles" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span>
-        <span></span><span></span><span></span><span></span><span></span>
-      </div>
-    </div>
-    <div class="construction-text">
-      <h2 id="construction-title">Sitio en construcción</h2>
-      <p>Esta sección está siendo desarrollada. Volverá a estar disponible pronto.</p>
-      <button class="btn btn-primary" id="construction-close">Entendido</button>
-    </div>
-  </div>
-</div>
-
-<script>
-  (function() {
-    // Elementos del modal
-    const modal = document.getElementById('construction-modal');
-    const overlay = modal.querySelector('.modal-overlay');
-    const closeBtn = document.getElementById('construction-close');
-    const underConstructionLinks = document.querySelectorAll('.under-construction');
-
-    function openModal() {
-      modal.hidden = false;
-      // Forzar reflow para la animación
-      requestAnimationFrame(() => {
-        modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      });
-    }
-
-    function closeModal() {
-      modal.classList.remove('open');
-      document.body.style.overflow = '';
-      // Esperar a que termine la animación antes de ocultar
-      setTimeout(() => {
-        if (!modal.classList.contains('open')) {
-          modal.hidden = true;
-        }
-      }, 300);
-    }
-
-    // Event listeners para los enlaces "en construcción"
-    underConstructionLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        openModal();
-      });
-
-      // También manejar Enter/Space para accesibilidad
-      link.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openModal();
-        }
-      });
-    });
-
-    // Cerrar modal
-    closeBtn.addEventListener('click', closeModal);
-    overlay.addEventListener('click', closeModal);
-
-    // Cerrar con Escape
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal.classList.contains('open')) {
-        closeModal();
-      }
-    });
-
-    // Prevenir scroll del body cuando el modal está abierto
-    modal.addEventListener('wheel', function(e) {
-      e.stopPropagation();
-    }, { passive: false });
-  })();
-</script>
 </body>
 </html>
