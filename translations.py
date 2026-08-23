@@ -123,7 +123,7 @@ _STATIC_STRINGS = [
     "Explora otras soluciones de techado con el mismo estándar de calidad Tecuns.",
     "Ver servicio", "¿Listo para cotizar este servicio?",
     "Galería", "Trabajos de este servicio",
-    "Fotos reales de proyectos realizados por Tecuns Roofing.",
+    "Fotos reales de proyectos realizados por Tecun's Roofing.",
     "Continúa viendo",
     "Ampliar foto", "Cerrar", "Anterior", "Siguiente",
     # Gracias

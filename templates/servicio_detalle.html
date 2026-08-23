@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ servicio.name }} | Tecuns Roofing{% endblock %}
+{% block title %}{{ servicio.name }} | Tecun's Roofing{% endblock %}
 {% block meta_description %}{{ servicio.short_description }}{% endblock %}
 
 {% block content %}
@@ -26,7 +26,7 @@
   </div>
 
   <div class="container svc-hero__content">
-    <p class="svc-hero__brand">Tecuns Roofing</p>
+    <p class="svc-hero__brand">Tecun's Roofing</p>
     <div class="eyebrow eyebrow--shine svc-hero__eyebrow">
       <span class="eyebrow-shine">
         {% set svc_eyebrow = t('Servicio') %}
@@ -94,7 +94,7 @@
               </div>
             </div>
             <div class="cta-spotlight__copy">
-              <p class="cta-spotlight__brand">Tecuns Roofing</p>
+              <p class="cta-spotlight__brand">Tecun's Roofing</p>
               <p class="cta-spotlight__title">{{ t('Solicitar cotización') }}</p>
               <p class="cta-spotlight__desc">{{ t('Sin compromiso · Respuesta rápida · Proyectos a medida') }}</p>
               <span class="cta-spotlight__line" aria-hidden="true"></span>
@@ -119,7 +119,7 @@
           <img src="{{ hero_img }}" alt="{{ servicio.name }}">
         </div>
         <div class="svc-aside-panel__body">
-          <p class="svc-aside-panel__label">Tecuns Roofing</p>
+          <p class="svc-aside-panel__label">Tecun's Roofing</p>
           <h3 class="svc-aside-panel__title">{{ servicio.name }}</h3>
           {% if servicio.short_description %}
           <p class="svc-aside-panel__text">{{ servicio.short_description }}</p>
@@ -148,7 +148,7 @@
         </span>
       </div>
       <h2>{{ t('Trabajos de este servicio') }}</h2>
-      <p class="svc-gallery__lead">{{ t('Fotos reales de proyectos realizados por Tecuns Roofing.') }}</p>
+      <p class="svc-gallery__lead">{{ t("Fotos reales de proyectos realizados por Tecun's Roofing.") }}</p>
     </div>
     <div class="svc-gallery__grid" data-svc-gallery>
       {% for img in gallery %}
@@ -263,7 +263,7 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm7 1.5V9h4.5L14 4.5zM9 12h6v1.5H9V12zm0 3.5h6V17H9v-1.5zm0-7h3V10H9V8.5z"/></svg>
             </div>
           </div>
-          <p class="cta-spotlight__brand">Tecuns Roofing</p>
+          <p class="cta-spotlight__brand">Tecun's Roofing</p>
           <p class="cta-spotlight__title">{{ t('Solicitar cotización') }}</p>
           <p class="cta-spotlight__desc">{{ t('Sin compromiso · Respuesta rápida · Proyectos a medida') }}</p>
           <span class="cta-spotlight__line" aria-hidden="true"></span>

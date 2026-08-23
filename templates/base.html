@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Tecuns Roofing{% endblock %}</title>
+  <title>{% block title %}Tecun's Roofing{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}{% endblock %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -73,13 +73,13 @@
         <a class="brand" href="{{ url_for('public.index') }}">
           {% if site_logo and site_logo.image_path %}
             <span class="brand-logo-wrap">
-              <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Tecuns Roofing">
+              <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Tecun's Roofing">
             </span>
           {% else %}
             <span class="brand-mark" aria-hidden="true"></span>
           {% endif %}
           <span class="brand-text">
-            <span class="brand-name">{% block brand_name %}Tecuns Roofing{% endblock %}</span>
+            <span class="brand-name">{% block brand_name %}Tecun's Roofing{% endblock %}</span>
           </span>
         </a>
 
@@ -183,9 +183,9 @@
           <div class="footer-brand">
             <h4 class="footer-brand__name">
               {% if site_logo and site_logo.image_path %}
-                <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Tecuns Roofing" class="footer-brand__logo">
+                <img src="{{ url_for('static', filename=site_logo.image_path) }}" alt="Tecun's Roofing" class="footer-brand__logo">
               {% endif %}
-              <span>TECUNS ROOFING</span>
+              <span>TECUN'S ROOFING</span>
             </h4>
             <p class="footer-brand__text">{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}</p>
           </div>
@@ -266,7 +266,7 @@
         </div>
 
         <div class="footer-bottom">
-          <span>© {{ 2026 }} Tecuns Roofing. {{ t('Todos los derechos reservados.') }}</span>
+          <span>© {{ 2026 }} Tecun's Roofing. {{ t('Todos los derechos reservados.') }}</span>
           <a href="{{ url_for('admin.login') }}">{{ t('Acceso administrador') }}</a>
         </div>
       </div>
