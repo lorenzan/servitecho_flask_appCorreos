@@ -88,7 +88,7 @@ def create_app():
             pass
         # Migrar imagen única del hero a la galería (una sola vez)
         try:
-            from models import ContentBlock, HeroSlide, AboutSlide
+            from models import ContentBlock, HeroSlide, AboutSlide, QuoteGlassCard
             if HeroSlide.query.count() == 0:
                 hero = ContentBlock.query.filter_by(section_key="hero").first()
                 if hero and hero.image_path:
@@ -122,6 +122,34 @@ def create_app():
                         title="",  # Facebook URL
                         body="",  # Instagram URL
                         extra="",  # TikTok URL
+                        image_path=None,
+                    )
+                )
+                db.session.commit()
+            # Bloque Cotización (cards glass editables)
+            if not ContentBlock.query.filter_by(section_key="cotizacion").first():
+                db.session.add(
+                    ContentBlock(
+                        section_key="cotizacion",
+                        label="Cotización (cards glass)",
+                        eyebrow="Cotización",
+                        title="Cuéntanos sobre tu proyecto",
+                        body="Danos la ubicación, describe lo que necesitas y sube fotos del sitio.",
+                        extra="Sin compromiso · Respuesta rápida",
+                        image_path=None,
+                    )
+                )
+                db.session.commit()
+            # Bloque Reseñas (cards apiladas editables)
+            if not ContentBlock.query.filter_by(section_key="resenas").first():
+                db.session.add(
+                    ContentBlock(
+                        section_key="resenas",
+                        label="Reseñas (cards apiladas)",
+                        eyebrow="Reseñas",
+                        title="La experiencia de nuestros clientes",
+                        body="Proyectos entregados, opiniones reales. Comparte también la tuya.",
+                        extra="",
                         image_path=None,
                     )
                 )

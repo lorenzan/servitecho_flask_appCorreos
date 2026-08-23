@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import desc
 
 from extensions import db
-from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide
+from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard
 from utils import save_upload
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
@@ -212,6 +212,8 @@ def eliminar_cotizacion(quote_id):
 MAX_HERO_SLIDES = 6
 MAX_ABOUT_SLIDES = 10
 MAX_SERVICE_GALLERY = 12
+MAX_QUOTE_GLASS = 3
+MAX_REVIEW_STACK = 3
 
 
 @admin_bp.route("/contenido")
@@ -220,11 +222,15 @@ def contenido():
     blocks = ContentBlock.query.order_by(ContentBlock.label).all()
     hero_slides_count = HeroSlide.query.count()
     about_slides_count = AboutSlide.query.count()
+    quote_glass_count = QuoteGlassCard.query.count()
+    review_stack_count = ReviewStackCard.query.count()
     return render_template(
         "admin/contenido.html",
         blocks=blocks,
         hero_slides_count=hero_slides_count,
         about_slides_count=about_slides_count,
+        quote_glass_count=quote_glass_count,
+        review_stack_count=review_stack_count,
     )
 
 
@@ -234,10 +240,16 @@ def editar_contenido(section_key):
     block = ContentBlock.query.filter_by(section_key=section_key).first_or_404()
     hero_slides = []
     about_slides = []
+    quote_glass_cards = []
+    review_stack_cards = []
     if section_key == "hero":
         hero_slides = HeroSlide.query.order_by(HeroSlide.sort_order, HeroSlide.id).all()
     elif section_key == "about":
         about_slides = AboutSlide.query.order_by(AboutSlide.sort_order, AboutSlide.id).all()
+    elif section_key == "cotizacion":
+        quote_glass_cards = QuoteGlassCard.query.order_by(QuoteGlassCard.sort_order, QuoteGlassCard.id).all()
+    elif section_key == "resenas":
+        review_stack_cards = ReviewStackCard.query.order_by(ReviewStackCard.sort_order, ReviewStackCard.id).all()
 
     if request.method == "POST":
         if block.section_key != "logo":
@@ -251,7 +263,7 @@ def editar_contenido(section_key):
             block.image_path = request.form.get("image_path", "").strip()
 
         # Logo y bloques sin galería propia siguen con imagen única
-        if block.section_key not in ("hero", "about", "site_info"):
+        if block.section_key not in ("hero", "about", "cotizacion", "resenas", "site_info"):
             image = request.files.get("image")
             if image and image.filename:
                 rel_path = save_upload(image, "content")
@@ -267,8 +279,12 @@ def editar_contenido(section_key):
         block=block,
         hero_slides=hero_slides,
         about_slides=about_slides,
+        quote_glass_cards=quote_glass_cards,
+        review_stack_cards=review_stack_cards,
         max_hero_slides=MAX_HERO_SLIDES,
         max_about_slides=MAX_ABOUT_SLIDES,
+        max_quote_glass=MAX_QUOTE_GLASS,
+        max_review_stack=MAX_REVIEW_STACK,
     )
 
 
@@ -429,6 +445,183 @@ def about_slide_toggle(slide_id):
     db.session.commit()
     flash("Imagen " + ("visible" if slide.active else "ocultada") + " en el sitio.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="about"))
+
+
+# ---------- Cards glass de cotización ----------
+
+@admin_bp.route("/contenido/cotizacion/glass", methods=["POST"])
+@login_required
+def quote_glass_add():
+    files = request.files.getlist("images")
+    current = QuoteGlassCard.query.count()
+    added = 0
+    default_caption = request.form.get("caption", "").strip() or None
+    for f in files:
+        if current + added >= MAX_QUOTE_GLASS:
+            break
+        if not f or not f.filename:
+            continue
+        rel_path = save_upload(f, "content")
+        if not rel_path:
+            continue
+        max_order = db.session.query(db.func.coalesce(db.func.max(QuoteGlassCard.sort_order), -1)).scalar()
+        db.session.add(
+            QuoteGlassCard(
+                image_path=rel_path,
+                caption=default_caption,
+                sort_order=(max_order or 0) + 1 + added,
+                active=True,
+            )
+        )
+        added += 1
+    if added:
+        db.session.commit()
+        flash(f"Se agregaron {added} imagen(es) a las cards de cotización.", "success")
+    else:
+        flash("No se pudo agregar ninguna imagen. Revisa formato y el límite de 3.", "warning")
+    return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
+
+
+@admin_bp.route("/contenido/cotizacion/glass/<int:card_id>/eliminar", methods=["POST"])
+@login_required
+def quote_glass_delete(card_id):
+    card = QuoteGlassCard.query.get_or_404(card_id)
+    db.session.delete(card)
+    db.session.commit()
+    flash("Imagen eliminada de las cards de cotización.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
+
+
+@admin_bp.route("/contenido/cotizacion/glass/<int:card_id>/mover", methods=["POST"])
+@login_required
+def quote_glass_move(card_id):
+    direction = request.form.get("direction", "up")
+    cards = QuoteGlassCard.query.order_by(QuoteGlassCard.sort_order, QuoteGlassCard.id).all()
+    idx = next((i for i, c in enumerate(cards) if c.id == card_id), None)
+    if idx is None:
+        flash("Imagen no encontrada.", "danger")
+        return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
+    swap_with = idx - 1 if direction == "up" else idx + 1
+    if 0 <= swap_with < len(cards):
+        cards[idx].sort_order, cards[swap_with].sort_order = (
+            cards[swap_with].sort_order,
+            cards[idx].sort_order,
+        )
+        if cards[idx].sort_order == cards[swap_with].sort_order:
+            cards[idx].sort_order = swap_with
+            cards[swap_with].sort_order = idx
+        db.session.commit()
+    return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
+
+
+@admin_bp.route("/contenido/cotizacion/glass/<int:card_id>/toggle", methods=["POST"])
+@login_required
+def quote_glass_toggle(card_id):
+    card = QuoteGlassCard.query.get_or_404(card_id)
+    card.active = not card.active
+    db.session.commit()
+    flash("Card " + ("visible" if card.active else "ocultada") + " en el sitio.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
+
+
+@admin_bp.route("/contenido/cotizacion/glass/<int:card_id>/caption", methods=["POST"])
+@login_required
+def quote_glass_caption(card_id):
+    card = QuoteGlassCard.query.get_or_404(card_id)
+    card.caption = request.form.get("caption", "").strip() or None
+    db.session.commit()
+    flash("Texto de la card actualizado.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
+
+
+# ---------- Cards apiladas de reseñas ----------
+
+@admin_bp.route("/contenido/resenas/stack", methods=["POST"])
+@login_required
+def review_stack_add():
+    files = request.files.getlist("images")
+    current = ReviewStackCard.query.count()
+    added = 0
+    default_caption = request.form.get("caption", "").strip() or None
+    default_button = request.form.get("button_label", "").strip() or None
+    for f in files:
+        if current + added >= MAX_REVIEW_STACK:
+            break
+        if not f or not f.filename:
+            continue
+        rel_path = save_upload(f, "content")
+        if not rel_path:
+            continue
+        max_order = db.session.query(db.func.coalesce(db.func.max(ReviewStackCard.sort_order), -1)).scalar()
+        db.session.add(
+            ReviewStackCard(
+                image_path=rel_path,
+                caption=default_caption,
+                button_label=default_button,
+                sort_order=(max_order or 0) + 1 + added,
+                active=True,
+            )
+        )
+        added += 1
+    if added:
+        db.session.commit()
+        flash(f"Se agregaron {added} imagen(es) a las cards de reseñas.", "success")
+    else:
+        flash("No se pudo agregar ninguna imagen. Revisa formato y el límite de 3.", "warning")
+    return redirect(url_for("admin.editar_contenido", section_key="resenas"))
+
+
+@admin_bp.route("/contenido/resenas/stack/<int:card_id>/eliminar", methods=["POST"])
+@login_required
+def review_stack_delete(card_id):
+    card = ReviewStackCard.query.get_or_404(card_id)
+    db.session.delete(card)
+    db.session.commit()
+    flash("Imagen eliminada de las cards de reseñas.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="resenas"))
+
+
+@admin_bp.route("/contenido/resenas/stack/<int:card_id>/mover", methods=["POST"])
+@login_required
+def review_stack_move(card_id):
+    direction = request.form.get("direction", "up")
+    cards = ReviewStackCard.query.order_by(ReviewStackCard.sort_order, ReviewStackCard.id).all()
+    idx = next((i for i, c in enumerate(cards) if c.id == card_id), None)
+    if idx is None:
+        flash("Imagen no encontrada.", "danger")
+        return redirect(url_for("admin.editar_contenido", section_key="resenas"))
+    swap_with = idx - 1 if direction == "up" else idx + 1
+    if 0 <= swap_with < len(cards):
+        cards[idx].sort_order, cards[swap_with].sort_order = (
+            cards[swap_with].sort_order,
+            cards[idx].sort_order,
+        )
+        if cards[idx].sort_order == cards[swap_with].sort_order:
+            cards[idx].sort_order = swap_with
+            cards[swap_with].sort_order = idx
+        db.session.commit()
+    return redirect(url_for("admin.editar_contenido", section_key="resenas"))
+
+
+@admin_bp.route("/contenido/resenas/stack/<int:card_id>/toggle", methods=["POST"])
+@login_required
+def review_stack_toggle(card_id):
+    card = ReviewStackCard.query.get_or_404(card_id)
+    card.active = not card.active
+    db.session.commit()
+    flash("Card " + ("visible" if card.active else "ocultada") + " en el sitio.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="resenas"))
+
+
+@admin_bp.route("/contenido/resenas/stack/<int:card_id>/caption", methods=["POST"])
+@login_required
+def review_stack_caption(card_id):
+    card = ReviewStackCard.query.get_or_404(card_id)
+    card.caption = request.form.get("caption", "").strip() or None
+    card.button_label = request.form.get("button_label", "").strip() or None
+    db.session.commit()
+    flash("Textos de la card actualizados.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="resenas"))
 
 
 # ---------- Servicios / Productos ----------

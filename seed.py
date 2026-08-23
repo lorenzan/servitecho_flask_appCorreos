@@ -105,6 +105,25 @@ CONTENT_BLOCKS = [
         extra="",  # TikTok URL
         image_path=None,
     ),
+    dict(
+        section_key="cotizacion",
+        label="Cotización (cards glass)",
+        eyebrow="Cotización",
+        title="Cuéntanos sobre tu proyecto",
+        body="Danos la ubicación, describe lo que necesitas y sube fotos del sitio. "
+        "Nuestro equipo revisará tu solicitud y te contactará con una propuesta.",
+        extra="Sin compromiso · Respuesta rápida · Proyectos a medida",
+        image_path=None,
+    ),
+    dict(
+        section_key="resenas",
+        label="Reseñas (cards apiladas)",
+        eyebrow="Reseñas",
+        title="La experiencia de nuestros clientes",
+        body="Proyectos entregados, opiniones reales. Comparte también la tuya.",
+        extra="",
+        image_path=None,
+    ),
 ]
 
 SERVICES = [

@@ -4,7 +4,7 @@ from flask import Blueprint, current_app, g, render_template, request, redirect,
 from sqlalchemy import desc
 
 from extensions import db
-from models import ContentBlock, Service, Review, Quote, QuoteImage, HeroSlide, AboutSlide
+from models import ContentBlock, Service, Review, Quote, QuoteImage, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard
 from utils import save_upload
 from utils_email import notify_new_review, notify_new_quote
 import translations
@@ -174,7 +174,19 @@ def resenas():
     if getattr(g, "lang", "es") == "en":
         reviews = [translations.localize_review(r) for r in reviews]
         featured = [translations.localize_review(r) for r in featured]
-    return render_template("resenas.html", reviews=reviews, featured=featured)
+
+    review_stack_cards = (
+        ReviewStackCard.query.filter_by(active=True)
+        .order_by(ReviewStackCard.sort_order, ReviewStackCard.id)
+        .limit(3)
+        .all()
+    )
+    return render_template(
+        "resenas.html",
+        reviews=reviews,
+        featured=featured,
+        review_stack_cards=review_stack_cards,
+    )
 
 
 @public_bp.route("/cotizacion", methods=["GET", "POST"])
@@ -230,7 +242,21 @@ def cotizacion():
 
     if getattr(g, "lang", "es") == "en":
         services = [translations.localize_service(s) for s in services]
-    return render_template("cotizacion.html", services=services)
+
+    quote_glass_cards = (
+        QuoteGlassCard.query.filter_by(active=True)
+        .order_by(QuoteGlassCard.sort_order, QuoteGlassCard.id)
+        .limit(3)
+        .all()
+    )
+    # Rotaciones estilo Uiverse para el abanico
+    glass_rotations = [-15, 5, 25]
+    return render_template(
+        "cotizacion.html",
+        services=services,
+        quote_glass_cards=quote_glass_cards,
+        glass_rotations=glass_rotations,
+    )
 
 
 @public_bp.route("/cotizacion/gracias")

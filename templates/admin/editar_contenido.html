@@ -65,7 +65,7 @@
         <input type="text" id="extra" name="extra" value="{{ block.extra or '' }}" {% if block.section_key == 'socials' %}placeholder="https://tiktok.com/@tu-cuenta"{% endif %}>
       </div>
 
-      {% if block.section_key != 'site_info' and block.section_key != 'hero' and block.section_key != 'about' and block.section_key != 'socials' %}
+      {% if block.section_key != 'site_info' and block.section_key != 'hero' and block.section_key != 'about' and block.section_key != 'cotizacion' and block.section_key != 'resenas' and block.section_key != 'socials' %}
       <div class="form-row">
         <label for="image">Imagen</label>
         {% if block.image_path %}
@@ -193,6 +193,130 @@
   </form>
   {% else %}
   <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_about_slides }}).</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if block.section_key == 'cotizacion' %}
+<div class="card-panel" style="max-width:780px; margin-top:8px;">
+  <h3 style="margin-top:0;">Cards de cristal (página Cotización)</h3>
+  <p class="text-steel" style="margin-bottom:18px;">
+    Sube hasta <strong>{{ max_quote_glass }}</strong> fotos. Se muestran en abanico glass a la derecha del título en
+    <em>/cotizacion</em>. Ideal: fotos de techos, obras o detalle de productos.
+    Actualmente: <strong>{{ quote_glass_cards|length }}</strong> / {{ max_quote_glass }}.
+  </p>
+
+  {% if quote_glass_cards %}
+  <div class="hero-gallery-admin">
+    {% for card in quote_glass_cards %}
+    <div class="hero-gallery-item {{ '' if card.active else 'is-hidden' }}">
+      <img src="{{ url_for('static', filename=card.image_path) }}" alt="Card {{ loop.index }}">
+      <div class="hero-gallery-meta">
+        <form method="POST" action="{{ url_for('admin.quote_glass_caption', card_id=card.id) }}" class="hero-caption-form">
+          <input type="text" name="caption" value="{{ card.caption or '' }}" placeholder="Texto en la card (ej. Standing Seam)" maxlength="40">
+          <button type="submit" class="btn btn-sm btn-outline-dark">Guardar texto</button>
+        </form>
+        <div class="hero-gallery-actions">
+          <form method="POST" action="{{ url_for('admin.quote_glass_move', card_id=card.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="up">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.quote_glass_move', card_id=card.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="down">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.quote_glass_toggle', card_id=card.id) }}" class="inline-form">
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if card.active else 'Mostrar' }}</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.quote_glass_delete', card_id=card.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta imagen?');">
+            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="hint">Aún no hay imágenes. Sube 3 fotos para activar el efecto glass en cotización.</p>
+  {% endif %}
+
+  {% if quote_glass_cards|length < max_quote_glass %}
+  <form method="POST" action="{{ url_for('admin.quote_glass_add') }}" enctype="multipart/form-data" style="margin-top:22px;">
+    <div class="form-row">
+      <label for="quote_glass_images">Agregar imágenes</label>
+      <input type="file" id="quote_glass_images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
+      <p class="hint">Máximo {{ max_quote_glass }} en total. Formatos: PNG, JPG, WEBP.</p>
+    </div>
+    <div class="form-row">
+      <label for="quote_glass_caption">Texto por defecto (opcional)</label>
+      <input type="text" id="quote_glass_caption" name="caption" placeholder="Proyecto · Techo · Instalación" maxlength="40">
+    </div>
+    <button type="submit" class="btn btn-rust">Subir a las cards</button>
+  </form>
+  {% else %}
+  <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_quote_glass }}). Elimina alguna para subir otra.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if block.section_key == 'resenas' %}
+<div class="card-panel" style="max-width:780px; margin-top:8px;">
+  <h3 style="margin-top:0;">Cards apiladas (página Reseñas)</h3>
+  <p class="text-steel" style="margin-bottom:18px;">
+    Sube hasta <strong>{{ max_review_stack }}</strong> fotos. Se muestran apiladas a la derecha del título en
+    <em>/resenas</em>. Al pasar el mouse se abren con título y botón.
+    Actualmente: <strong>{{ review_stack_cards|length }}</strong> / {{ max_review_stack }}.
+  </p>
+
+  {% if review_stack_cards %}
+  <div class="hero-gallery-admin">
+    {% for card in review_stack_cards %}
+    <div class="hero-gallery-item {{ '' if card.active else 'is-hidden' }}">
+      <img src="{{ url_for('static', filename=card.image_path) }}" alt="Stack {{ loop.index }}">
+      <div class="hero-gallery-meta">
+        <form method="POST" action="{{ url_for('admin.review_stack_caption', card_id=card.id) }}" class="hero-caption-form">
+          <input type="text" name="caption" value="{{ card.caption or '' }}" placeholder="Título (ej. Proyecto residencial)" maxlength="40">
+          <button type="submit" class="btn btn-sm btn-outline-dark">Guardar título</button>
+        </form>
+        <div class="hero-gallery-actions">
+          <form method="POST" action="{{ url_for('admin.review_stack_move', card_id=card.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="up">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.review_stack_move', card_id=card.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="down">
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.review_stack_toggle', card_id=card.id) }}" class="inline-form">
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if card.active else 'Mostrar' }}</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.review_stack_delete', card_id=card.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta imagen?');">
+            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="hint">Aún no hay imágenes. Sube 3 fotos para activar el stack en reseñas.</p>
+  {% endif %}
+
+  {% if review_stack_cards|length < max_review_stack %}
+  <form method="POST" action="{{ url_for('admin.review_stack_add') }}" enctype="multipart/form-data" style="margin-top:22px;">
+    <div class="form-row">
+      <label for="review_stack_images">Agregar imágenes</label>
+      <input type="file" id="review_stack_images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
+      <p class="hint">Máximo {{ max_review_stack }} en total. Formatos: PNG, JPG, WEBP.</p>
+    </div>
+    <div class="form-row">
+      <label for="review_stack_caption">Título por defecto (opcional)</label>
+      <input type="text" id="review_stack_caption" name="caption" placeholder="Proyecto · Cliente · Obra" maxlength="40">
+    </div>
+    <button type="submit" class="btn btn-rust">Subir a las cards</button>
+  </form>
+  {% else %}
+  <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_review_stack }}). Elimina alguna para subir otra.</p>
   {% endif %}
 </div>
 {% endif %}

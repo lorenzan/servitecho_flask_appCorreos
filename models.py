@@ -181,3 +181,28 @@ class AboutSlide(db.Model):
     sort_order = db.Column(db.Integer, default=0)
     active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class QuoteGlassCard(db.Model):
+    """Cards de cristal (imágenes) del hero de cotización — editables en admin."""
+    __tablename__ = "quote_glass_cards"
+
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(300), nullable=False)
+    caption = db.Column(db.String(80))  # texto en la base de la card (data-text)
+    sort_order = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ReviewStackCard(db.Model):
+    """Cards apiladas del hero de reseñas — editables en admin."""
+    __tablename__ = "review_stack_cards"
+
+    id = db.Column(db.Integer, primary_key=True)
+    image_path = db.Column(db.String(300), nullable=False)
+    caption = db.Column(db.String(80))  # título del panel al hover
+    button_label = db.Column(db.String(40))  # texto del botón en el panel
+    sort_order = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

@@ -79,16 +79,38 @@
             <span class="brand-mark" aria-hidden="true"></span>
           {% endif %}
           <span class="brand-text">
-            <span class="brand-name">Tecuns Roofing</span>
+            <span class="brand-name">{% block brand_name %}Tecuns Roofing{% endblock %}</span>
           </span>
         </a>
 
-        <nav class="nav-links" id="navLinks">
-          <a href="{{ url_for('public.index') }}">{{ t('Inicio') }}</a>
+        <nav class="nav-links" id="navLinks" aria-label="{{ t('Menú principal') }}">
+          {% set ep = request.endpoint or '' %}
+          {% set current_slug = (request.view_args or {}).get('slug') %}
+          <a
+            class="nav-item {{ 'is-active' if ep == 'public.index' else '' }}"
+            href="{{ url_for('public.index') }}"
+            {% if ep == 'public.index' %}aria-current="page"{% endif %}
+          >{{ t('Inicio') }}</a>
           {% for s in nav_services %}
-            <a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a>
+          {% set nav_label = s.name
+            | replace(' de techos', '')
+            | replace(' de Techos', '')
+            | replace('Roofing ', '')
+            | replace('Roof ', '')
+            | replace(' roofs', '')
+            | replace(' roof', '')
+          %}
+          <a
+            class="nav-item {{ 'is-active' if ep == 'public.servicio_detalle' and current_slug == s.slug else '' }}"
+            href="{{ url_for('public.servicio_detalle', slug=s.slug) }}"
+            {% if ep == 'public.servicio_detalle' and current_slug == s.slug %}aria-current="page"{% endif %}
+          >{{ nav_label }}</a>
           {% endfor %}
-          <a href="{{ url_for('public.resenas') }}">{{ t('Reseñas') }}</a>
+          <a
+            class="nav-item {{ 'is-active' if ep == 'public.resenas' else '' }}"
+            href="{{ url_for('public.resenas') }}"
+            {% if ep == 'public.resenas' %}aria-current="page"{% endif %}
+          >{{ t('Reseñas') }}</a>
           <a class="nav-link-mobile-only" href="{{ url_for('public.cotizacion') }}">{{ t('Cotización') }}</a>
           <div class="nav-mobile-actions">
             <div class="lang-switch lang-switch--mobile" aria-label="Idioma / Language">

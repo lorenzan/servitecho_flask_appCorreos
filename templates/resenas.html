@@ -4,22 +4,44 @@
 {% block content %}
 <section class="reviews-page">
   <div class="reviews-page__hero">
-    <div class="container">
-      {% set rev_eyebrow = t('Reseñas') %}
-      <div class="eyebrow eyebrow--shine">
-        <span class="eyebrow-shine">
-          {% for char in rev_eyebrow %}
-            {% if char == ' ' %}
-              <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
-            {% else %}
-              <span class="eyebrow-shine__letter" style="--i:{{ loop.index0 }}">{{ char }}</span>
-            {% endif %}
-          {% endfor %}
-          <span class="eyebrow-shine__loader" aria-hidden="true"></span>
-        </span>
+    <div class="container reviews-page__hero-grid">
+      <div class="reviews-page__hero-copy">
+        {% set rev_eyebrow = t('Reseñas') %}
+        <div class="eyebrow eyebrow--shine">
+          <span class="eyebrow-shine">
+            {% for char in rev_eyebrow %}
+              {% if char == ' ' %}
+                <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
+              {% else %}
+                <span class="eyebrow-shine__letter" style="--i:{{ loop.index0 }}">{{ char }}</span>
+              {% endif %}
+            {% endfor %}
+            <span class="eyebrow-shine__loader" aria-hidden="true"></span>
+          </span>
+        </div>
+        <h1>{{ t('La experiencia de nuestros clientes') }}</h1>
+        <p class="reviews-page__lead">{{ t('Proyectos entregados, opiniones reales. Comparte también la tuya.') }}</p>
       </div>
-      <h1>{{ t('La experiencia de nuestros clientes') }}</h1>
-      <p class="reviews-page__lead">{{ t('Proyectos entregados, opiniones reales. Comparte también la tuya.') }}</p>
+
+      {% if review_stack_cards %}
+      <div class="reviews-page__hero-visual" aria-hidden="true">
+        <div class="reviews-stack">
+          {% for card in review_stack_cards %}
+          <div class="reviews-stack__card">
+            <img
+              src="{{ url_for('static', filename=card.image_path) }}"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            >
+            <div class="reviews-stack__details">
+              <div class="reviews-stack__header">{{ card.caption or t('Proyecto') }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -147,127 +169,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-{% if featured %}
-<script>
-(function () {
-  var root = document.querySelector("[data-rev-carousel]");
-  var track = document.querySelector("[data-rev-track]");
-  if (!root || !track) return;
-
-  var prev = document.querySelector("[data-rev-prev]");
-  var next = document.querySelector("[data-rev-next]");
-  var slides = track.querySelectorAll(".reviews-carousel__slide");
-  if (slides.length < 2) return;
-
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var paused = false;
-  var pos = 0;
-  var speed = 0.8; // px por frame
-  var resumeTimer = null;
-
-  // Duplicar para loop continuo
-  Array.prototype.forEach.call(slides, function (node) {
-    var clone = node.cloneNode(true);
-    clone.setAttribute("aria-hidden", "true");
-    track.appendChild(clone);
-  });
-
-  track.style.scrollSnapType = "none";
-  track.style.scrollBehavior = "auto";
-
-  function halfWidth() {
-    return track.scrollWidth / 2;
-  }
-
-  function applyPos() {
-    var half = halfWidth();
-    if (half <= 0) return;
-    if (pos >= half) pos -= half;
-    if (pos < 0) pos += half;
-    track.scrollLeft = pos;
-  }
-
-  function loop() {
-    if (!paused && !reduceMotion) {
-      pos += speed;
-      applyPos();
-    } else {
-      pos = track.scrollLeft;
-    }
-    window.requestAnimationFrame(loop);
-  }
-
-  function pause() {
-    paused = true;
-    pos = track.scrollLeft;
-    if (resumeTimer) {
-      window.clearTimeout(resumeTimer);
-      resumeTimer = null;
-    }
-  }
-
-  function resume(delay) {
-    if (reduceMotion) return;
-    if (resumeTimer) window.clearTimeout(resumeTimer);
-    resumeTimer = window.setTimeout(function () {
-      paused = false;
-      pos = track.scrollLeft;
-      resumeTimer = null;
-    }, delay || 0);
-  }
-
-  function stepSize() {
-    var slide = track.querySelector(".reviews-carousel__slide");
-    if (!slide) return 320;
-    var styles = window.getComputedStyle(track);
-    var gap = parseFloat(styles.columnGap || styles.gap || "16") || 16;
-    return slide.getBoundingClientRect().width + gap;
-  }
-
-  function nudge(dir) {
-    pause();
-    var start = track.scrollLeft;
-    var target = start + dir * stepSize();
-    var dist = target - start;
-    var t0 = null;
-    var dur = 700;
-
-    function ease(t) {
-      return 1 - Math.pow(1 - t, 3);
-    }
-
-    function anim(ts) {
-      if (t0 === null) t0 = ts;
-      var p = Math.min(1, (ts - t0) / dur);
-      pos = start + dist * ease(p);
-      applyPos();
-      if (p < 1) {
-        window.requestAnimationFrame(anim);
-      } else {
-        resume(1000);
-      }
-    }
-    window.requestAnimationFrame(anim);
-  }
-
-  if (prev) prev.addEventListener("click", function (e) { e.preventDefault(); nudge(-1); });
-  if (next) next.addEventListener("click", function (e) { e.preventDefault(); nudge(1); });
-
-  root.addEventListener("mouseenter", pause);
-  root.addEventListener("mouseleave", function () { resume(250); });
-  root.addEventListener("focusin", pause);
-  root.addEventListener("focusout", function () { resume(250); });
-  root.addEventListener("touchstart", pause, { passive: true });
-  root.addEventListener("touchend", function () { resume(1400); });
-
-  // Asegurar ancho limitado para que haya scroll
-  root.style.minWidth = "0";
-  track.style.minWidth = "0";
-  track.style.width = "100%";
-
-  pos = track.scrollLeft || 0;
-  window.requestAnimationFrame(loop);
-})();
-</script>
+{% if featured and featured|length > 1 %}
+<script src="{{ url_for('static', filename='js/reviews-carousel.js') }}"></script>
 {% endif %}
 {% endblock %}

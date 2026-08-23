@@ -218,19 +218,21 @@
     <div class="svc-related__grid">
       {% for o in otros %}
       <a class="svc-related__card" href="{{ url_for('public.servicio_detalle', slug=o.slug) }}">
-        <figure class="svc-related__media">
+        <div class="svc-related__top">
           {% if o.image_path %}
-            <img src="{{ url_for('static', filename=o.image_path) }}" alt="{{ o.name }}" loading="lazy">
+            <img src="{{ url_for('static', filename=o.image_path) }}" alt="" loading="lazy">
           {% else %}
-            <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800&auto=format&fit=crop" alt="{{ o.name }}" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800&auto=format&fit=crop" alt="" loading="lazy">
           {% endif %}
-        </figure>
-        <div class="svc-related__body">
-          <h3>{{ o.name }}</h3>
-          {% if o.short_description %}
-          <p>{{ o.short_description }}</p>
-          {% endif %}
-          <span class="svc-related__link">{{ t('Ver servicio') }}</span>
+        </div>
+        <div class="svc-related__bottom">
+          <div class="svc-related__content">
+            <span class="svc-related__title">{{ o.name }}</span>
+            {% if o.short_description %}
+            <p class="svc-related__txt">{{ o.short_description }}</p>
+            {% endif %}
+            <span class="svc-related__btn">{{ t('Ver servicio') }}</span>
+          </div>
         </div>
       </a>
       {% endfor %}
