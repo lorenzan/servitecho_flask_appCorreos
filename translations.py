@@ -1,15 +1,15 @@
-"""Traducción automática del sitio con deep-translator.
+"""Automatic site translation with deep-translator.
 
-El contenido se redacta en español. Cuando el visitante elige inglés (o lo
-detectamos automáticamente) traducimos con deep-translator (Google) y
-guardamos el resultado en caché —en memoria y en un archivo JSON— para no
-repetir llamadas a la red y que las siguientes visitas sean instantáneas.
+Content is written in English. When the visitor chooses Spanish (or we
+detect it automatically) we translate with deep-translator (Google) and
+cache the result —in memory and in a JSON file— to avoid repeated network
+calls and make subsequent visits instant.
 
-Uso:
-  - Textos fijos en templates:   {{ t('Texto en español') }}
-  - Objetos de BD:               localize(obj, campos)  -> proxy que traduce
-                                  los atributos indicados al renderizar
-  - Idioma activo:               g.lang  ('es' | 'en')
+Usage:
+  - Fixed texts in templates:   {{ t('Text in English') }}
+  - DB objects:                 localize(obj, fields)  -> proxy that translates
+                                  the indicated attributes at render time
+  - Active language:            g.lang  ('es' | 'en')
 """
 import json
 import os
@@ -25,7 +25,7 @@ except Exception:  # pragma: no cover — deep-translator no instalado
 ES = "es"
 EN = "en"
 SUPPORTED = (ES, EN)
-DEFAULT = ES
+DEFAULT = EN
 
 # Qué campos de cada bloque de contenido se traducen (el resto, como
 # image_path o extra= teléfono, se deja igual).
@@ -41,111 +41,112 @@ BLOCK_FIELDS = {
 SERVICE_FIELDS = ("name", "short_description", "description")
 REVIEW_FIELDS = ("comment",)
 
-# Textos fijos de los templates públicos. Se precargan al arrancar para que
-# el primer visitante en inglés no espere a que se traduzcan uno por uno.
+# Fixed texts from public templates. Preloaded at startup so that
+# the first Spanish-speaking visitor doesn't wait for translations.
 _STATIC_STRINGS = [
-    # Navegación
-    "Inicio", "Reseñas", "Cotización", "Solicita tu cotización",
-    "Solicitar cotización", "Solicitar Cotización", "Llámenos Hoy",
-    "Expertos en techos residenciales y comerciales",
-    "Ver productos", "Ver detalles",
-    "Ver todas / dejar reseña", "Dejar una reseña", "Volver al inicio",
-    "Ver reseñas", "Acceso administrador", "Servicios", "Contacto", "Redes sociales",
-    "Todos los derechos reservados.",
-    # Inicio
-    "Techos, Fachadas y Módulos Prefabricados",
-    "Techos, Fachadas y Módulos Prefabricados en El Salvador",
-    "Diseño, suministro e instalación de techos industriales, fachadas "
-    "metálicas y módulos prefabricados en El Salvador.",
-    "Construyendo confianza en cada proyecto",
-    "Productos", "Sistemas para cada tipo de proyecto",
-    "Fabricación, suministro e instalación con garantía para proyectos "
-    "residenciales, comerciales e industriales.",
-    "Nuestro compromiso", "¿Qué nos distingue?",
-    "Años de garantía Standing Seam", "Soporte a clientes",
-    "Instalación profesional", "Sistemas constructivos",
-    "Más de 5 años de experiencia", "Años de experiencia", "Años de", "experiencia",
-    "Sello de calidad profesional en techos residenciales y comerciales",
-    "Protección duradera con sistemas de techo certificados y respaldo real.",
-    "Atención continua para emergencias, mantenimiento y seguimiento de obra.",
-    "Cuadrillas especializadas, acabados impecables y seguridad en cada proyecto.",
-    "Standing Seam, paneles termoacústicos y módulos adaptados a cada obra.",
-    "Galería de proyectos",
-    "Acerca de nosotros", "Construimos Confianza", "Nuestros valores",
-    "Misión", "Visión", "Soporte 24/7", "Llamar:",
-    "Servicios", "Contacto", "Redes sociales", "Síguenos y contáctanos",
-    "Dejar una reseña", "Todos los derechos reservados.", "Acceso administrador",
-    "Cliente Tecuns", "estrellas",
-    "Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!",
-    "¿Listo para construir tu próximo proyecto?",
-    "Sin compromiso · Respuesta rápida · Proyectos a medida",
-    "Cuéntanos la ubicación, lo que necesitas y sube fotos del sitio. "
-    "Te enviamos tu cotización sin compromiso.",
-    # Reseñas
-    "Reseñas de clientes", "La experiencia de nuestros clientes",
-    "Proyectos entregados, opiniones reales. Comparte también la tuya.",
-    "Opiniones publicadas", "Opiniones destacadas", "Deja tu reseña",
-    "Tu reseña se publicará luego de ser revisada por nuestro equipo.",
-    "Cuéntanos cómo te fue. Tu reseña se publicará luego de ser revisada por nuestro equipo.",
-    "Tu opinión", "Comunidad", "Todas las reseñas",
-    "Nombre", "Correo (opcional)", "Calificación", "Comentario",
-    "Cuéntanos sobre tu proyecto y experiencia con Tecuns Roofing...",
-    "Enviar reseña",
-    # Cotización
-    "Cuéntanos sobre tu proyecto",
-    "Danos la ubicación, describe lo que necesitas y sube fotos del sitio. "
-    "Nuestro equipo revisará tu solicitud y te contactará con una propuesta.",
-    "Nombre completo", "Teléfono / WhatsApp", "Producto de interés",
-    "Selecciona una opción", "Otro / No estoy seguro",
-    "Ubicación del proyecto",
-    "Departamento, municipio, dirección o punto de referencia",
-    "Escribe la dirección o usa el mapa de abajo para marcar el punto "
-    "exacto — se autocompletará.",
-    "Marca la ubicación en el mapa (opcional)",
-    "Usar mi ubicación actual", "Buscar dirección, colonia o ciudad...",
-    "Aún no has marcado un punto — el mapa está centrado en El Salvador. "
-    "Haz clic para colocar el pin.",
-    "Describe lo que necesitas",
-    "Tipo de techo o fachada, dimensiones aproximadas, estado actual, plazos, etc.",
-    "Fotos del sitio (opcional, hasta 6 imágenes)",
-    "Sube fotos del techo, fachada o área del proyecto — nos ayuda a "
-    "preparar una cotización más precisa.",
-    "Enviar solicitud de cotización",
-    "Datos de contacto", "Así te contactamos con tu cotización.",
-    "Escribe la dirección o marca el punto en el mapa.",
-    "Detalles del trabajo", "Mientras más claro, más precisa será tu cotización.",
-    "Arrastra o selecciona fotos", "Beneficios",
-    "Sin compromiso", "Respuesta rápida", "Proyectos a medida",
-    # Detalle de servicio
-    "Producto", "Servicio", "Descripción técnica", "Sobre este sistema",
-    "Sobre este servicio", "Cotiza este producto", "Cotiza este servicio",
-    "Otros productos", "Más servicios", "También te puede interesar",
-    "Explora otras soluciones de techado con el mismo estándar de calidad Tecuns.",
-    "Ver servicio", "¿Listo para cotizar este servicio?",
-    "Galería", "Trabajos de este servicio",
-    "Fotos reales de proyectos realizados por Tecun's Roofing.",
-    "Continúa viendo",
-    "Ampliar foto", "Cerrar", "Anterior", "Siguiente",
-    # Gracias
-    "Solicitud enviada", "Solicitud recibida",
-    "¡Gracias! Tu solicitud fue enviada",
-    "Nuestro equipo revisará la información y las fotos de tu proyecto, y "
-    "te contactaremos pronto con tu cotización.",
+    # Navigation
+    "Home", "Reviews", "Quote", "Get your quote",
+    "Request a quote", "Request a Quote", "Call Us Today",
+    "Experts in residential and commercial roofing",
+    "View products", "View details",
+    "View all / leave a review", "Leave a review", "Back to home",
+    "View reviews", "Admin access", "Services", "Contact", "Social media",
+    "All rights reserved.", "Modules", "Open menu",
+    "Language", "Spanish", "English",
+    # Home
+    "Roofs, Facades and Prefabricated Modules",
+    "Roofs, Facades and Prefabricated Modules in El Salvador",
+    "Design, supply and installation of industrial roofs, metal facades "
+    "and prefabricated modules in El Salvador.",
+    "Building trust in every project",
+    "Products", "Systems for every type of project",
+    "Manufacturing, supply and installation with warranty for residential, "
+    "commercial and industrial projects.",
+    "Our commitment", "What sets us apart?",
+    "Years of Standing Seam warranty", "Customer support",
+    "Professional installation", "Construction systems",
+    "Over 5 years of experience", "Years of experience", "Years of", "experience",
+    "Professional quality seal in residential and commercial roofing",
+    "Long-lasting protection with certified roof systems and real backing.",
+    "Continuous support for emergencies, maintenance and project follow-up.",
+    "Specialized crews, flawless finishes and safety in every project.",
+    "Standing Seam, thermoacoustic panels and modules adapted to each project.",
+    "Project gallery",
+    "About us", "We Build Trust", "Our values",
+    "Mission", "Vision", "24/7 Support", "Call:",
+    "Services", "Contact", "Social media", "Follow us and contact us",
+    "Leave a review", "All rights reserved.", "Admin access",
+    "Tecuns Client", "stars",
+    "No reviews published yet. Be the first to share your experience!",
+    "Ready to build your next project?",
+    "No obligation · Quick response · Custom projects",
+    "Tell us the location, what you need and upload site photos. "
+    "We'll send you a no-obligation quote.",
+    # Reviews
+    "Customer reviews", "Our customers' experience",
+    "Completed projects, real opinions. Share yours too.",
+    "Published reviews", "Featured reviews", "Leave your review",
+    "Your review will be published after being reviewed by our team.",
+    "Tell us how it went. Your review will be published after being reviewed by our team.",
+    "Your opinion", "Community", "All reviews",
+    "Name", "Email (optional)", "Rating", "Comment",
+    "Tell us about your project and experience with Tecuns Roofing...",
+    "Submit review",
+    # Quote
+    "Tell us about your project",
+    "Give us the location, describe what you need and upload site photos. "
+    "Our team will review your request and contact you with a proposal.",
+    "Full name", "Phone / WhatsApp", "Product of interest",
+    "Select an option", "Other / Not sure",
+    "Project location",
+    "Department, municipality, address or reference point",
+    "Enter the address or use the map below to mark the exact "
+    "point — it will autocomplete.",
+    "Mark location on map (optional)",
+    "Use my current location", "Search address, neighborhood or city...",
+    "You haven't marked a point yet — the map is centered on El Salvador. "
+    "Click to place the pin.",
+    "Describe what you need",
+    "Type of roof or facade, approximate dimensions, current condition, deadlines, etc.",
+    "Site photos (optional, up to 6 images)",
+    "Upload photos of the roof, facade or project area — helps us "
+    "prepare a more accurate quote.",
+    "Submit quote request",
+    "Contact details", "How we'll contact you with your quote.",
+    "Enter the address or mark the point on the map.",
+    "Job details", "The clearer, the more accurate your quote.",
+    "Drag or select photos", "Benefits",
+    "No obligation", "Quick response", "Custom projects",
+    # Service detail
+    "Product", "Service", "Technical description", "About this system",
+    "About this service", "Quote this product", "Quote this service",
+    "Other products", "More services", "You may also like",
+    "Explore other roofing solutions with the same Tecuns quality standard.",
+    "View service", "Ready to quote this service?",
+    "Gallery", "Projects of this service",
+    "Real photos of projects completed by Tecun's Roofing.",
+    "Continue viewing",
+    "Enlarge photo", "Close", "Previous", "Next",
+    # Thanks
+    "Request sent", "Request received",
+    "Thank you! Your request was sent",
+    "Our team will review your project information and photos, and "
+    "contact you soon with your quote.",
     # Error 404 / 500
-    "Error", "Página no encontrada",
-    "Lo sentimos, la página que buscas no existe o fue movida.",
-    "Algo salió mal",
-    "Ocurrió un error inesperado. Inténtalo de nuevo en unos minutos.",
+    "Error", "Page not found",
+    "Sorry, the page you're looking for doesn't exist or was moved.",
+    "Something went wrong",
+    "An unexpected error occurred. Please try again in a few minutes.",
 ]
 
 _cache = {}
 _cache_lock = threading.Lock()
 _MAX_CACHE = 6000
-_cache_file = None  # se define en init_app()
+_cache_file = None  # defined in init_app()
 
 
 def init_app(app):
-    """Configura la caché persistente y precarga las traducciones en segundo plano."""
+    """Configure persistent cache and pre-warm translations in background."""
     global _cache_file
     _cache_file = os.path.join(app.instance_path, "translation_cache.json")
     _load_cache()
@@ -174,7 +175,7 @@ def _save_cache():
 
 
 def set_language():
-    """before_request: idioma activo = cookie del usuario > Accept-Language."""
+    """before_request: active language = user cookie > Accept-Language."""
     lang = request.cookies.get("lang")
     if lang not in SUPPORTED:
         lang = detect_lang()
@@ -182,10 +183,10 @@ def set_language():
 
 
 def detect_lang():
-    """Detecta el idioma por el encabezado Accept-Language del navegador.
+    """Detect language from browser's Accept-Language header.
 
-    Un visitante en USA normalmente envía 'en-US...' (→ inglés); en LATAM
-    'es-*' (→ español). El selector manual siempre tiene prioridad.
+    A visitor in the USA typically sends 'en-US...' (→ English); in LATAM
+    'es-*' (→ Spanish). The manual selector always takes priority.
     """
     accept = request.headers.get("Accept-Language", "")
     primary = accept.split(",")[0].strip().lower()
@@ -202,10 +203,10 @@ def _key(lang, text):
 
 
 def t(text, lang=None):
-    """Traduce un texto fijo al idioma activo (o al indicado).
+    """Translate a fixed text to the active language (or specified one).
 
-    En español devuelve el texto tal cual. Nunca levanta excepciones: si
-    algo falla, devuelve el texto original.
+    In English returns the text as-is. Never raises exceptions: if
+    something fails, returns the original text.
     """
     text = str(text) if text is not None else ""
     if not text.strip():
@@ -247,7 +248,7 @@ def translate_mapping(texts, lang):
 
 def _batch(texts, lang):
     try:
-        translator = GoogleTranslator(source=ES, target=lang)
+        translator = GoogleTranslator(source=EN, target=lang)
         return translator.translate_batch(texts, sleep_seconds=0.1)
     except Exception:
         return [_single(text, lang) for text in texts]
@@ -255,7 +256,7 @@ def _batch(texts, lang):
 
 def _single(text, lang):
     try:
-        return GoogleTranslator(source=ES, target=lang).translate(text)
+        return GoogleTranslator(source=EN, target=lang).translate(text)
     except Exception:
         return text
 

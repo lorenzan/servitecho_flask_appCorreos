@@ -139,8 +139,8 @@ def send_quote_response(quote):
 def send_test_email(settings):
     return send_email(
         settings.notify_email or settings.smtp_email,
-        "Correo de prueba — Tecuns Roofing",
-        "Este es un correo de prueba enviado desde el panel de administración de Tecuns Roofing. "
-        "Si lo recibiste, la configuración de correo está funcionando correctamente.",
+        "Test email — Tecuns Roofing",
+        "This is a test email sent from the Tecuns Roofing admin panel. "
+        "If you received it, the email configuration is working correctly.",
         settings,
     )

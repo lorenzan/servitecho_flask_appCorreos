@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Tecun's Roofing{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}{% endblock %}">
+  <meta name="description" content="{% block meta_description %}{{ t('Design, supply and installation of industrial roofs, metal facades and prefabricated modules in El Salvador.') }}{% endblock %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -58,10 +58,10 @@
             <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11H7v-2h4V7h2v6z"/></svg>
             <span>{{ site_info.extra }}</span>
           </span>
-          <div class="lang-switch" aria-label="Idioma / Language">
-            <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="Español">ES</a>
+          <div class="lang-switch" aria-label="{{ t('Language') }}">
+            <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="{{ t('Spanish') }}">ES</a>
             <span class="lang-divider"></span>
-            <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
+            <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="{{ t('English') }}">EN</a>
           </div>
         </div>
         {% endif %}
@@ -83,14 +83,14 @@
           </span>
         </a>
 
-        <nav class="nav-links" id="navLinks" aria-label="{{ t('Menú principal') }}">
+        <nav class="nav-links" id="navLinks" aria-label="{{ t('Main menu') }}">
           {% set ep = request.endpoint or '' %}
           {% set current_slug = (request.view_args or {}).get('slug') %}
           <a
             class="nav-item {{ 'is-active' if ep == 'public.index' else '' }}"
             href="{{ url_for('public.index') }}"
             {% if ep == 'public.index' %}aria-current="page"{% endif %}
-          >{{ t('Inicio') }}</a>
+          >{{ t('Home') }}</a>
           {% for s in nav_services %}
           {% set nav_label = s.name
             | replace(' de techos', '')
@@ -110,35 +110,35 @@
             class="nav-item {{ 'is-active' if ep == 'public.resenas' else '' }}"
             href="{{ url_for('public.resenas') }}"
             {% if ep == 'public.resenas' %}aria-current="page"{% endif %}
-          >{{ t('Reseñas') }}</a>
-          <a class="nav-link-mobile-only" href="{{ url_for('public.cotizacion') }}">{{ t('Cotización') }}</a>
+          >{{ t('Reviews') }}</a>
+          <a class="nav-link-mobile-only" href="{{ url_for('public.cotizacion') }}">{{ t('Quote') }}</a>
           <div class="nav-mobile-actions">
-            <div class="lang-switch lang-switch--mobile" aria-label="Idioma / Language">
-              <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="Español">ES</a>
+            <div class="lang-switch lang-switch--mobile" aria-label="{{ t('Language') }}">
+              <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="{{ t('Spanish') }}">ES</a>
               <span class="lang-divider"></span>
-              <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="English">EN</a>
+              <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="{{ t('English') }}">EN</a>
             </div>
-            {% if site_info %}
-            <button class="btn btn-call" id="mobile-phone-btn" type="button" aria-haspopup="dialog" aria-label="Llamar">
+            {% if site_info and site_info.eyebrow %}
+            <a class="btn btn-call" href="tel:{{ site_info.eyebrow }}" aria-label="{{ t('Call Us Today') }}">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
-              <span>{{ t('Llámenos Hoy') }}</span>
-            </button>
+              <span>{{ t('Call Us Today') }}</span>
+            </a>
             {% endif %}
           </div>
         </nav>
 
         <div class="nav-cta">
-          {% if site_info %}
-          <button class="btn btn-call btn-call--desk" id="nav-phone-btn" type="button" aria-haspopup="dialog" aria-label="Llamar">
+          {% if site_info and site_info.eyebrow %}
+          <a class="btn btn-call btn-call--desk" href="tel:{{ site_info.eyebrow }}" aria-label="{{ t('Call Us Today') }}">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
-            <span>{{ t('Llámenos Hoy') }}</span>
-          </button>
+            <span>{{ t('Call Us Today') }}</span>
+          </a>
           {% endif %}
           <a class="btn btn-rust btn-nav-cta" href="{{ url_for('public.cotizacion') }}">
-            <span>{{ t('Solicitar Cotización') }}</span>
+            <span>{{ t('Request a Quote') }}</span>
             <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.172 12 8.222 7.05l1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/></svg>
           </a>
-          <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+          <button class="nav-toggle" id="navToggle" aria-label="{{ t('Open menu') }}" aria-expanded="false">
             <span></span><span></span><span></span>
           </button>
         </div>
@@ -187,11 +187,11 @@
               {% endif %}
               <span>TECUN'S ROOFING</span>
             </h4>
-            <p class="footer-brand__text">{{ t('Diseño, suministro e instalación de techos industriales, fachadas metálicas y módulos prefabricados en El Salvador.') }}</p>
+            <p class="footer-brand__text">{{ t('Design, supply and installation of industrial roofs, metal facades and prefabricated modules in El Salvador.') }}</p>
           </div>
 
           <div class="footer-col">
-            <h4>{{ t('Servicios') }}</h4>
+            <h4>{{ t('Services') }}</h4>
             <ul>
               {% for s in nav_services %}
                 <li><a href="{{ url_for('public.servicio_detalle', slug=s.slug) }}">{{ s.name }}</a></li>
@@ -200,7 +200,7 @@
           </div>
 
           <div class="footer-col">
-            <h4>{{ t('Contacto') }}</h4>
+            <h4>{{ t('Contact') }}</h4>
             <ul class="footer-contact">
               {% if site_info %}
               <li>
@@ -228,13 +228,13 @@
               {% endif %}
               <li>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                <a href="{{ url_for('public.resenas') }}">{{ t('Dejar una reseña') }}</a>
+                <a href="{{ url_for('public.resenas') }}">{{ t('Leave a review') }}</a>
               </li>
             </ul>
           </div>
 
           <div class="footer-col">
-            <h4>{{ t('Redes sociales') }}</h4>
+            <h4>{{ t('Social media') }}</h4>
             <div class="footer-social">
               {% if site_socials and site_socials.eyebrow %}
               <a class="footer-social__btn footer-social__btn--wa" href="{{ site_socials.eyebrow }}" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">
@@ -246,64 +246,32 @@
               </a>
               {% endif %}
               {% if site_socials and site_socials.title %}
-              <a class="footer-social__btn" href="{{ site_socials.title }}" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
+              <a class="footer-social__btn footer-social__btn--fb" href="{{ site_socials.title }}" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14 9h3V6h-3c-1.8 0-3 1.4-3 3v2H9v3h2v7h3v-7h2.4l.6-3H14V9z"/></svg>
               </a>
               {% endif %}
               {% if site_socials and site_socials.body %}
-              <a class="footer-social__btn" href="{{ site_socials.body }}" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
+              <a class="footer-social__btn footer-social__btn--ig" href="{{ site_socials.body }}" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm5 4.2A4.8 4.8 0 1 0 16.8 12 4.8 4.8 0 0 0 12 7.2zm6.1-.9a1.1 1.1 0 1 0 1.1 1.1 1.1 1.1 0 0 0-1.1-1.1zM12 9.5A2.5 2.5 0 1 1 9.5 12 2.5 2.5 0 0 1 12 9.5z"/></svg>
               </a>
               {% endif %}
               {% if site_socials and site_socials.extra %}
-              <a class="footer-social__btn" href="{{ site_socials.extra }}" target="_blank" rel="noopener" aria-label="TikTok" title="TikTok">
+              <a class="footer-social__btn footer-social__btn--tt" href="{{ site_socials.extra }}" target="_blank" rel="noopener" aria-label="TikTok" title="TikTok">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.5 3h2.2c.2 1.6 1.2 3 2.8 3.6V9c-1.1 0-2.1-.3-3-1v6.2A5.2 5.2 0 1 1 11.3 9v2.2a3 3 0 1 0 3.2 3V3z"/></svg>
               </a>
               {% endif %}
             </div>
-            <p class="footer-social__hint">{{ t('Síguenos y contáctanos') }}</p>
+            <p class="footer-social__hint">{{ t('Follow us and contact us') }}</p>
           </div>
         </div>
 
         <div class="footer-bottom">
-          <span>© {{ 2026 }} Tecun's Roofing. {{ t('Todos los derechos reservados.') }}</span>
-          <a href="{{ url_for('admin.login') }}">{{ t('Acceso administrador') }}</a>
+          <span>© {{ 2026 }} Tecun's Roofing. {{ t('All rights reserved.') }}</span>
+          <a href="{{ url_for('admin.login') }}">{{ t('Admin access') }}</a>
         </div>
       </div>
     </div>
   </footer>
-
-  <!-- Modal para selección de teléfono -->
-<div id="phone-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="phone-modal-title" hidden>
-  <div class="modal-overlay" tabindex="-1"></div>
-  <div class="modal-content phone-modal-content">
-    <button class="modal-close" id="phone-modal-close" aria-label="Cerrar">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7a1 1 0 0 0-1.41 1.41L10.59 12 5.7 16.89a1 1 0 0 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.41z"/></svg>
-    </button>
-    <h2 id="phone-modal-title">{{ t('Llámenos Hoy') }}</h2>
-    <p class="phone-modal-text">{{ t('Selecciona el número al que deseas llamar:') }}</p>
-    <div class="phone-options">
-      {% if site_info and site_info.eyebrow %}
-      <a class="phone-option" href="tel:{{ site_info.eyebrow }}">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
-        <div class="phone-option-info">
-          <span class="phone-option-label">{{ t('Principal') }}</span>
-          <span class="phone-option-number">{{ site_info.eyebrow }}</span>
-        </div>
-      </a>
-      {% endif %}
-      {% if site_info and site_info.image_path %}
-      <a class="phone-option" href="tel:{{ site_info.image_path }}">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
-        <div class="phone-option-info">
-          <span class="phone-option-label">{{ t('Alternativo') }}</span>
-          <span class="phone-option-number">{{ site_info.image_path }}</span>
-        </div>
-      </a>
-      {% endif %}
-    </div>
-  </div>
-</div>
 
 <script>
   const navToggle = document.getElementById('navToggle');
@@ -322,54 +290,6 @@
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
   }
-
-  // Modal de teléfono
-  (function() {
-    const modal = document.getElementById('phone-modal');
-    const overlay = modal.querySelector('.modal-overlay');
-    const closeBtn = document.getElementById('phone-modal-close');
-    const phoneButtons = document.querySelectorAll('#topbar-phone-btn, #nav-phone-btn, #mobile-phone-btn');
-
-    function openModal() {
-      modal.hidden = false;
-      requestAnimationFrame(() => {
-        modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      });
-    }
-
-    function closeModal() {
-      modal.classList.remove('open');
-      document.body.style.overflow = '';
-      setTimeout(() => {
-        if (!modal.classList.contains('open')) {
-          modal.hidden = true;
-        }
-      }, 300);
-    }
-
-    phoneButtons.forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        openModal();
-      });
-      btn.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openModal();
-        }
-      });
-    });
-
-    closeBtn.addEventListener('click', closeModal);
-    overlay.addEventListener('click', closeModal);
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal.classList.contains('open')) {
-        closeModal();
-      }
-    });
-  })();
 </script>
 {% block extra_scripts %}{% endblock %}
 </body>

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(python -c \"from admin_routes import admin_bp; print\\('OK'\\)\")",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(python test_image_optimization.py)",
+      "Bash(python -c \"from utils import save_upload, allowed_file, _optimize_image; print\\('All imports successful'\\)\")"
     ]
   }
 }

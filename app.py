@@ -29,8 +29,8 @@ def create_app():
         return render_template(
             "error.html",
             code=404,
-            title="Página no encontrada",
-            message="Lo sentimos, la página que buscas no existe o fue movida.",
+            title="Page not found",
+            message="Sorry, the page you're looking for doesn't exist or was moved.",
         ), 404
 
     @app.errorhandler(500)
@@ -38,8 +38,8 @@ def create_app():
         return render_template(
             "error.html",
             code=500,
-            title="Algo salió mal",
-            message="Ocurrió un error inesperado. Inténtalo de nuevo en unos minutos.",
+            title="Something went wrong",
+            message="An unexpected error occurred. Please try again in a few minutes.",
         ), 500
 
     @app.before_request
@@ -95,7 +95,7 @@ def create_app():
                     db.session.add(
                         HeroSlide(
                             image_path=hero.image_path,
-                            caption="Standing Seam · Panel 5G · Módulos",
+                            caption="Standing Seam · Panel 5G · Modules",
                             sort_order=0,
                             active=True,
                         )
@@ -112,13 +112,13 @@ def create_app():
                         )
                     )
                     db.session.commit()
-            # Crear bloque de redes sociales si no existe
+            # Create social media block if it doesn't exist
             if not ContentBlock.query.filter_by(section_key="socials").first():
                 db.session.add(
                     ContentBlock(
                         section_key="socials",
-                        label="Redes sociales (pie de página)",
-                        eyebrow="",  # WhatsApp URL opcional
+                        label="Social Media (Footer)",
+                        eyebrow="",  # WhatsApp URL optional
                         title="",  # Facebook URL
                         body="",  # Instagram URL
                         extra="",  # TikTok URL
@@ -126,29 +126,29 @@ def create_app():
                     )
                 )
                 db.session.commit()
-            # Bloque Cotización (cards glass editables)
+            # Quote block (editable glass cards)
             if not ContentBlock.query.filter_by(section_key="cotizacion").first():
                 db.session.add(
                     ContentBlock(
                         section_key="cotizacion",
-                        label="Cotización (cards glass)",
-                        eyebrow="Cotización",
-                        title="Cuéntanos sobre tu proyecto",
-                        body="Danos la ubicación, describe lo que necesitas y sube fotos del sitio.",
-                        extra="Sin compromiso · Respuesta rápida",
+                        label="Quote (Glass Cards)",
+                        eyebrow="Quote",
+                        title="Tell us about your project",
+                        body="Give us the location, describe what you need and upload site photos.",
+                        extra="No obligation · Quick response",
                         image_path=None,
                     )
                 )
                 db.session.commit()
-            # Bloque Reseñas (cards apiladas editables)
+            # Reviews block (editable stacked cards)
             if not ContentBlock.query.filter_by(section_key="resenas").first():
                 db.session.add(
                     ContentBlock(
                         section_key="resenas",
-                        label="Reseñas (cards apiladas)",
-                        eyebrow="Reseñas",
-                        title="La experiencia de nuestros clientes",
-                        body="Proyectos entregados, opiniones reales. Comparte también la tuya.",
+                        label="Reviews (Stacked Cards)",
+                        eyebrow="Reviews",
+                        title="Our customers' experience",
+                        body="Completed projects, real opinions. Share yours too.",
                         extra="",
                         image_path=None,
                     )

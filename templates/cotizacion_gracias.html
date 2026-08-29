@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}{{ t('Solicitud enviada') }} | Tecun's Roofing{% endblock %}
+{% block title %}{{ t('Request sent') }} | Tecun's Roofing{% endblock %}
 
 {% block content %}
 <section class="section section--dark" style="min-height:60vh; display:flex; align-items:center;">
   <div class="container" style="text-align:center; max-width:640px;">
-    <div class="eyebrow" style="justify-content:center;">{{ t('Solicitud recibida') }}</div>
-    <h1>{{ t('¡Gracias! Tu solicitud fue enviada') }}</h1>
-    <p style="color:var(--silver);">{{ t('Nuestro equipo revisará la información y las fotos de tu proyecto, y te contactaremos pronto con tu cotización.') }}</p>
+    <div class="eyebrow" style="justify-content:center;">{{ t('Request received') }}</div>
+    <h1>{{ t('Thank you! Your request was sent') }}</h1>
+    <p style="color:var(--silver);">{{ t('Our team will review your project information and photos, and contact you soon with your quote.') }}</p>
     <div class="hero-actions" style="justify-content:center;">
-      <a href="{{ url_for('public.index') }}" class="btn btn-outline">{{ t('Volver al inicio') }}</a>
-      <a href="{{ url_for('public.resenas') }}" class="btn btn-rust">{{ t('Ver reseñas') }}</a>
+      <a href="{{ url_for('public.index') }}" class="btn btn-outline">{{ t('Back to home') }}</a>
+      <a href="{{ url_for('public.resenas') }}" class="btn btn-rust">{{ t('View reviews') }}</a>
     </div>
   </div>
 </section>

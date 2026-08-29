@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Tecun's Roofing | {{ t('Techos, Fachadas y Módulos Prefabricados') }}{% endblock %}
+{% block title %}Tecun's Roofing | {{ t('Roofs, Facades and Prefabricated Modules') }}{% endblock %}
 {% block brand_name %}Tecun's Roofing{% endblock %}
 
 {% block content %}
 
 <section class="hero">
-  {# Capas decorativas — no afectan módulos editables del admin #}
+  {# Decorative layers — do not affect editable admin modules #}
   <div class="hero-bg" aria-hidden="true">
     <div class="hero-bg__base"></div>
     <div class="hero-bg__aurora"></div>
@@ -36,7 +36,7 @@
 
   <div class="container">
     <div class="hero-copy">
-      {% set eyebrow_text = blocks.hero.eyebrow if blocks.hero else t('Construyendo confianza en cada proyecto') %}
+      {% set eyebrow_text = blocks.hero.eyebrow if blocks.hero else t('Building trust in every project') %}
       <div class="eyebrow eyebrow--shine">
         <span class="eyebrow-shine">
           {% for char in eyebrow_text %}
@@ -49,17 +49,17 @@
           <span class="eyebrow-shine__loader" aria-hidden="true"></span>
         </span>
       </div>
-      <h1>{{ blocks.hero.title if blocks.hero else t('Techos, Fachadas y Módulos Prefabricados en El Salvador') }}</h1>
+      <h1>{{ blocks.hero.title if blocks.hero else t('Roofs, Facades and Prefabricated Modules in El Salvador') }}</h1>
       <p class="lead">{{ blocks.hero.body if blocks.hero else '' }}</p>
       <div class="hero-actions">
-        {% set cta_label = (blocks.hero.extra if blocks.hero and blocks.hero.extra else t('Solicita tu cotización'))|replace('→', '')|replace('->', '')|trim %}
+        {% set cta_label = (blocks.hero.extra if blocks.hero and blocks.hero.extra else t('Get your quote'))|replace('→', '')|replace('->', '')|trim %}
         <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust">
           <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm7 1.5V9h4.5L14 4.5zM9 12h6v1.5H9V12zm0 3.5h6V17H9v-1.5zm0-7h3V10H9V8.5z"/></svg>
           <span>{{ cta_label }}</span>
         </a>
         <a href="#productos" class="btn btn-outline">
           <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 4.5A1.5 1.5 0 0 1 4.5 3h5A1.5 1.5 0 0 1 11 4.5v5A1.5 1.5 0 0 1 9.5 11h-5A1.5 1.5 0 0 1 3 9.5v-5zm10 0A1.5 1.5 0 0 1 14.5 3h5A1.5 1.5 0 0 1 21 4.5v5A1.5 1.5 0 0 1 19.5 11h-5A1.5 1.5 0 0 1 13 9.5v-5zM3 14.5A1.5 1.5 0 0 1 4.5 13h5a1.5 1.5 0 0 1 1.5 1.5v5A1.5 1.5 0 0 1 9.5 21h-5A1.5 1.5 0 0 1 3 19.5v-5zm10 0a1.5 1.5 0 0 1 1.5-1.5h5a1.5 1.5 0 0 1 1.5 1.5v5a1.5 1.5 0 0 1-1.5 1.5h-5a1.5 1.5 0 0 1-1.5-1.5v-5z"/></svg>
-          <span>{{ t('Ver productos') }}</span>
+          <span>{{ t('View products') }}</span>
         </a>
       </div>
     </div>
@@ -67,14 +67,14 @@
       {% set fallback_hero_cards = [
         {'src': 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800&auto=format&fit=crop', 'caption': 'Standing Seam'},
         {'src': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=800&auto=format&fit=crop', 'caption': 'Panel 5G'},
-        {'src': 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop', 'caption': 'Módulos'}
+        {'src': 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop', 'caption': 'Modules'}
       ] %}
-      <div class="wrap_card" aria-label="{{ t('Galería de proyectos') }}">
+      <div class="wrap_card" aria-label="{{ t('Project gallery') }}">
         {% if hero_cards %}
           {% for slide in hero_cards %}
           <div class="card">
             <div class="content">
-              <img src="{{ url_for('static', filename=slide.image_path) }}" alt="{{ slide.caption or ('Proyecto ' ~ loop.index) }}" {% if not loop.first %}loading="lazy"{% endif %}>
+              <img src="{{ url_for('static', filename=slide.image_path) }}" alt="{{ slide.caption or ('Project ' ~ loop.index) }}" {% if not loop.first %}loading="lazy"{% endif %}>
               {% if slide.caption %}
               <em class="card-caption">{{ slide.caption }}</em>
               {% endif %}
@@ -85,7 +85,7 @@
           {% for item in fallback_hero_cards %}
           <div class="card">
             <div class="content">
-              <img src="{{ item.src }}" alt="{{ item.caption }}">
+              <img src="{{ item.src }}" alt="{{ item.caption }}" {% if not loop.first %}loading="lazy"{% endif %}>
               <em class="card-caption">{{ item.caption }}</em>
             </div>
           </div>
@@ -107,7 +107,7 @@
   style="background-image:linear-gradient(180deg, rgba(23,18,15,0.88) 0%, rgba(23,18,15,0.82) 55%, rgba(23,18,15,0.96) 100%), url('{{ url_for('static', filename=blocks.why_us.image_path) }}'); background-size:cover; background-position:center;"
   {% endif %}>
   <div class="container">
-    <div class="why-seal" aria-label="{{ t('Más de 5 años de experiencia') }}">
+    <div class="why-seal" aria-label="{{ t('Over 5 years of experience') }}">
       <div class="why-seal__ring">
         <svg class="why-seal__orbit" viewBox="0 0 120 120" aria-hidden="true">
           <defs>
@@ -122,15 +122,15 @@
         <div class="why-seal__core">
           <span class="why-seal__years">+5</span>
           <span class="why-seal__label">
-            <span>{{ t('Años de') }}</span>
-            <span>{{ t('experiencia') }}</span>
+            <span>{{ t('Years of') }}</span>
+            <span>{{ t('experience') }}</span>
           </span>
         </div>
       </div>
     </div>
 
     <div class="section-head center why-section__head">
-      {% set why_eyebrow = blocks.why_us.eyebrow if blocks.why_us else t('Nuestro compromiso') %}
+      {% set why_eyebrow = blocks.why_us.eyebrow if blocks.why_us else t('Our commitment') %}
       <div class="eyebrow eyebrow--shine">
         <span class="eyebrow-shine">
           {% for char in why_eyebrow %}
@@ -143,7 +143,7 @@
           <span class="eyebrow-shine__loader" aria-hidden="true"></span>
         </span>
       </div>
-      <h2>{{ blocks.why_us.title if blocks.why_us else t('¿Qué nos distingue?') }}</h2>
+      <h2>{{ blocks.why_us.title if blocks.why_us else t('What sets us apart?') }}</h2>
       <p style="color:var(--silver);">{{ blocks.why_us.body if blocks.why_us else '' }}</p>
     </div>
 
@@ -160,8 +160,8 @@
           </div>
         </div>
         <div class="trust-card__num">+30</div>
-        <h3 class="trust-card__title">{{ t('Años de garantía Standing Seam') }}</h3>
-        <p class="trust-card__desc">{{ t('Protección duradera con sistemas de techo certificados y respaldo real.') }}</p>
+        <h3 class="trust-card__title">{{ t('Years of Standing Seam warranty') }}</h3>
+        <p class="trust-card__desc">{{ t('Long-lasting protection with certified roof systems and real backing.') }}</p>
       </article>
 
       <article class="trust-card trust-card--support">
@@ -176,8 +176,8 @@
           </div>
         </div>
         <div class="trust-card__num">24/7</div>
-        <h3 class="trust-card__title">{{ t('Soporte a clientes') }}</h3>
-        <p class="trust-card__desc">{{ t('Atención continua para emergencias, mantenimiento y seguimiento de obra.') }}</p>
+        <h3 class="trust-card__title">{{ t('Customer support') }}</h3>
+        <p class="trust-card__desc">{{ t('Continuous support for emergencies, maintenance and project follow-up.') }}</p>
       </article>
 
       <article class="trust-card trust-card--install">
@@ -192,8 +192,8 @@
           </div>
         </div>
         <div class="trust-card__num">100%</div>
-        <h3 class="trust-card__title">{{ t('Instalación profesional') }}</h3>
-        <p class="trust-card__desc">{{ t('Cuadrillas especializadas, acabados impecables y seguridad en cada proyecto.') }}</p>
+        <h3 class="trust-card__title">{{ t('Professional installation') }}</h3>
+        <p class="trust-card__desc">{{ t('Specialized crews, flawless finishes and safety in every project.') }}</p>
       </article>
 
       <article class="trust-card trust-card--systems">
@@ -208,8 +208,8 @@
           </div>
         </div>
         <div class="trust-card__num">3</div>
-        <h3 class="trust-card__title">{{ t('Sistemas constructivos') }}</h3>
-        <p class="trust-card__desc">{{ t('Standing Seam, paneles termoacústicos y módulos adaptados a cada obra.') }}</p>
+        <h3 class="trust-card__title">{{ t('Construction systems') }}</h3>
+        <p class="trust-card__desc">{{ t('Standing Seam, thermoacoustic panels and modules adapted to each project.') }}</p>
       </article>
     </div>
   </div>
@@ -228,7 +228,7 @@
   </div>
   <div class="container">
     <div class="section-head products-head">
-      {% set products_eyebrow = t('Productos') %}
+      {% set products_eyebrow = t('Products') %}
       <div class="eyebrow eyebrow--shine">
         <span class="eyebrow-shine">
           {% for char in products_eyebrow %}
@@ -242,10 +242,10 @@
         </span>
       </div>
       <h2 class="products-head__title">
-        <span class="products-head__title-fill">{{ t('Sistemas para cada tipo de proyecto') }}</span>
-        <span class="products-head__title-stroke" aria-hidden="true">{{ t('Sistemas para cada tipo de proyecto') }}</span>
+        <span class="products-head__title-fill">{{ t('Systems for every type of project') }}</span>
+        <span class="products-head__title-stroke" aria-hidden="true">{{ t('Systems for every type of project') }}</span>
       </h2>
-      <p class="products-head__lead">{{ t('Fabricación, suministro e instalación con garantía para proyectos residenciales, comerciales e industriales.') }}</p>
+      <p class="products-head__lead">{{ t('Manufacturing, supply and installation with warranty for residential, commercial and industrial projects.') }}</p>
       <div class="products-head__rule" aria-hidden="true"></div>
     </div>
     <div class="product-grid">
@@ -255,9 +255,9 @@
           <div class="product-card__bg">
             <figure class="product-card__media">
               {% if s.image_path %}
-                <img src="{{ url_for('static', filename=s.image_path) }}" alt="{{ s.name }}">
+                <img src="{{ url_for('static', filename=s.image_path) }}" alt="{{ s.name }}" loading="lazy">
               {% else %}
-                <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop" alt="{{ s.name }}">
+                <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=800&auto=format&fit=crop" alt="{{ s.name }}" loading="lazy">
               {% endif %}
             </figure>
 
@@ -274,7 +274,7 @@
                 <span class="product-card__title-stroke" aria-hidden="true">{{ s.name }}</span>
               </h3>
               <p class="product-card__desc">{{ s.short_description }}</p>
-              <span class="product-card__cta">{{ t('Ver detalles') }} →</span>
+              <span class="product-card__cta">{{ t('View details') }} →</span>
             </div>
           </div>
         </div>
@@ -305,9 +305,9 @@
 
     <div class="about-intro">
       <div class="about-intro__copy">
-        {% set about_eyebrow = blocks.about.eyebrow if blocks.about else t('Acerca de nosotros') %}
+        {% set about_eyebrow = blocks.about.eyebrow if blocks.about else t('About us') %}
         <div class="eyebrow">{{ about_eyebrow }}</div>
-        <h2>{{ blocks.about.title if blocks.about else t('Construimos Confianza') }}</h2>
+        <h2>{{ blocks.about.title if blocks.about else t('We Build Trust') }}</h2>
         {% if blocks.about %}
           {% for para in blocks.about.body.split('\n\n') %}
             <p class="text-steel">{{ para }}</p>
@@ -344,24 +344,24 @@
       <article class="about-pillar">
         <div class="about-pillar__icon" aria-hidden="true">
           {% if blocks.mission and blocks.mission.image_path %}
-            <img src="{{ url_for('static', filename=blocks.mission.image_path) }}" alt="">
+            <img src="{{ url_for('static', filename=blocks.mission.image_path) }}" alt="" loading="lazy">
           {% else %}
             <svg viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v5c0 5.2 3.4 9.9 8 11 4.6-1.1 8-5.8 8-11V7l-8-4Z" stroke="currentColor" stroke-width="1.5"/><path d="m9.2 12.2 1.9 1.9 3.8-3.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           {% endif %}
         </div>
-        <h3>{{ blocks.mission.title if blocks.mission else t('Misión') }}</h3>
+        <h3>{{ blocks.mission.title if blocks.mission else t('Mission') }}</h3>
         <p>{{ blocks.mission.body if blocks.mission else '' }}</p>
       </article>
 
       <article class="about-pillar">
         <div class="about-pillar__icon" aria-hidden="true">
           {% if blocks.vision and blocks.vision.image_path %}
-            <img src="{{ url_for('static', filename=blocks.vision.image_path) }}" alt="">
+            <img src="{{ url_for('static', filename=blocks.vision.image_path) }}" alt="" loading="lazy">
           {% else %}
             <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 12S6.5 5.5 12 5.5 21.5 12 21.5 12 17.5 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.5"/></svg>
           {% endif %}
         </div>
-        <h3>{{ blocks.vision.title if blocks.vision else t('Visión') }}</h3>
+        <h3>{{ blocks.vision.title if blocks.vision else t('Vision') }}</h3>
         <p>{{ blocks.vision.body if blocks.vision else '' }}</p>
       </article>
 
@@ -370,7 +370,7 @@
         <div class="about-pillar__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5 14.2 9l5.8.5-4.4 3.7 1.4 5.6L12 15.8 7 18.8l1.4-5.6L4 9.5 9.8 9 12 3.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
         </div>
-        <h3>{{ t('Nuestros valores') }}</h3>
+        <h3>{{ t('Our values') }}</h3>
         <ul class="about-pillar__values">
           {% for v in blocks.about.extra.split(',') %}
             {% if v.strip() %}
@@ -388,23 +388,23 @@
   <div class="container">
     <div class="reviews-head">
       <div>
-        <div class="eyebrow">{{ t('Reseñas') }}</div>
-        <h2 class="mb-0">{{ t('Lo que dicen nuestros clientes') }}</h2>
+        <div class="eyebrow">{{ t('Reviews') }}</div>
+        <h2 class="mb-0">{{ t('What our customers say') }}</h2>
       </div>
       <div class="reviews-head__actions">
         {% if reviews and reviews|length > 1 %}
         <div class="reviews-carousel__controls">
-          <button type="button" class="reviews-carousel__btn" data-rev-prev aria-label="{{ t('Anterior') }}">
+          <button type="button" class="reviews-carousel__btn" data-rev-prev aria-label="{{ t('Previous') }}">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M14.7 6.3a1 1 0 0 1 0 1.4L10.4 12l4.3 4.3a1 1 0 1 1-1.4 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.4 0z"/></svg>
           </button>
-          <button type="button" class="reviews-carousel__btn" data-rev-next aria-label="{{ t('Siguiente') }}">
+          <button type="button" class="reviews-carousel__btn" data-rev-next aria-label="{{ t('Next') }}">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.3 6.3a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4l-5 5a1 1 0 1 1-1.4-1.4L13.6 12 9.3 7.7a1 1 0 0 1 0-1.4z"/></svg>
           </button>
         </div>
         {% endif %}
         <a href="{{ url_for('public.resenas') }}" class="btn btn-rust reviews-head__cta">
           <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 0 0-9 9c0 1.7.5 3.3 1.3 4.7L3 21l4.5-1.2A9 9 0 1 0 12 3zm-1.2 5.2h2.4v6.1h-2.4V8.2zm0 7.4h2.4V18h-2.4v-2.4z"/></svg>
-          <span>{{ t('Ver todas / dejar reseña') }}</span>
+          <span>{{ t('View all / leave a review') }}</span>
         </a>
       </div>
     </div>
@@ -417,9 +417,9 @@
             <div class="review-card__avatar" aria-hidden="true">{{ r.name[:1]|upper }}</div>
             <div class="review-card__meta">
               <div class="review-card__name">{{ r.name }}</div>
-              <div class="review-card__role">{{ t('Cliente Tecuns') }}</div>
+              <div class="review-card__role">{{ t('Tecuns Client') }}</div>
             </div>
-            <div class="review-card__stars" aria-label="{{ r.rating }} {{ t('estrellas') }}">
+            <div class="review-card__stars" aria-label="{{ r.rating }} {{ t('stars') }}">
               {% for i in range(1, 6) %}
                 <span class="review-card__star {{ 'is-on' if i <= r.rating else '' }}" aria-hidden="true">★</span>
               {% endfor %}
@@ -431,17 +431,17 @@
       </div>
     </div>
     {% else %}
-      <p class="text-steel">{{ t('Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!') }}</p>
+      <p class="text-steel">{{ t('No reviews published yet. Be the first to share your experience!') }}</p>
     {% endif %}
   </div>
 </section>
 
 <section class="section--tight section--dark section--cta-final">
   <div class="container cta-final">
-    <h2>{{ t('¿Listo para construir tu próximo proyecto?') }}</h2>
-    <p class="cta-final__lead">{{ t('Cuéntanos la ubicación, lo que necesitas y sube fotos del sitio. Te enviamos tu cotización sin compromiso.') }}</p>
+    <h2>{{ t('Ready to build your next project?') }}</h2>
+    <p class="cta-final__lead">{{ t('Tell us the location, what you need and upload site photos. We will send you a no-obligation quote.') }}</p>
 
-    <a href="{{ url_for('public.cotizacion') }}" class="cta-spotlight" aria-label="{{ t('Solicitar cotización') }}">
+    <a href="{{ url_for('public.cotizacion') }}" class="cta-spotlight" aria-label="{{ t('Request a quote') }}">
       <div class="cta-spotlight__card">
         <div class="cta-spotlight__fx" aria-hidden="true">
           <span class="cta-spotlight__wash"></span>
@@ -461,8 +461,8 @@
           </div>
 
           <p class="cta-spotlight__brand">Tecun's Roofing</p>
-          <p class="cta-spotlight__title">{{ t('Solicitar cotización') }}</p>
-          <p class="cta-spotlight__desc">{{ t('Sin compromiso · Respuesta rápida · Proyectos a medida') }}</p>
+          <p class="cta-spotlight__title">{{ t('Request a quote') }}</p>
+          <p class="cta-spotlight__desc">{{ t('No obligation · Quick response · Custom projects') }}</p>
 
           <div class="cta-spotlight__line" aria-hidden="true"></div>
           <div class="cta-spotlight__dots" aria-hidden="true">

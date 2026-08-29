@@ -29,7 +29,7 @@
     <p class="svc-hero__brand">Tecun's Roofing</p>
     <div class="eyebrow eyebrow--shine svc-hero__eyebrow">
       <span class="eyebrow-shine">
-        {% set svc_eyebrow = t('Servicio') %}
+        {% set svc_eyebrow = t('Service') %}
         {% for char in svc_eyebrow %}
           {% if char == ' ' %}
             <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
@@ -47,17 +47,17 @@
     <div class="svc-hero__actions">
       <a href="{{ url_for('public.cotizacion') }}" class="btn btn-rust">
         <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm7 1.5V9h4.5L14 4.5zM9 12h6v1.5H9V12zm0 3.5h6V17H9v-1.5zm0-7h3V10H9V8.5z"/></svg>
-        <span>{{ t('Cotiza este servicio') }}</span>
+        <span>{{ t('Quote this service') }}</span>
       </a>
       <a href="#svc-detalle" class="btn btn-outline">
         <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 4a1 1 0 0 1 1 1v10.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42L11 15.59V5a1 1 0 0 1 1-1z"/></svg>
-        <span>{{ t('Ver detalles') }}</span>
+        <span>{{ t('View details') }}</span>
       </a>
     </div>
   </div>
 
-  <a href="#svc-detalle" class="svc-scroll-hint" aria-label="{{ t('Continúa viendo') }}">
-    <span class="svc-scroll-hint__label">{{ t('Continúa viendo') }}</span>
+  <a href="#svc-detalle" class="svc-scroll-hint" aria-label="{{ t('Continue viewing') }}">
+    <span class="svc-scroll-hint__label">{{ t('Continue viewing') }}</span>
     <span class="svc-scroll-hint__chevron" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 16.5a1 1 0 0 1-.7-.3l-5-5a1 1 0 1 1 1.4-1.4L12 14.1l4.3-4.3a1 1 0 1 1 1.4 1.4l-5 5a1 1 0 0 1-.7.3z"/></svg>
     </span>
@@ -67,8 +67,8 @@
 <section class="svc-detail section--dark" id="svc-detalle">
   <div class="container svc-detail__grid">
     <div class="svc-detail__copy">
-      <div class="eyebrow">{{ t('Descripción técnica') }}</div>
-      <h2>{{ t('Sobre este servicio') }}</h2>
+      <div class="eyebrow">{{ t('Technical description') }}</div>
+      <h2>{{ t('About this service') }}</h2>
       <div class="svc-detail__rule" aria-hidden="true"></div>
       {% for para in servicio.description.split('\n\n') %}
         {% if para.strip() %}
@@ -76,7 +76,7 @@
         {% endif %}
       {% endfor %}
 
-      <a href="{{ url_for('public.cotizacion') }}" class="cta-spotlight cta-spotlight--row" aria-label="{{ t('Solicitar cotización') }}">
+      <a href="{{ url_for('public.cotizacion') }}" class="cta-spotlight cta-spotlight--row" aria-label="{{ t('Request a quote') }}">
         <div class="cta-spotlight__card">
           <div class="cta-spotlight__fx" aria-hidden="true">
             <span class="cta-spotlight__wash"></span>
@@ -95,8 +95,8 @@
             </div>
             <div class="cta-spotlight__copy">
               <p class="cta-spotlight__brand">Tecun's Roofing</p>
-              <p class="cta-spotlight__title">{{ t('Solicitar cotización') }}</p>
-              <p class="cta-spotlight__desc">{{ t('Sin compromiso · Respuesta rápida · Proyectos a medida') }}</p>
+              <p class="cta-spotlight__title">{{ t('Request a quote') }}</p>
+              <p class="cta-spotlight__desc">{{ t('No obligation · Quick response · Custom projects') }}</p>
               <span class="cta-spotlight__line" aria-hidden="true"></span>
               <div class="cta-spotlight__dots" aria-hidden="true"><span></span><span></span><span></span></div>
             </div>
@@ -116,7 +116,7 @@
     <aside class="svc-detail__aside">
       <div class="svc-aside-panel">
         <div class="svc-aside-panel__media">
-          <img src="{{ hero_img }}" alt="{{ servicio.name }}">
+          <img src="{{ hero_img }}" alt="{{ servicio.name }}" loading="lazy">
         </div>
         <div class="svc-aside-panel__body">
           <p class="svc-aside-panel__label">Tecun's Roofing</p>
@@ -134,7 +134,7 @@
 <section class="svc-gallery section--dark" id="svc-galeria">
   <div class="container">
     <div class="svc-gallery__head">
-      {% set gallery_eyebrow = t('Galería') %}
+      {% set gallery_eyebrow = t('Gallery') %}
       <div class="eyebrow eyebrow--shine">
         <span class="eyebrow-shine">
           {% for char in gallery_eyebrow %}
@@ -147,8 +147,8 @@
           <span class="eyebrow-shine__loader" aria-hidden="true"></span>
         </span>
       </div>
-      <h2>{{ t('Trabajos de este servicio') }}</h2>
-      <p class="svc-gallery__lead">{{ t("Fotos reales de proyectos realizados por Tecun's Roofing.") }}</p>
+      <h2>{{ t('Projects of this service') }}</h2>
+      <p class="svc-gallery__lead">{{ t("Real photos of projects completed by Tecun's Roofing.") }}</p>
     </div>
     <div class="svc-gallery__grid" data-svc-gallery>
       {% for img in gallery %}
@@ -158,7 +158,7 @@
         data-gallery-index="{{ loop.index0 }}"
         data-gallery-src="{{ url_for('static', filename=img.image_path) }}"
         data-gallery-caption="{{ img.caption or '' }}"
-        aria-label="{{ t('Ampliar foto') }}{% if img.caption %}: {{ img.caption }}{% endif %}"
+        aria-label="{{ t('Enlarge photo') }}{% if img.caption %}: {{ img.caption }}{% endif %}"
       >
         <img src="{{ url_for('static', filename=img.image_path) }}" alt="{{ img.caption or servicio.name }}" loading="lazy">
         <span class="svc-gallery__veil" aria-hidden="true"></span>
@@ -176,18 +176,18 @@
 
 <div class="svc-lightbox" id="svcLightbox" hidden>
   <div class="svc-lightbox__backdrop" data-lightbox-close tabindex="-1"></div>
-  <div class="svc-lightbox__dialog" role="dialog" aria-modal="true" aria-label="{{ t('Galería') }}">
-    <button type="button" class="svc-lightbox__close" data-lightbox-close aria-label="{{ t('Cerrar') }}">
+  <div class="svc-lightbox__dialog" role="dialog" aria-modal="true" aria-label="{{ t('Gallery') }}">
+    <button type="button" class="svc-lightbox__close" data-lightbox-close aria-label="{{ t('Close') }}">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71a1 1 0 0 0-1.41 0L12 10.59 7.11 5.7a1 1 0 0 0-1.41 1.41L10.59 12 5.7 16.89a1 1 0 0 0 1.41 1.41L12 13.41l4.89 4.89a1 1 0 0 0 1.41-1.41L13.41 12l4.89-4.89a1 1 0 0 0 0-1.41z"/></svg>
     </button>
-    <button type="button" class="svc-lightbox__nav svc-lightbox__nav--prev" data-lightbox-prev aria-label="{{ t('Anterior') }}">
+    <button type="button" class="svc-lightbox__nav svc-lightbox__nav--prev" data-lightbox-prev aria-label="{{ t('Previous') }}">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.7 6.3a1 1 0 0 1 0 1.4L10.4 12l4.3 4.3a1 1 0 1 1-1.4 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.4 0z"/></svg>
     </button>
     <figure class="svc-lightbox__figure">
       <img src="" alt="" class="svc-lightbox__img" id="svcLightboxImg">
       <figcaption class="svc-lightbox__caption" id="svcLightboxCaption"></figcaption>
     </figure>
-    <button type="button" class="svc-lightbox__nav svc-lightbox__nav--next" data-lightbox-next aria-label="{{ t('Siguiente') }}">
+    <button type="button" class="svc-lightbox__nav svc-lightbox__nav--next" data-lightbox-next aria-label="{{ t('Next') }}">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.3 6.3a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4l-5 5a1 1 0 1 1-1.4-1.4L13.6 12 9.3 7.7a1 1 0 0 1 0-1.4z"/></svg>
     </button>
     <p class="svc-lightbox__counter" id="svcLightboxCounter" aria-live="polite"></p>
@@ -199,7 +199,7 @@
 <section class="svc-related section--dark">
   <div class="container">
     <div class="svc-related__head">
-      {% set related_eyebrow = t('Más servicios') %}
+      {% set related_eyebrow = t('More services') %}
       <div class="eyebrow eyebrow--shine">
         <span class="eyebrow-shine">
           {% for char in related_eyebrow %}
@@ -212,8 +212,8 @@
           <span class="eyebrow-shine__loader" aria-hidden="true"></span>
         </span>
       </div>
-      <h2>{{ t('También te puede interesar') }}</h2>
-      <p class="svc-related__lead">{{ t('Explora otras soluciones de techado con el mismo estándar de calidad Tecuns.') }}</p>
+      <h2>{{ t('You may also like') }}</h2>
+      <p class="svc-related__lead">{{ t('Explore other roofing solutions with the same Tecuns quality standard.') }}</p>
     </div>
     <div class="svc-related__grid">
       {% for o in otros %}
@@ -231,7 +231,7 @@
             {% if o.short_description %}
             <p class="svc-related__txt">{{ o.short_description }}</p>
             {% endif %}
-            <span class="svc-related__btn">{{ t('Ver servicio') }}</span>
+            <span class="svc-related__btn">{{ t('View service') }}</span>
           </div>
         </div>
       </a>
@@ -243,10 +243,10 @@
 
 <section class="section--tight section--dark section--cta-final">
   <div class="container cta-final">
-    <h2>{{ t('¿Listo para cotizar este servicio?') }}</h2>
-    <p class="cta-final__lead">{{ t('Cuéntanos la ubicación, lo que necesitas y sube fotos del sitio. Te enviamos tu cotización sin compromiso.') }}</p>
+    <h2>{{ t('Ready to quote this service?') }}</h2>
+    <p class="cta-final__lead">{{ t('Tell us the location, what you need and upload site photos. We will send you a no-obligation quote.') }}</p>
 
-    <a href="{{ url_for('public.cotizacion') }}" class="cta-spotlight" aria-label="{{ t('Solicitar cotización') }}">
+    <a href="{{ url_for('public.cotizacion') }}" class="cta-spotlight" aria-label="{{ t('Request a quote') }}">
       <div class="cta-spotlight__card">
         <div class="cta-spotlight__fx" aria-hidden="true">
           <span class="cta-spotlight__wash"></span>
@@ -264,8 +264,8 @@
             </div>
           </div>
           <p class="cta-spotlight__brand">Tecun's Roofing</p>
-          <p class="cta-spotlight__title">{{ t('Solicitar cotización') }}</p>
-          <p class="cta-spotlight__desc">{{ t('Sin compromiso · Respuesta rápida · Proyectos a medida') }}</p>
+          <p class="cta-spotlight__title">{{ t('Request a quote') }}</p>
+          <p class="cta-spotlight__desc">{{ t('No obligation · Quick response · Custom projects') }}</p>
           <span class="cta-spotlight__line" aria-hidden="true"></span>
           <div class="cta-spotlight__dots" aria-hidden="true"><span></span><span></span><span></span></div>
         </div>

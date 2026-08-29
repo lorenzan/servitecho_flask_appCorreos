@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ t('Solicita tu cotización') }} | Tecun's Roofing{% endblock %}
+{% block title %}{{ t('Tell us about your project') }} | Tecun's Roofing{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -18,7 +18,7 @@
   <div class="quote-page__hero">
     <div class="container quote-page__hero-grid">
       <div class="quote-page__hero-copy">
-        {% set quote_eyebrow = t('Cotización') %}
+        {% set quote_eyebrow = t('Quote') %}
         <div class="eyebrow eyebrow--shine quote-reveal" style="--reveal-delay:0s">
           <span class="eyebrow-shine">
             {% for char in quote_eyebrow %}
@@ -31,13 +31,13 @@
             <span class="eyebrow-shine__loader" aria-hidden="true"></span>
           </span>
         </div>
-        <h1 class="quote-reveal" style="--reveal-delay:.08s">{{ t('Cuéntanos sobre tu proyecto') }}</h1>
-        <p class="quote-page__lead quote-reveal" style="--reveal-delay:.16s">{{ t('Danos la ubicación, describe lo que necesitas y sube fotos del sitio. Nuestro equipo revisará tu solicitud y te contactará con una propuesta.') }}</p>
+        <h1 class="quote-reveal" style="--reveal-delay:.08s">{{ t('Tell us about your project') }}</h1>
+        <p class="quote-page__lead quote-reveal" style="--reveal-delay:.16s">{{ t('Give us the location, describe what you need and upload site photos. Our team will review your request and contact you with a proposal.') }}</p>
 
-        <ul class="quote-page__perks quote-reveal" style="--reveal-delay:.24s" aria-label="{{ t('Beneficios') }}">
-          <li style="--perk-i:0">{{ t('Sin compromiso') }}</li>
-          <li style="--perk-i:1">{{ t('Respuesta rápida') }}</li>
-          <li style="--perk-i:2">{{ t('Proyectos a medida') }}</li>
+        <ul class="quote-page__perks quote-reveal" style="--reveal-delay:.24s" aria-label="{{ t('Benefits') }}">
+          <li style="--perk-i:0">{{ t('No obligation') }}</li>
+          <li style="--perk-i:1">{{ t('Quick response') }}</li>
+          <li style="--perk-i:2">{{ t('Custom projects') }}</li>
         </ul>
       </div>
 
@@ -47,7 +47,7 @@
           {% for card in quote_glass_cards %}
           <div
             class="quote-glass__card"
-            data-text="{{ card.caption or t('Proyecto') }}"
+            data-text="{{ card.caption or t('Project') }}"
             style="--r:{{ glass_rotations[loop.index0] if loop.index0 < glass_rotations|length else (loop.index0 * 10 - 15) }};"
           >
             <img
@@ -74,35 +74,35 @@
         <div class="quote-form__section-head">
           <span class="quote-form__step">1</span>
           <div>
-            <h2>{{ t('Datos de contacto') }}</h2>
-            <p>{{ t('Así te contactamos con tu cotización.') }}</p>
+            <h2>{{ t('Contact details') }}</h2>
+            <p>{{ t('How we\'ll contact you with your quote.') }}</p>
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-row">
-            <label for="name">{{ t('Nombre completo') }}</label>
+            <label for="name">{{ t('Full name') }}</label>
             <input type="text" id="name" name="name" required autocomplete="name">
           </div>
           <div class="form-row">
-            <label for="phone">{{ t('Teléfono / WhatsApp') }}</label>
+            <label for="phone">{{ t('Phone / WhatsApp') }}</label>
             <input type="tel" id="phone" name="phone" required autocomplete="tel">
           </div>
         </div>
 
         <div class="form-grid-2">
           <div class="form-row">
-            <label for="email">{{ t('Correo (opcional)') }}</label>
+            <label for="email">{{ t('Email (optional)') }}</label>
             <input type="email" id="email" name="email" autocomplete="email">
           </div>
           <div class="form-row">
-            <label for="service_type">{{ t('Producto de interés') }}</label>
+            <label for="service_type">{{ t('Product of interest') }}</label>
             <select id="service_type" name="service_type">
-              <option value="">{{ t('Selecciona una opción') }}</option>
+              <option value="">{{ t('Select an option') }}</option>
               {% for s in services %}
                 <option value="{{ s.name }}">{{ s.name }}</option>
               {% endfor %}
-              <option value="Otro / No estoy seguro">{{ t('Otro / No estoy seguro') }}</option>
+              <option value="Other / Not sure">{{ t('Other / Not sure') }}</option>
             </select>
           </div>
         </div>
@@ -112,33 +112,33 @@
         <div class="quote-form__section-head">
           <span class="quote-form__step">2</span>
           <div>
-            <h2>{{ t('Ubicación del proyecto') }}</h2>
-            <p>{{ t('Escribe la dirección o marca el punto en el mapa.') }}</p>
+            <h2>{{ t('Project location') }}</h2>
+            <p>{{ t('Enter the address or mark the point on the map.') }}</p>
           </div>
         </div>
 
         <div class="form-row">
-          <label for="location">{{ t('Ubicación del proyecto') }}</label>
-          <input type="text" id="location" name="location" placeholder="{{ t('Departamento, municipio, dirección o punto de referencia') }}" required>
-          <p class="hint mb-0">{{ t('Escribe la dirección o usa el mapa de abajo para marcar el punto exacto — se autocompletará.') }}</p>
+          <label for="location">{{ t('Project location') }}</label>
+          <input type="text" id="location" name="location" placeholder="{{ t('Department, municipality, address or reference point') }}" required>
+          <p class="hint mb-0">{{ t('Enter the address or use the map below to mark the exact point — it will autocomplete.') }}</p>
         </div>
 
         <div class="form-row quote-map-block">
           <div class="quote-map-toolbar">
-            <label class="mb-0" style="margin:0;">{{ t('Marca la ubicación en el mapa (opcional)') }}</label>
+            <label class="mb-0" style="margin:0;">{{ t('Mark location on map (optional)') }}</label>
             <button type="button" id="btnGeolocate" class="btn btn-outline btn-sm quote-geo-btn">
               <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 8a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm8.94 3A8.99 8.99 0 0 0 13 3.06V1h-2v2.06A8.99 8.99 0 0 0 3.06 11H1v2h2.06A8.99 8.99 0 0 0 11 20.94V23h2v-2.06A8.99 8.99 0 0 0 20.94 13H23v-2zM12 19a7 7 0 1 1 7-7 7 7 0 0 1-7 7z"/></svg>
-              <span>{{ t('Usar mi ubicación actual') }}</span>
+              <span>{{ t('Use my current location') }}</span>
             </button>
           </div>
 
           <div class="quote-map-search">
-            <input type="text" id="mapSearch" placeholder="{{ t('Buscar dirección, colonia o ciudad...') }}" autocomplete="off">
+            <input type="text" id="mapSearch" placeholder="{{ t('Search address, neighborhood or city...') }}" autocomplete="off">
             <div id="mapSearchResults" class="quote-map-results" hidden></div>
           </div>
 
           <div id="map" class="quote-map"></div>
-          <p class="hint" id="mapCoordsHint">{{ t('Aún no has marcado un punto — el mapa está centrado en El Salvador. Haz clic para colocar el pin.') }}</p>
+          <p class="hint" id="mapCoordsHint">{{ t('You haven\'t marked a point yet — the map is centered on El Salvador. Click to place the pin.') }}</p>
           <input type="hidden" id="latitude" name="latitude">
           <input type="hidden" id="longitude" name="longitude">
         </div>
@@ -148,35 +148,35 @@
         <div class="quote-form__section-head">
           <span class="quote-form__step">3</span>
           <div>
-            <h2>{{ t('Detalles del trabajo') }}</h2>
-            <p>{{ t('Mientras más claro, más precisa será tu cotización.') }}</p>
+            <h2>{{ t('Job details') }}</h2>
+            <p>{{ t('The clearer, the more accurate your quote.') }}</p>
           </div>
         </div>
 
         <div class="form-row">
-          <label for="description">{{ t('Describe lo que necesitas') }}</label>
-          <textarea id="description" name="description" required placeholder="{{ t('Tipo de techo o fachada, dimensiones aproximadas, estado actual, plazos, etc.') }}"></textarea>
+          <label for="description">{{ t('Describe what you need') }}</label>
+          <textarea id="description" name="description" required placeholder="{{ t('Type of roof or facade, approximate dimensions, current condition, deadlines, etc.') }}"></textarea>
         </div>
 
         <div class="form-row">
-          <label for="images">{{ t('Fotos del sitio (opcional, hasta 6 imágenes)') }}</label>
+          <label for="images">{{ t('Site photos (optional, up to 6 images)') }}</label>
           <label class="quote-file-drop" for="images">
             <input type="file" id="images" name="images" multiple accept="image/png, image/jpeg, image/webp">
             <span class="quote-file-drop__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 15v4H5v-4H3v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4zM11 5.83V16h2V5.83l3.59 3.58L18 8l-6-6-6 6 1.41 1.41z"/></svg>
             </span>
-            <strong>{{ t('Arrastra o selecciona fotos') }}</strong>
-            <span class="hint mb-0">{{ t('Sube fotos del techo, fachada o área del proyecto — nos ayuda a preparar una cotización más precisa.') }}</span>
+            <strong>{{ t('Drag or select photos') }}</strong>
+            <span class="hint mb-0">{{ t('Upload photos of the roof, facade or project area — helps us prepare a more accurate quote.') }}</span>
           </label>
         </div>
       </div>
 
       <div class="quote-form__footer">
-        <p class="quote-form__note">{{ t('Sin compromiso · Respuesta rápida · Proyectos a medida') }}</p>
+        <p class="quote-form__note">{{ t('No obligation · Quick response · Custom projects') }}</p>
         <button type="submit" class="btn btn-rust quote-form__submit">
           <span class="quote-form__submit-shine" aria-hidden="true"></span>
           <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm7 1.5V9h4.5L14 4.5zM9 12h6v1.5H9V12zm0 3.5h6V17H9v-1.5zm0-7h3V10H9V8.5z"/></svg>
-          <span>{{ t('Enviar solicitud de cotización') }}</span>
+          <span>{{ t('Submit quote request') }}</span>
         </button>
       </div>
     </form>
@@ -241,7 +241,7 @@
     }
     latInput.value = lat.toFixed(6);
     lngInput.value = lng.toFixed(6);
-    coordsHint.textContent = 'Punto marcado: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ' — puedes arrastrar el pin para ajustarlo.';
+    coordsHint.textContent = 'Point marked: ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ' — you can drag the pin to adjust.';
 
     if (updateAddress) {
       fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng)
@@ -259,12 +259,12 @@
     setMarker(e.latlng.lat, e.latlng.lng, true);
   });
 
-  // Leaflet a veces necesita un refresh cuando el contenedor ya tiene tamaño final
+  // Leaflet sometimes needs a refresh when the container already has its final size
   setTimeout(function () { map.invalidateSize(); }, 200);
 
   document.getElementById('btnGeolocate').addEventListener('click', function () {
     if (!navigator.geolocation) {
-      alert('Tu navegador no soporta geolocalización.');
+      alert('Your browser does not support geolocation.');
       return;
     }
     navigator.geolocation.getCurrentPosition(function (pos) {
@@ -272,7 +272,7 @@
       map.setView([lat, lng], 16);
       setMarker(lat, lng, true);
     }, function () {
-      alert('No se pudo obtener tu ubicación. Marca el punto manualmente en el mapa.');
+      alert('Could not get your location. Please mark the point manually on the map.');
     });
   });
 
@@ -316,7 +316,7 @@
     if (e.target !== searchInput && !resultsBox.contains(e.target)) resultsBox.hidden = true;
   });
 
-  // Feedback visual al elegir fotos
+  // Visual feedback when selecting photos
   var imagesInput = document.getElementById('images');
   var drop = document.querySelector('.quote-file-drop');
   if (imagesInput && drop) {
@@ -325,7 +325,7 @@
       var strong = drop.querySelector('strong');
       if (!strong) return;
       strong.textContent = n
-        ? (n + ' foto' + (n === 1 ? '' : 's') + ' seleccionada' + (n === 1 ? '' : 's'))
+        ? (n + ' photo' + (n === 1 ? '' : 's') + ' selected')
         : strong.getAttribute('data-default') || strong.textContent;
     });
     var strongEl = drop.querySelector('strong');

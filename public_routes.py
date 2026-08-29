@@ -53,7 +53,7 @@ def index():
         hero_slides = [
             SimpleNamespace(
                 image_path=blocks["hero"].image_path,
-                caption="Standing Seam · Panel 5G · Módulos",
+                caption="Standing Seam · Panel 5G · Modules",
             )
         ]
 
@@ -131,15 +131,15 @@ def resenas():
 
         errors = []
         if not name:
-            errors.append("El nombre es obligatorio.")
+            errors.append("Name is required.")
         if not comment:
-            errors.append("El comentario es obligatorio.")
+            errors.append("Comment is required.")
         try:
             rating = int(rating)
             if rating < 1 or rating > 5:
                 raise ValueError
         except ValueError:
-            errors.append("La calificación debe ser entre 1 y 5.")
+            errors.append("Rating must be between 1 and 5.")
 
         if errors:
             for e in errors:
@@ -149,7 +149,7 @@ def resenas():
             db.session.add(review)
             db.session.commit()
             notify_new_review(review)
-            flash("¡Gracias por tu reseña! Ya fue publicada en el sitio.", "success")
+            flash("Thank you for your review! It has been published on the site.", "success")
             return redirect(url_for("public.resenas"))
 
     reviews = (
@@ -205,13 +205,13 @@ def cotizacion():
 
         errors = []
         if not name:
-            errors.append("El nombre es obligatorio.")
+            errors.append("Name is required.")
         if not phone:
-            errors.append("El teléfono es obligatorio.")
+            errors.append("Phone is required.")
         if not location:
-            errors.append("La ubicación es obligatoria.")
+            errors.append("Location is required.")
         if not description:
-            errors.append("Por favor describe lo que necesitas.")
+            errors.append("Please describe what you need.")
 
         if errors:
             for e in errors:

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}{{ t('Reseñas de clientes') }} | Tecun's Roofing{% endblock %}
+{% block title %}{{ t('Customer reviews') }} | Tecun's Roofing{% endblock %}
 
 {% block content %}
 <section class="reviews-page">
   <div class="reviews-page__hero">
     <div class="container reviews-page__hero-grid">
       <div class="reviews-page__hero-copy">
-        {% set rev_eyebrow = t('Reseñas') %}
+        {% set rev_eyebrow = t('Reviews') %}
         <div class="eyebrow eyebrow--shine">
           <span class="eyebrow-shine">
             {% for char in rev_eyebrow %}
@@ -19,8 +19,8 @@
             <span class="eyebrow-shine__loader" aria-hidden="true"></span>
           </span>
         </div>
-        <h1>{{ t('La experiencia de nuestros clientes') }}</h1>
-        <p class="reviews-page__lead">{{ t('Proyectos entregados, opiniones reales. Comparte también la tuya.') }}</p>
+        <h1>{{ t('Our customers\' experience') }}</h1>
+        <p class="reviews-page__lead">{{ t('Completed projects, real opinions. Share yours too.') }}</p>
       </div>
 
       {% if review_stack_cards %}
@@ -35,7 +35,7 @@
               decoding="async"
             >
             <div class="reviews-stack__details">
-              <div class="reviews-stack__header">{{ card.caption or t('Proyecto') }}</div>
+              <div class="reviews-stack__header">{{ card.caption or t('Project') }}</div>
             </div>
           </div>
           {% endfor %}
@@ -49,12 +49,12 @@
   <section class="reviews-featured">
     <div class="container">
       <div class="reviews-featured__head">
-        <h2>{{ t('Opiniones destacadas') }}</h2>
+        <h2>{{ t('Featured reviews') }}</h2>
         <div class="reviews-carousel__controls" aria-hidden="false">
-          <button type="button" class="reviews-carousel__btn" data-rev-prev aria-label="{{ t('Anterior') }}">
+          <button type="button" class="reviews-carousel__btn" data-rev-prev aria-label="{{ t('Previous') }}">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M14.7 6.3a1 1 0 0 1 0 1.4L10.4 12l4.3 4.3a1 1 0 1 1-1.4 1.4l-5-5a1 1 0 0 1 0-1.4l5-5a1 1 0 0 1 1.4 0z"/></svg>
           </button>
-          <button type="button" class="reviews-carousel__btn" data-rev-next aria-label="{{ t('Siguiente') }}">
+          <button type="button" class="reviews-carousel__btn" data-rev-next aria-label="{{ t('Next') }}">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.3 6.3a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4l-5 5a1 1 0 1 1-1.4-1.4L13.6 12 9.3 7.7a1 1 0 0 1 0-1.4z"/></svg>
           </button>
         </div>
@@ -68,9 +68,9 @@
               <div class="review-card__avatar" aria-hidden="true">{{ r.name[:1]|upper }}</div>
               <div class="review-card__meta">
                 <div class="review-card__name">{{ r.name }}</div>
-                <div class="review-card__role">{{ t('Cliente Tecuns') }}</div>
+                <div class="review-card__role">{{ t('Tecuns Client') }}</div>
               </div>
-              <div class="review-card__stars" aria-label="{{ r.rating }} {{ t('estrellas') }}">
+              <div class="review-card__stars" aria-label="{{ r.rating }} {{ t('stars') }}">
                 {% for i in range(1, 6) %}
                   <span class="review-card__star {{ 'is-on' if i <= r.rating else '' }}" aria-hidden="true">★</span>
                 {% endfor %}
@@ -89,27 +89,27 @@
   <section class="reviews-form-section" id="dejar-resena">
     <div class="container reviews-form-wrap">
       <div class="reviews-form-intro">
-        <div class="eyebrow">{{ t('Tu opinión') }}</div>
-        <h2>{{ t('Deja tu reseña') }}</h2>
-        <p>{{ t('Cuéntanos cómo te fue. Tu reseña se publicará luego de ser revisada por nuestro equipo.') }}</p>
+        <div class="eyebrow">{{ t('Your opinion') }}</div>
+        <h2>{{ t('Leave your review') }}</h2>
+        <p>{{ t('Tell us how it went. Your review will be published after being reviewed by our team.') }}</p>
       </div>
 
       <div class="reviews-form-card">
         <form method="POST" action="{{ url_for('public.resenas') }}" class="reviews-form">
           <div class="reviews-form__grid">
             <div class="form-row">
-              <label for="name">{{ t('Nombre') }}</label>
+              <label for="name">{{ t('Name') }}</label>
               <input type="text" id="name" name="name" required autocomplete="name">
             </div>
             <div class="form-row">
-              <label for="email">{{ t('Correo (opcional)') }}</label>
+              <label for="email">{{ t('Email (optional)') }}</label>
               <input type="email" id="email" name="email" autocomplete="email">
             </div>
           </div>
 
           <div class="form-row">
-            <label>{{ t('Calificación') }}</label>
-            <div class="rating-pills" role="radiogroup" aria-label="{{ t('Calificación') }}">
+            <label>{{ t('Rating') }}</label>
+            <div class="rating-pills" role="radiogroup" aria-label="{{ t('Rating') }}">
               {% for i in range(5, 0, -1) %}
               <label class="rating-pill">
                 <input type="radio" name="rating" value="{{ i }}" {% if i == 5 %}checked{% endif %}>
@@ -120,13 +120,13 @@
           </div>
 
           <div class="form-row">
-            <label for="comment">{{ t('Comentario') }}</label>
-            <textarea id="comment" name="comment" required rows="5" placeholder="{{ t('Cuéntanos sobre tu proyecto y experiencia con Tecuns Roofing...') }}"></textarea>
+            <label for="comment">{{ t('Comment') }}</label>
+            <textarea id="comment" name="comment" required rows="5" placeholder="{{ t('Tell us about your project and experience with Tecuns Roofing...') }}"></textarea>
           </div>
 
           <button type="submit" class="btn btn-rust">
             <svg class="btn-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-            <span>{{ t('Enviar reseña') }}</span>
+            <span>{{ t('Submit review') }}</span>
           </button>
         </form>
       </div>
@@ -136,8 +136,8 @@
   <section class="reviews-all">
     <div class="container">
       <div class="reviews-all__head">
-        <div class="eyebrow">{{ t('Comunidad') }}</div>
-        <h2>{{ t('Todas las reseñas') }}</h2>
+        <div class="eyebrow">{{ t('Community') }}</div>
+        <h2>{{ t('All reviews') }}</h2>
       </div>
 
       {% if reviews %}
@@ -150,7 +150,7 @@
               <div class="review-card__name">{{ r.name }}</div>
               <div class="review-card__role">{{ r.created_at.strftime('%d/%m/%Y') }}</div>
             </div>
-            <div class="review-card__stars" aria-label="{{ r.rating }} {{ t('estrellas') }}">
+            <div class="review-card__stars" aria-label="{{ r.rating }} {{ t('stars') }}">
               {% for i in range(1, 6) %}
                 <span class="review-card__star {{ 'is-on' if i <= r.rating else '' }}" aria-hidden="true">★</span>
               {% endfor %}
@@ -161,7 +161,7 @@
         {% endfor %}
       </div>
       {% else %}
-        <p class="reviews-empty">{{ t('Aún no hay reseñas publicadas. ¡Sé el primero en compartir tu experiencia!') }}</p>
+        <p class="reviews-empty">{{ t('No reviews published yet. Be the first to share your experience!') }}</p>
       {% endif %}
     </div>
   </section>
