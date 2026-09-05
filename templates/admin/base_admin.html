@@ -1,15 +1,16 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Panel administrador | Tecuns Roofing{% endblock %}</title>
+  <title>{% block title %}Admin panel | Tecuns Roofing{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
   <!-- Chart.js for dashboard charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  {% include '_csrf.html' %}
   {% block extra_head %}{% endblock %}
 </head>
 <body class="admin-body">
@@ -17,27 +18,27 @@
     <aside class="admin-sidebar">
       <div class="admin-brand">TECUNS <span>/ admin</span></div>
       <nav class="admin-nav">
-        <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">Panel principal</a>
-        <a href="{{ url_for('admin.resenas') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin.') and 'resena' in request.endpoint }}">Reseñas</a>
-        <a href="{{ url_for('admin.cotizaciones') }}" class="{{ 'active' if request.endpoint and 'cotizacion' in request.endpoint }}">Cotizaciones</a>
-        <a href="{{ url_for('admin.servicios') }}" class="{{ 'active' if request.endpoint and 'servicio' in request.endpoint }}">Productos / Servicios</a>
-        <a href="{{ url_for('admin.contenido') }}" class="{{ 'active' if request.endpoint and 'contenido' in request.endpoint }}">Contenido del sitio</a>
-        <a href="{{ url_for('admin.config_correo') }}" class="{{ 'active' if request.endpoint == 'admin.config_correo' }}">Correo — Configuración</a>
-        <a href="{{ url_for('admin.plantillas') }}" class="{{ 'active' if request.endpoint == 'admin.plantillas' }}">Correo — Plantillas</a>
+        <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">Dashboard</a>
+        <a href="{{ url_for('admin.resenas') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('admin.') and 'resena' in request.endpoint }}">Reviews</a>
+        <a href="{{ url_for('admin.cotizaciones') }}" class="{{ 'active' if request.endpoint and 'cotizacion' in request.endpoint }}">Quotes</a>
+        <a href="{{ url_for('admin.servicios') }}" class="{{ 'active' if request.endpoint and 'servicio' in request.endpoint }}">Products / Services</a>
+        <a href="{{ url_for('admin.contenido') }}" class="{{ 'active' if request.endpoint and 'contenido' in request.endpoint }}">Site content</a>
+        <a href="{{ url_for('admin.config_correo') }}" class="{{ 'active' if request.endpoint == 'admin.config_correo' }}">Email — Settings</a>
+        <a href="{{ url_for('admin.plantillas') }}" class="{{ 'active' if request.endpoint == 'admin.plantillas' }}">Email — Templates</a>
         <a href="{{ url_for('admin.config_marketing') }}" class="{{ 'active' if request.endpoint == 'admin.config_marketing' }}">Marketing — Google Ads</a>
         {% if current_user.is_superadmin %}
-        <a href="{{ url_for('admin.usuarios') }}" class="{{ 'active' if request.endpoint and 'usuario' in request.endpoint }}">Usuarios admin</a>
+        <a href="{{ url_for('admin.usuarios') }}" class="{{ 'active' if request.endpoint and 'usuario' in request.endpoint }}">Admin users</a>
         {% endif %}
       </nav>
       <div class="admin-nav-foot">
-        <a href="{{ url_for('public.index') }}" target="_blank" style="color:var(--silver); font-family:var(--font-mono); font-size:.78rem; display:block; margin-bottom:12px;">↗ Ver sitio público</a>
-        <a href="{{ url_for('admin.logout') }}" class="btn btn-outline btn-sm btn-block">Cerrar sesión</a>
+        <a href="{{ url_for('public.index') }}" target="_blank" style="color:var(--silver); font-family:var(--font-mono); font-size:.78rem; display:block; margin-bottom:12px;">↗ View public site</a>
+        <a href="{{ url_for('admin.logout') }}" class="btn btn-outline btn-sm btn-block">Log out</a>
       </div>
     </aside>
 
     <div class="admin-main">
       <div class="admin-topbar">
-        <h1>{% block page_title %}Panel principal{% endblock %}</h1>
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
         <span class="text-steel" style="font-family:var(--font-mono); font-size:.8rem;">{{ current_user.username }}</span>
       </div>
       <div class="admin-content">

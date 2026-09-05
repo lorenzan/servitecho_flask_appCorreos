@@ -1,23 +1,23 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Usuarios admin | Tecuns Roofing{% endblock %}
-{% block page_title %}Usuarios admin{% endblock %}
+{% block title %}Admin users | Tecuns Roofing{% endblock %}
+{% block page_title %}Admin users{% endblock %}
 
 {% block admin_content %}
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
   <p class="text-steel" style="margin:0; font-size:.9rem;">
-    {{ admins|length }} usuario{{ 's' if admins|length != 1 }} registrado{{ 's' if admins|length != 1 }}
+    {{ admins|length }} registered user{{ 's' if admins|length != 1 }}
   </p>
-  <a href="{{ url_for('admin.nuevo_usuario') }}" class="btn btn-rust btn-sm">+ Nuevo usuario</a>
+  <a href="{{ url_for('admin.nuevo_usuario') }}" class="btn btn-rust btn-sm">+ New user</a>
 </div>
 
 <div class="card-panel" style="overflow-x:auto;">
   <table class="admin-table">
     <thead>
       <tr>
-        <th>Usuario</th>
-        <th>Creado</th>
-        <th>Rol</th>
-        <th style="text-align:right;">Acciones</th>
+        <th>User</th>
+        <th>Created</th>
+        <th>Role</th>
+        <th style="text-align:right;">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -26,7 +26,7 @@
         <td style="font-weight:600;">
           {{ a.username }}
           {% if a.id == current_user.id %}
-            <span style="font-size:.75rem; color:var(--steel);">(tú)</span>
+            <span style="font-size:.75rem; color:var(--steel);">(you)</span>
           {% endif %}
         </td>
         <td>{{ a.created_at.strftime('%d/%m/%Y') }}</td>
@@ -38,19 +38,19 @@
           {% endif %}
         </td>
         <td style="text-align:right; white-space:nowrap;">
-          <a href="{{ url_for('admin.editar_usuario', user_id=a.id) }}" class="btn btn-outline-dark btn-sm">Editar</a>
+          <a href="{{ url_for('admin.editar_usuario', user_id=a.id) }}" class="btn btn-outline-dark btn-sm">Edit</a>
 
           {% if a.id != current_user.id %}
             <form method="POST" action="{{ url_for('admin.toggle_superadmin', user_id=a.id) }}" class="inline-form">
               <button type="submit" class="btn btn-outline-dark btn-sm">
-                {{ 'Quitar superadmin' if a.is_superadmin else 'Hacer superadmin' }}
+                {{ 'Remove superadmin' if a.is_superadmin else 'Make superadmin' }}
               </button>
             </form>
 
             {% if not a.is_superadmin or superadmin_count > 1 %}
             <form method="POST" action="{{ url_for('admin.eliminar_usuario', user_id=a.id) }}" class="inline-form"
-                  onsubmit="return confirm('¿Eliminar al usuario \'{{ a.username }}\'?');">
-              <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                  onsubmit="return confirm('Delete user \'{{ a.username }}\'?');">
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
             </form>
             {% endif %}
           {% endif %}

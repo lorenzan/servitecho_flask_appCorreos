@@ -1,42 +1,42 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Panel principal | Tecuns Admin{% endblock %}
-{% block page_title %}Panel principal{% endblock %}
+{% block title %}Dashboard | Tecuns Admin{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block admin_content %}
 <div class="kpi-grid">
-  <div class="kpi"><div class="num">{{ stats.pending_quotes }}</div><div class="label">Cotizaciones pendientes</div></div>
-  <div class="kpi"><div class="num">{{ stats.total_quotes }}</div><div class="label">Cotizaciones totales</div></div>
-  <div class="kpi"><div class="num">{{ stats.pending_reviews }}</div><div class="label">Reseñas por aprobar</div></div>
-  <div class="kpi"><div class="num">{{ stats.total_reviews }}</div><div class="label">Reseñas totales</div></div>
-  <div class="kpi"><div class="num">{{ stats.total_services }}</div><div class="label">Productos publicados</div></div>
+  <div class="kpi"><div class="num">{{ stats.pending_quotes }}</div><div class="label">Pending quotes</div></div>
+  <div class="kpi"><div class="num">{{ stats.total_quotes }}</div><div class="label">Total quotes</div></div>
+  <div class="kpi"><div class="num">{{ stats.pending_reviews }}</div><div class="label">Reviews to approve</div></div>
+  <div class="kpi"><div class="num">{{ stats.total_reviews }}</div><div class="label">Total reviews</div></div>
+  <div class="kpi"><div class="num">{{ stats.total_services }}</div><div class="label">Published products</div></div>
 </div>
 
-<!-- Gráficos principales -->
+<!-- Main charts -->
 <div class="grid-2">
-  <!-- Reseñas por calificación (estrellas) -->
+  <!-- Reviews by rating (stars) -->
   <div class="card-panel">
     <div class="card-panel-header">
-      <h3>Reseñas por calificación</h3>
+      <h3>Reviews by rating</h3>
       <div class="chart-filter">
         <select id="reviewFilter" class="chart-select">
-          <option value="all">Todas</option>
-          <option value="1">1 estrella</option>
-          <option value="2">2 estrellas</option>
-          <option value="3">3 estrellas</option>
-          <option value="4">4 estrellas</option>
-          <option value="5">5 estrellas</option>
+          <option value="all">All</option>
+          <option value="1">1 star</option>
+          <option value="2">2 stars</option>
+          <option value="3">3 stars</option>
+          <option value="4">4 stars</option>
+          <option value="5">5 stars</option>
         </select>
       </div>
     </div>
     <div class="chart-wrapper">
       <canvas id="reviewsRatingChart"></canvas>
     </div>
-    <p class="chart-caption" id="reviewFilterCaption">Mostrando todas las reseñas aprobadas</p>
+    <p class="chart-caption" id="reviewFilterCaption">Showing all approved reviews</p>
   </div>
 
-  <!-- Cotizaciones por estado -->
+  <!-- Quotes by status -->
   <div class="card-panel">
-    <h3>Cotizaciones por estado</h3>
+    <h3>Quotes by status</h3>
     <div class="chart-wrapper">
       <canvas id="quotesStatusChart"></canvas>
     </div>
@@ -44,17 +44,17 @@
 </div>
 
 <div class="grid-2">
-  <!-- Productos más cotizados -->
+  <!-- Most quoted products -->
   <div class="card-panel">
-    <h3>Productos más cotizados</h3>
+    <h3>Most requested products</h3>
     <div class="chart-wrapper">
       <canvas id="topServicesChart"></canvas>
     </div>
   </div>
 
-  <!-- Promedio de calificación por mes -->
+  <!-- Average rating by month -->
   <div class="card-panel">
-    <h3>Promedio de calificación por mes</h3>
+    <h3>Average rating by month</h3>
     <div class="chart-wrapper">
       <canvas id="avgRatingChart"></canvas>
     </div>
@@ -62,9 +62,9 @@
 </div>
 
 <div class="grid-1">
-  <!-- Tendencias mensuales: Reseñas vs Cotizaciones -->
+  <!-- Monthly trends: Reviews vs Quotes -->
   <div class="card-panel">
-    <h3>Tendencia mensual: Reseñas vs Cotizaciones (últimos 12 meses)</h3>
+    <h3>Monthly trend: Reviews vs Quotes (last 12 months)</h3>
     <div class="chart-wrapper chart-wrapper-wide">
       <canvas id="monthlyTrendChart"></canvas>
     </div>
@@ -73,46 +73,46 @@
 
 <div class="grid-2">
   <div class="card-panel">
-    <h3 style="text-transform:none; font-size:1rem;">Cotizaciones recientes</h3>
+    <h3 style="text-transform:none; font-size:1rem;">Recent quotes</h3>
     {% if recent_quotes %}
       <table class="admin-table">
-        <thead><tr><th>Cliente</th><th>Ubicación</th><th>Estado</th><th></th></tr></thead>
+        <thead><tr><th>Customer</th><th>Location</th><th>Status</th><th></th></tr></thead>
         <tbody>
         {% for q in recent_quotes %}
           <tr>
             <td>{{ q.name }}</td>
             <td>{{ q.location[:30] }}</td>
-            <td><span class="badge badge-{{ q.status }}">{{ q.status.replace('_',' ') }}</span></td>
-            <td><a href="{{ url_for('admin.cotizacion_detalle', quote_id=q.id) }}" class="link">Ver →</a></td>
+            <td><span class="badge badge-{{ q.status }}">{{ q.status_label }}</span></td>
+            <td><a href="{{ url_for('admin.cotizacion_detalle', quote_id=q.id) }}" class="link">View →</a></td>
           </tr>
         {% endfor %}
         </tbody>
       </table>
     {% else %}
-      <p class="text-steel">No hay cotizaciones todavía.</p>
+      <p class="text-steel">No quotes yet.</p>
     {% endif %}
-    <a href="{{ url_for('admin.cotizaciones') }}" class="link">Ver todas las cotizaciones →</a>
+    <a href="{{ url_for('admin.cotizaciones') }}" class="link">View all quotes →</a>
   </div>
 
   <div class="card-panel">
-    <h3 style="text-transform:none; font-size:1rem;">Reseñas por aprobar</h3>
+    <h3 style="text-transform:none; font-size:1rem;">Reviews to approve</h3>
     {% if recent_reviews %}
       <table class="admin-table">
-        <thead><tr><th>Cliente</th><th>Calificación</th><th></th></tr></thead>
+        <thead><tr><th>Customer</th><th>Rating</th><th></th></tr></thead>
         <tbody>
         {% for r in recent_reviews %}
           <tr>
             <td>{{ r.name }}</td>
             <td>{{ '★' * r.rating }}</td>
-            <td><a href="{{ url_for('admin.resenas') }}" class="link">Revisar →</a></td>
+            <td><a href="{{ url_for('admin.resenas') }}" class="link">Review →</a></td>
           </tr>
         {% endfor %}
         </tbody>
       </table>
     {% else %}
-      <p class="text-steel">No hay reseñas pendientes.</p>
+      <p class="text-steel">No pending reviews.</p>
     {% endif %}
-    <a href="{{ url_for('admin.resenas') }}" class="link">Ver todas las reseñas →</a>
+    <a href="{{ url_for('admin.resenas') }}" class="link">View all reviews →</a>
   </div>
 </div>
 {% endblock %}
@@ -120,19 +120,19 @@
 {% block extra_scripts %}
 <script>
 (function() {
-  // Colores de la paleta TECUNS (metálica: dorado · bronce · plata · negro)
+  // TECUNS palette colors (metallic: gold · bronze · silver · black)
   const COLORS = {
-    // Dorados
+    // Golds
     goldBright: '#F7DD83',    // --gold-bright
-    gold: '#E7AA35',          // --gold / --rust (principal)
+    gold: '#E7AA35',          // --gold / --rust (primary)
     goldMid: '#C98A1E',       // --gold-mid / --rust-dark
     goldDark: '#AE6A0C',      // --gold-dark
     bronze: '#653608',        // --bronze
-    // Platas
+    // Silvers
     silverBright: '#D6D6D4',  // --silver-bright
     silver: '#C2C1BF',        // --silver-light / --silver
     silverMid: '#999794',     // --silver-mid / --metal
-    // Neutros
+    // Neutrals
     charcoal: '#17120F',      // --charcoal / --negro
     charcoal2: '#241C16',     // --charcoal-2
     charcoal3: '#43413E',     // --charcoal-3 / --gris-oscuro
@@ -154,15 +154,15 @@
     data: {
       labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
       datasets: [{
-        label: 'Cantidad de reseñas',
+        label: 'Number of reviews',
         data: reviewsRatingData,
-        // Degradado bronce → dorado brillante
+        // Bronze → bright gold gradient
         backgroundColor: [
-          COLORS.bronze,        // 1 estrella - bronce
-          COLORS.goldDark,      // 2 estrellas - dorado oscuro
-          COLORS.goldMid,       // 3 estrellas - dorado medio
-          COLORS.gold,          // 4 estrellas - dorado principal
-          COLORS.goldBright     // 5 estrellas - dorado brillante
+          COLORS.bronze,        // 1 star - bronze
+          COLORS.goldDark,      // 2 stars - dark gold
+          COLORS.goldMid,       // 3 stars - mid gold
+          COLORS.gold,          // 4 stars - primary gold
+          COLORS.goldBright     // 5 stars - bright gold
         ],
         borderRadius: 6,
         borderSkipped: false
@@ -181,7 +181,7 @@
           callbacks: {
             label: function(ctx) {
               const val = ctx.parsed.y;
-              return `${val} ${val === 1 ? 'reseña' : 'reseñas'}`;
+              return `${val} ${val === 1 ? 'review' : 'reviews'}`;
             }
           }
         }
@@ -200,12 +200,12 @@
     const val = this.value;
     if (val === 'all') {
       reviewsRatingChart.data.datasets[0].data = reviewsRatingData;
-      reviewCaption.textContent = 'Mostrando todas las reseñas aprobadas';
+      reviewCaption.textContent = 'Showing all approved reviews';
     } else {
       const starIndex = parseInt(val) - 1;
       const filtered = reviewsRatingData.map((v, i) => i === starIndex ? v : 0);
       reviewsRatingChart.data.datasets[0].data = filtered;
-      reviewCaption.textContent = `Mostrando reseñas de ${val} ${val === '1' ? 'estrella' : 'estrellas'}`;
+      reviewCaption.textContent = `Showing ${val}-star reviews`;
     }
     reviewsRatingChart.update();
   });
@@ -218,12 +218,12 @@
       labels: {{ quote_status_labels | tojson }},
       datasets: [{
         data: {{ quote_status_counts | tojson }},
-        // Paleta dorada consistente
+        // Consistent gold palette
         backgroundColor: [
-          COLORS.gold,          // Pendiente
-          COLORS.goldMid,       // En revisión
-          COLORS.goldBright,    // Cotizado
-          COLORS.bronze         // Rechazado
+          COLORS.gold,          // Pending
+          COLORS.goldMid,       // In review
+          COLORS.goldBright,    // Quoted
+          COLORS.bronze         // Rejected
         ],
         borderWidth: 2,
         borderColor: COLORS.white || '#FFFFFF'
@@ -260,7 +260,7 @@
     data: {
       labels: {{ top_service_labels | tojson }},
       datasets: [{
-        label: 'Cotizaciones',
+        label: 'Quotes',
         data: {{ top_service_counts | tojson }},
         backgroundColor: COLORS.gold,
         borderRadius: 6,
@@ -280,7 +280,7 @@
           padding: 12,
           callbacks: {
             label: function(ctx) {
-              return `${ctx.parsed.x} cotizaciones`;
+              return `${ctx.parsed.x} quotes`;
             }
           }
         }
@@ -299,10 +299,10 @@
     data: {
       labels: {{ avg_rating_months | tojson }},
       datasets: [{
-        label: 'Promedio de calificación',
+        label: 'Average rating',
         data: {{ avg_rating_values | tojson }},
         borderColor: COLORS.gold,
-        backgroundColor: 'rgba(231, 170, 53, 0.12)',  // gold con 12% opacity
+        backgroundColor: 'rgba(231, 170, 53, 0.12)',  // gold at 12% opacity
         borderWidth: 2.5,
         fill: true,
         tension: 0.35,
@@ -325,7 +325,7 @@
           padding: 12,
           callbacks: {
             label: function(ctx) {
-              return `Promedio: ${ctx.parsed.y} ★`;
+              return `Average: ${ctx.parsed.y} ★`;
             }
           }
         }
@@ -345,7 +345,7 @@
       labels: {{ review_months | tojson }},
       datasets: [
         {
-          label: 'Reseñas',
+          label: 'Reviews',
           data: {{ review_monthly_counts | tojson }},
           borderColor: COLORS.gold,
           backgroundColor: 'rgba(231, 170, 53, 0.1)',
@@ -359,7 +359,7 @@
           pointBorderWidth: 2
         },
         {
-          label: 'Cotizaciones',
+          label: 'Quotes',
           data: {{ quote_monthly_counts | tojson }},
           borderColor: COLORS.bronze,
           backgroundColor: 'rgba(101, 54, 8, 0.1)',

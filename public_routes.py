@@ -4,9 +4,10 @@ from flask import Blueprint, current_app, g, render_template, request, redirect,
 from sqlalchemy import desc
 
 from extensions import db
-from models import ContentBlock, Service, Review, Quote, QuoteImage, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard
+from models import ContentBlock, Service, Review, Quote, QuoteImage, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard, TrustCard
 from utils import save_upload
 from utils_email import notify_new_review, notify_new_quote
+from utils_spam import verify_recaptcha, is_spam
 import translations
 
 public_bp = Blueprint("public", __name__)
@@ -79,10 +80,17 @@ def index():
             about_gallery.extend(about_slides)
         about_gallery = about_gallery[:6]
 
-    if getattr(g, "lang", "es") == "en":
+    trust_cards = (
+        TrustCard.query.filter_by(active=True)
+        .order_by(TrustCard.sort_order, TrustCard.id)
+        .all()
+    )
+
+    if getattr(g, "lang", "en") == "es":
         blocks = {k: translations.localize_block(b) for k, b in blocks.items()}
         services = [translations.localize_service(s) for s in services]
         reviews = [translations.localize_review(r) for r in reviews]
+        trust_cards = [translations.localize_trust_card(c) for c in trust_cards]
     return render_template(
         "index.html",
         blocks=blocks,
@@ -91,6 +99,7 @@ def index():
         hero_slides=hero_slides,
         hero_cards=hero_cards,
         about_gallery=about_gallery,
+        trust_cards=trust_cards,
     )
 
 
@@ -140,6 +149,49 @@ def resenas():
                 raise ValueError
         except ValueError:
             errors.append("Rating must be between 1 and 5.")
+
+        # --- Honeypot: campo oculto que los humanos no ven pero los bots llenan ---
+        honeypot = request.form.get("website", "").strip()
+        if honeypot:
+            # Bot detectado: no revelamos que es honeypot, solo error genérico
+            flash("Invalid submission. Please try again.", "danger")
+            current_app.logger.warning(f"Honeypot activado: IP={request.remote_addr}, nombre={name}")
+            return render_template(
+                "resenas.html",
+                reviews=[],
+                featured=[],
+                review_stack_cards=[],
+            )
+
+        # --- reCAPTCHA: validar token solo si está configurado ---
+        recaptcha_secret = current_app.config.get("RECAPTCHA_SECRET_KEY")
+        if recaptcha_secret:
+            # v2 usa 'g-recaptcha-response', v3 usa 'recaptcha_token' (hidden input)
+            recaptcha_token = request.form.get("g-recaptcha-response") or request.form.get("recaptcha_token", "")
+            ok, msg = verify_recaptcha(recaptcha_token)
+            if not ok:
+                flash(msg, "danger")
+                current_app.logger.warning(f"reCAPTCHA fallido: {msg} | IP={request.remote_addr}, nombre={name}")
+                return render_template(
+                    "resenas.html",
+                    reviews=[],
+                    featured=[],
+                    review_stack_cards=[],
+                )
+
+        # --- Filtro anti-spam en backend ---
+        spam_flag, spam_reason = is_spam(name, comment, email)
+        if spam_flag:
+            flash(f"Your review could not be published: {spam_reason}", "danger")
+            current_app.logger.warning(
+                f"Spam bloqueado: {spam_reason} | IP={request.remote_addr} | nombre={name} | email={email}"
+            )
+            return render_template(
+                "resenas.html",
+                reviews=[],
+                featured=[],
+                review_stack_cards=[],
+            )
 
         if errors:
             for e in errors:

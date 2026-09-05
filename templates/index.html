@@ -148,69 +148,48 @@
     </div>
 
     <div class="trust-grid">
-      <article class="trust-card trust-card--guarantee">
+      {% set icon_paths = {
+        'shield': 'M24 4 8 10v12c0 10.5 6.8 20.2 16 22.8C33.2 42.2 40 32.5 40 22V10L24 4zm0 4.2 12 4.5V22c0 8.1-5.1 15.7-12 18-6.9-2.3-12-9.9-12-18V12.7l12-4.5zm-1.5 20.3-5.2-5.2 2.1-2.1 3.1 3.1 7.1-7.1 2.1 2.1-9.2 9.2z',
+        'support': 'M24 6a14 14 0 0 0-14 14v6H8a4 4 0 0 0-4 4v4a4 4 0 0 0 4 4h4v-18a10 10 0 1 1 20 0v18h4a4 4 0 0 0 4-4v-4a4 4 0 0 0-4-4h-2v-6A14 14 0 0 0 24 6zm-8 28v2a6 6 0 0 0 6 6h4a6 6 0 0 0 6-6v-2H16z',
+        'install': 'M8 38h32v4H8v-4zm4-6 6-16h4l3 8h2l3-8h4l6 16h-4.2l-1.2-3.2H17.4L16.2 32H12zm7.2-6.8h9.6L26 18.6h-4l-2.8 6.6zM24 6l10 8H14l10-8z',
+        'systems': 'M6 18 24 8l18 10v4L24 12 6 22v-4zm0 8 18-10 18 10v4L24 20 6 30v-4zm0 8 18-10 18 10v4L24 28 6 38v-4z'
+      } %}
+      {% for card in trust_cards %}
+      {% set icon = icon_paths.get(card.icon_key or 'shield', icon_paths.shield) %}
+      <article class="trust-card">
         <div class="trust-coin" aria-hidden="true">
           <div class="trust-coin__spin">
             <div class="trust-coin__face trust-coin__face--front">
-              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M24 4 8 10v12c0 10.5 6.8 20.2 16 22.8C33.2 42.2 40 32.5 40 22V10L24 4zm0 4.2 12 4.5V22c0 8.1-5.1 15.7-12 18-6.9-2.3-12-9.9-12-18V12.7l12-4.5zm-1.5 20.3-5.2-5.2 2.1-2.1 3.1 3.1 7.1-7.1 2.1 2.1-9.2 9.2z"/></svg>
+              {% if card.image_path %}
+              <img src="{{ url_for('static', filename=card.image_path) }}" alt="" class="trust-coin__img">
+              {% else %}
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="{{ icon }}"/></svg>
+              {% endif %}
             </div>
             <div class="trust-coin__face trust-coin__face--back">
-              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M24 4 8 10v12c0 10.5 6.8 20.2 16 22.8C33.2 42.2 40 32.5 40 22V10L24 4zm0 4.2 12 4.5V22c0 8.1-5.1 15.7-12 18-6.9-2.3-12-9.9-12-18V12.7l12-4.5zm-1.5 20.3-5.2-5.2 2.1-2.1 3.1 3.1 7.1-7.1 2.1 2.1-9.2 9.2z"/></svg>
+              {% if card.image_path %}
+              <img src="{{ url_for('static', filename=card.image_path) }}" alt="" class="trust-coin__img">
+              {% else %}
+              <svg viewBox="0 0 48 48"><path fill="currentColor" d="{{ icon }}"/></svg>
+              {% endif %}
             </div>
           </div>
         </div>
+        <div class="trust-card__num">{{ card.metric }}</div>
+        <h3 class="trust-card__title">{{ card.title }}</h3>
+        {% if card.body %}
+        <p class="trust-card__desc">{{ card.body }}</p>
+        {% endif %}
+      </article>
+      {% else %}
+      {# Fallback if no cards configured yet #}
+      <article class="trust-card">
+        <div class="trust-coin" aria-hidden="true"><div class="trust-coin__spin"><div class="trust-coin__face trust-coin__face--front"><svg viewBox="0 0 48 48"><path fill="currentColor" d="{{ icon_paths.shield }}"/></svg></div><div class="trust-coin__face trust-coin__face--back"><svg viewBox="0 0 48 48"><path fill="currentColor" d="{{ icon_paths.shield }}"/></svg></div></div></div>
         <div class="trust-card__num">+30</div>
         <h3 class="trust-card__title">{{ t('Years of Standing Seam warranty') }}</h3>
         <p class="trust-card__desc">{{ t('Long-lasting protection with certified roof systems and real backing.') }}</p>
       </article>
-
-      <article class="trust-card trust-card--support">
-        <div class="trust-coin" aria-hidden="true">
-          <div class="trust-coin__spin">
-            <div class="trust-coin__face trust-coin__face--front">
-              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M24 6a14 14 0 0 0-14 14v6H8a4 4 0 0 0-4 4v4a4 4 0 0 0 4 4h4v-18a10 10 0 1 1 20 0v18h4a4 4 0 0 0 4-4v-4a4 4 0 0 0-4-4h-2v-6A14 14 0 0 0 24 6zm-8 28v2a6 6 0 0 0 6 6h4a6 6 0 0 0 6-6v-2H16z"/></svg>
-            </div>
-            <div class="trust-coin__face trust-coin__face--back">
-              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M24 6a14 14 0 0 0-14 14v6H8a4 4 0 0 0-4 4v4a4 4 0 0 0 4 4h4v-18a10 10 0 1 1 20 0v18h4a4 4 0 0 0 4-4v-4a4 4 0 0 0-4-4h-2v-6A14 14 0 0 0 24 6zm-8 28v2a6 6 0 0 0 6 6h4a6 6 0 0 0 6-6v-2H16z"/></svg>
-            </div>
-          </div>
-        </div>
-        <div class="trust-card__num">24/7</div>
-        <h3 class="trust-card__title">{{ t('Customer support') }}</h3>
-        <p class="trust-card__desc">{{ t('Continuous support for emergencies, maintenance and project follow-up.') }}</p>
-      </article>
-
-      <article class="trust-card trust-card--install">
-        <div class="trust-coin" aria-hidden="true">
-          <div class="trust-coin__spin">
-            <div class="trust-coin__face trust-coin__face--front">
-              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M8 38h32v4H8v-4zm4-6 6-16h4l3 8h2l3-8h4l6 16h-4.2l-1.2-3.2H17.4L16.2 32H12zm7.2-6.8h9.6L26 18.6h-4l-2.8 6.6zM24 6l10 8H14l10-8z"/></svg>
-            </div>
-            <div class="trust-coin__face trust-coin__face--back">
-              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M8 38h32v4H8v-4zm4-6 6-16h4l3 8h2l3-8h4l6 16h-4.2l-1.2-3.2H17.4L16.2 32H12zm7.2-6.8h9.6L26 18.6h-4l-2.8 6.6zM24 6l10 8H14l10-8z"/></svg>
-            </div>
-          </div>
-        </div>
-        <div class="trust-card__num">100%</div>
-        <h3 class="trust-card__title">{{ t('Professional installation') }}</h3>
-        <p class="trust-card__desc">{{ t('Specialized crews, flawless finishes and safety in every project.') }}</p>
-      </article>
-
-      <article class="trust-card trust-card--systems">
-        <div class="trust-coin" aria-hidden="true">
-          <div class="trust-coin__spin">
-            <div class="trust-coin__face trust-coin__face--front">
-              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M6 18 24 8l18 10v4L24 12 6 22v-4zm0 8 18-10 18 10v4L24 20 6 30v-4zm0 8 18-10 18 10v4L24 28 6 38v-4z"/></svg>
-            </div>
-            <div class="trust-coin__face trust-coin__face--back">
-              <svg viewBox="0 0 48 48"><path fill="currentColor" d="M6 18 24 8l18 10v4L24 12 6 22v-4zm0 8 18-10 18 10v4L24 20 6 30v-4zm0 8 18-10 18 10v4L24 28 6 38v-4z"/></svg>
-            </div>
-          </div>
-        </div>
-        <div class="trust-card__num">3</div>
-        <h3 class="trust-card__title">{{ t('Construction systems') }}</h3>
-        <p class="trust-card__desc">{{ t('Standing Seam, thermoacoustic panels and modules adapted to each project.') }}</p>
-      </article>
+      {% endfor %}
     </div>
   </div>
 </section>

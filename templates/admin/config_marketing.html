@@ -5,40 +5,40 @@
 {% block admin_content %}
 <div class="card-panel" style="max-width:720px;">
   <div class="alert alert-info">
-    <strong>¿Dónde obtengo estos datos?</strong><br>
-    En tu cuenta de Google Ads ve a <strong>Herramientas → Conversiones</strong>: ahí aparece el
-    <strong>ID de Google Ads</strong> (formato <code>AW-XXXXXXXXX</code>) y, al crear una conversión, la
-    <strong>etiqueta</strong> que la identifica. El <strong>ID de GA4</strong> (formato <code>G-XXXXXXXXX</code>,
-    opcional) lo encuentras en Google Analytics 4 → Administración → Transmisiones de datos.
+    <strong>Where do I get this data?</strong><br>
+    In your Google Ads account go to <strong>Tools → Conversions</strong>: you will find the
+    <strong>Google Ads ID</strong> (format <code>AW-XXXXXXXXX</code>) and, when you create a conversion, the
+    <strong>label</strong> that identifies it. The <strong>GA4 ID</strong> (format <code>G-XXXXXXXXX</code>,
+    optional) is in Google Analytics 4 → Admin → Data streams.
   </div>
 
   <form method="POST" action="{{ url_for('admin.config_marketing') }}">
     <div class="form-row">
       <label style="display:flex; align-items:center; gap:8px; text-transform:none; font-family:var(--font-body);">
         <input type="checkbox" name="enabled" style="width:auto;" {% if settings.enabled %}checked{% endif %}>
-        Activar Google Ads / Analytics en el sitio
+        Enable Google Ads / Analytics on the site
       </label>
-      <p class="hint mb-0">Mientras esté desactivado no se carga ningún script de Google en el sitio público.</p>
+      <p class="hint mb-0">While disabled, no Google scripts are loaded on the public site.</p>
     </div>
 
     <div class="form-row">
-      <label for="google_ads_id">ID de Google Ads</label>
+      <label for="google_ads_id">Google Ads ID</label>
       <input type="text" id="google_ads_id" name="google_ads_id" value="{{ settings.google_ads_id or '' }}" placeholder="AW-1234567890">
     </div>
 
     <div class="form-row">
-      <label for="conversion_label">Etiqueta de conversión</label>
+      <label for="conversion_label">Conversion label</label>
       <input type="text" id="conversion_label" name="conversion_label" value="{{ settings.conversion_label or '' }}" placeholder="ABCDEFGHIJKLM_AB">
-      <p class="hint mb-0">Se usa para registrar la conversión cuando un cliente completa el formulario de cotización.</p>
+      <p class="hint mb-0">Used to record a conversion when a customer completes the quote form.</p>
     </div>
 
     <div class="form-row">
-      <label for="ga4_measurement_id">ID de GA4 (opcional)</label>
+      <label for="ga4_measurement_id">GA4 ID (optional)</label>
       <input type="text" id="ga4_measurement_id" name="ga4_measurement_id" value="{{ settings.ga4_measurement_id or '' }}" placeholder="G-XXXXXXXXXX">
-      <p class="hint mb-0">Si lo llenas, Google Analytics 4 se carga junto con Google Ads (sin duplicar el script).</p>
+      <p class="hint mb-0">If filled in, Google Analytics 4 loads together with Google Ads (without duplicating the script).</p>
     </div>
 
-    <button type="submit" class="btn btn-rust">Guardar configuración</button>
+    <button type="submit" class="btn btn-rust">Save settings</button>
   </form>
 </div>
 {% endblock %}

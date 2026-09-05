@@ -1,12 +1,12 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Cotizaciones | Tecuns Admin{% endblock %}
-{% block page_title %}Solicitudes de cotización{% endblock %}
+{% block title %}Quotes | Tecuns Admin{% endblock %}
+{% block page_title %}Quote requests{% endblock %}
 
 {% block admin_content %}
 <div class="filter-tabs">
-  <a href="{{ url_for('admin.cotizaciones', filtro='todas') }}" class="{{ 'active' if filtro == 'todas' }}">Todas</a>
+  <a href="{{ url_for('admin.cotizaciones', filtro='todas') }}" class="{{ 'active' if filtro == 'todas' }}">All</a>
   {% for st in status_choices %}
-    <a href="{{ url_for('admin.cotizaciones', filtro=st) }}" class="{{ 'active' if filtro == st }}">{{ st.replace('_',' ')|capitalize }}</a>
+    <a href="{{ url_for('admin.cotizaciones', filtro=st) }}" class="{{ 'active' if filtro == st }}">{{ status_labels.get(st, st) }}</a>
   {% endfor %}
 </div>
 
@@ -14,7 +14,7 @@
   {% if quotes %}
     <table class="admin-table">
       <thead>
-        <tr><th>Cliente</th><th>Ubicación</th><th>Producto</th><th>Fotos</th><th>Fecha</th><th>Estado</th><th></th></tr>
+        <tr><th>Customer</th><th>Location</th><th>Product</th><th>Photos</th><th>Date</th><th>Status</th><th></th></tr>
       </thead>
       <tbody>
         {% for q in quotes %}
@@ -24,14 +24,14 @@
           <td>{{ q.service_type or '—' }}</td>
           <td>{{ q.images|length }}</td>
           <td>{{ q.created_at.strftime('%d/%m/%Y') }}</td>
-          <td><span class="badge badge-{{ q.status }}">{{ q.status.replace('_',' ') }}</span></td>
-          <td><a href="{{ url_for('admin.cotizacion_detalle', quote_id=q.id) }}" class="link">Revisar →</a></td>
+          <td><span class="badge badge-{{ q.status }}">{{ q.status_label }}</span></td>
+          <td><a href="{{ url_for('admin.cotizacion_detalle', quote_id=q.id) }}" class="link">Review →</a></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   {% else %}
-    <p class="text-steel mb-0">No hay solicitudes de cotización en esta categoría.</p>
+    <p class="text-steel mb-0">No quote requests in this category.</p>
   {% endif %}
 </div>
 {% endblock %}

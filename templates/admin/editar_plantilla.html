@@ -1,27 +1,27 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Editar plantilla | Tecuns Admin{% endblock %}
-{% block page_title %}Editar: {{ tpl.label }}{% endblock %}
+{% block title %}Edit template | Tecuns Admin{% endblock %}
+{% block page_title %}Edit: {{ tpl.label }}{% endblock %}
 
 {% block admin_content %}
 <div class="grid-2" style="align-items:flex-start;">
   <div class="card-panel">
     <form method="POST" action="{{ url_for('admin.editar_plantilla', key=tpl.key) }}">
       <div class="form-row">
-        <label for="subject">Asunto del correo</label>
+        <label for="subject">Email subject</label>
         <input type="text" id="subject" name="subject" value="{{ tpl.subject }}" required>
       </div>
       <div class="form-row">
-        <label for="body">Mensaje</label>
+        <label for="body">Message</label>
         <textarea id="body" name="body" style="min-height:280px;" required>{{ tpl.body }}</textarea>
       </div>
-      <button type="submit" class="btn btn-rust">Guardar plantilla</button>
-      <a href="{{ url_for('admin.plantillas') }}" class="btn btn-outline-dark">Cancelar</a>
+      <button type="submit" class="btn btn-rust">Save template</button>
+      <a href="{{ url_for('admin.plantillas') }}" class="btn btn-outline-dark">Cancel</a>
     </form>
   </div>
 
   <div class="card-panel">
-    <h3 style="text-transform:none; font-size:1rem;">Variables disponibles</h3>
-    <p class="text-steel" style="font-size:.88rem;">Puedes usar estas variables dentro del asunto o el mensaje, escribiéndolas entre llaves dobles. Se reemplazan automáticamente por el dato real al enviarse el correo.</p>
+    <h3 style="text-transform:none; font-size:1rem;">Available variables</h3>
+    <p class="text-steel" style="font-size:.88rem;">You can use these variables in the subject or message by writing them in double braces. They are replaced automatically with the real data when the email is sent.</p>
     <ul style="display:flex; flex-direction:column; gap:8px;">
       {% for p in placeholders %}
         <li><code style="background:var(--offwhite); padding:4px 8px; border-radius:6px; font-size:.85rem;">{{ '{{' }} {{ p }} {{ '}}' }}</code></li>

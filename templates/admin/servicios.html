@@ -1,26 +1,26 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Productos / Servicios | Tecuns Admin{% endblock %}
-{% block page_title %}Productos / Servicios{% endblock %}
+{% block title %}Products / Services | Tecuns Admin{% endblock %}
+{% block page_title %}Products / Services{% endblock %}
 
 {% block admin_content %}
-<a href="{{ url_for('admin.nuevo_servicio') }}" class="btn btn-rust" style="margin-bottom:20px;">+ Nuevo producto</a>
+<a href="{{ url_for('admin.nuevo_servicio') }}" class="btn btn-rust" style="margin-bottom:20px;">+ New product</a>
 
 <div class="card-panel">
   {% if services %}
   <table class="admin-table">
-    <thead><tr><th>Orden</th><th>Nombre</th><th>Slug</th><th>Estado</th><th></th></tr></thead>
+    <thead><tr><th>Order</th><th>Name</th><th>Slug</th><th>Status</th><th></th></tr></thead>
     <tbody>
       {% for s in services %}
       <tr>
         <td>{{ s.order }}</td>
         <td>{{ s.name }}</td>
         <td class="text-steel">/servicios/{{ s.slug }}</td>
-        <td>{% if s.active %}<span class="badge badge-cotizado">Activo</span>{% else %}<span class="badge badge-rechazado">Oculto</span>{% endif %}</td>
+        <td>{% if s.active %}<span class="badge badge-cotizado">Active</span>{% else %}<span class="badge badge-rechazado">Hidden</span>{% endif %}</td>
         <td>
-          <a href="{{ url_for('admin.editar_servicio', service_id=s.id) }}" class="link">Editar</a>
+          <a href="{{ url_for('admin.editar_servicio', service_id=s.id) }}" class="link">Edit</a>
           &nbsp;·&nbsp;
-          <form class="inline-form" method="POST" action="{{ url_for('admin.eliminar_servicio', service_id=s.id) }}" onsubmit="return confirm('¿Eliminar este producto?');">
-            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+          <form class="inline-form" method="POST" action="{{ url_for('admin.eliminar_servicio', service_id=s.id) }}" onsubmit="return confirm('Delete this product?');">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
           </form>
         </td>
       </tr>
@@ -28,7 +28,7 @@
     </tbody>
   </table>
   {% else %}
-    <p class="text-steel mb-0">Aún no hay productos registrados.</p>
+    <p class="text-steel mb-0">No products registered yet.</p>
   {% endif %}
 </div>
 {% endblock %}

@@ -76,6 +76,30 @@
         {% endif %}
       {% endfor %}
 
+      {% if servicio.work_methods and servicio.work_methods.strip() %}
+      <div class="svc-methods" data-svc-methods>
+        <button
+          type="button"
+          class="svc-methods__toggle"
+          id="svcMethodsToggle"
+          aria-expanded="false"
+          aria-controls="svcMethodsPanel"
+        >
+          <span class="svc-methods__toggle-label">{{ t('Work method') }}</span>
+          <svg class="svc-methods__chevron" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+        </button>
+        <div class="svc-methods__panel" id="svcMethodsPanel" role="region" aria-labelledby="svcMethodsToggle" hidden>
+          <div class="svc-methods__panel-inner">
+            {% for para in servicio.work_methods.split('\n\n') %}
+              {% if para.strip() %}
+              <p class="svc-methods__para">{{ para.strip() }}</p>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
       <a href="{{ url_for('public.cotizacion') }}" class="cta-spotlight cta-spotlight--row" aria-label="{{ t('Request a quote') }}">
         <div class="cta-spotlight__card">
           <div class="cta-spotlight__fx" aria-hidden="true">
@@ -337,4 +361,18 @@
 })();
 </script>
 {% endif %}
+<script>
+(function () {
+  var wrap = document.querySelector("[data-svc-methods]");
+  if (!wrap) return;
+  var btn = wrap.querySelector(".svc-methods__toggle");
+  var panel = wrap.querySelector(".svc-methods__panel");
+  if (!btn || !panel) return;
+  btn.addEventListener("click", function () {
+    var open = wrap.classList.toggle("is-open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    panel.hidden = !open;
+  });
+})();
+</script>
 {% endblock %}

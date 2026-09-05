@@ -1,0 +1,27 @@
+{# Incluir en <head>: meta CSRF + inyección automática en forms POST #}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script>
+(function () {
+  function injectCsrf() {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    if (!meta) return;
+    var token = meta.getAttribute("content");
+    if (!token) return;
+    document.querySelectorAll("form").forEach(function (form) {
+      var method = (form.getAttribute("method") || "get").toLowerCase();
+      if (method !== "post") return;
+      if (form.querySelector('input[name="csrf_token"]')) return;
+      var input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "csrf_token";
+      input.value = token;
+      form.prepend(input);
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", injectCsrf);
+  } else {
+    injectCsrf();
+  }
+})();
+</script>

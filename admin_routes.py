@@ -3,16 +3,31 @@ from collections import defaultdict
 
 from functools import wraps
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy import desc, func, extract
+from urllib.parse import urlparse
 
 from extensions import db
-from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard
+from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard, TrustCard
 from utils import save_upload
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+
+
+def _safe_admin_next(target: str | None) -> str | None:
+    """Solo permite redirecciones relativas dentro de /admin (anti open-redirect)."""
+    if not target:
+        return None
+    target = target.strip()
+    # Rechazar URLs absolutas o protocol-relative (//evil.com)
+    if not target.startswith("/") or target.startswith("//") or "://" in target:
+        return None
+    path = urlparse(target).path or ""
+    if path == "/admin" or path.startswith("/admin/"):
+        return target
+    return None
 
 
 # ---------- Auth ----------
@@ -28,10 +43,11 @@ def login():
         admin = Admin.query.filter_by(username=username).first()
         if admin and admin.check_password(password):
             login_user(admin)
-            flash("Bienvenido de nuevo.", "success")
-            next_url = request.args.get("next")
+            session.permanent = True
+            flash("Welcome back.", "success")
+            next_url = _safe_admin_next(request.args.get("next"))
             return redirect(next_url or url_for("admin.dashboard"))
-        flash("Usuario o contraseña incorrectos.", "danger")
+        flash("Incorrect username or password.", "danger")
 
     return render_template("admin/login.html")
 
@@ -40,7 +56,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash("Sesión cerrada.", "success")
+    flash("You have been logged out.", "success")
     return redirect(url_for("admin.login"))
 
 
@@ -88,7 +104,7 @@ def dashboard():
     quote_status_labels = []
     quote_status_counts = []
     for status, count in quotes_by_status:
-        quote_status_labels.append(status.replace('_', ' ').title())
+        quote_status_labels.append(Quote.STATUS_LABELS.get(status, status.replace('_', ' ').title()))
         quote_status_counts.append(count)
 
     # --- Chart data: Top 5 most quoted services ---
@@ -169,7 +185,7 @@ def aprobar_resena(review_id):
     review = Review.query.get_or_404(review_id)
     review.approved = True
     db.session.commit()
-    flash("Reseña aprobada y publicada.", "success")
+    flash("Review approved and published.", "success")
     return redirect(url_for("admin.resenas"))
 
 
@@ -179,7 +195,7 @@ def rechazar_resena(review_id):
     review = Review.query.get_or_404(review_id)
     review.approved = False
     db.session.commit()
-    flash("Reseña ocultada del sitio.", "warning")
+    flash("Review hidden from the site.", "warning")
     return redirect(url_for("admin.resenas"))
 
 
@@ -189,7 +205,7 @@ def eliminar_resena(review_id):
     review = Review.query.get_or_404(review_id)
     db.session.delete(review)
     db.session.commit()
-    flash("Reseña eliminada.", "success")
+    flash("Review deleted.", "success")
     return redirect(url_for("admin.resenas"))
 
 
@@ -206,7 +222,7 @@ def editar_resena(review_id):
         except (TypeError, ValueError):
             rating = 0
         if not name or not comment or rating < 1 or rating > 5:
-            flash("El nombre, el comentario y una calificación de 1 a 5 son obligatorios.", "danger")
+            flash("Name, comment, and a rating from 1 to 5 are required.", "danger")
             return redirect(request.url)
 
         review.name = name
@@ -216,7 +232,7 @@ def editar_resena(review_id):
         review.approved = request.form.get("approved") == "on"
         review.featured = request.form.get("featured") == "on"
         db.session.commit()
-        flash("Reseña actualizada.", "success")
+        flash("Review updated.", "success")
         return redirect(url_for("admin.resenas"))
 
     return render_template("admin/editar_resena.html", review=review)
@@ -237,6 +253,7 @@ def cotizaciones():
         quotes=quotes,
         filtro=filtro,
         status_choices=Quote.STATUS_CHOICES,
+        status_labels=Quote.STATUS_LABELS,
     )
 
 
@@ -259,22 +276,25 @@ def cotizacion_detalle(quote_id):
             db.session.commit()
 
             if not client_response:
-                flash("Escribe un mensaje de respuesta antes de enviarlo al cliente.", "warning")
+                flash("Write a reply message before sending it to the client.", "warning")
             else:
                 ok, msg = send_quote_response(quote)
                 flash(
-                    "Cotización actualizada y correo enviado al cliente." if ok
-                    else f"Se guardó el mensaje, pero no se pudo enviar el correo: {msg}",
+                    "Quote updated and email sent to the client." if ok
+                    else f"Message saved, but the email could not be sent: {msg}",
                     "success" if ok else "warning",
                 )
         else:
             db.session.commit()
-            flash("Cotización actualizada.", "success")
+            flash("Quote updated.", "success")
 
         return redirect(url_for("admin.cotizacion_detalle", quote_id=quote.id))
 
     return render_template(
-        "admin/cotizacion_detalle.html", quote=quote, status_choices=Quote.STATUS_CHOICES
+        "admin/cotizacion_detalle.html",
+        quote=quote,
+        status_choices=Quote.STATUS_CHOICES,
+        status_labels=Quote.STATUS_LABELS,
     )
 
 
@@ -284,7 +304,7 @@ def eliminar_cotizacion(quote_id):
     quote = Quote.query.get_or_404(quote_id)
     db.session.delete(quote)
     db.session.commit()
-    flash("Cotización eliminada.", "success")
+    flash("Quote deleted.", "success")
     return redirect(url_for("admin.cotizaciones"))
 
 
@@ -295,6 +315,7 @@ MAX_ABOUT_SLIDES = 10
 MAX_SERVICE_GALLERY = 12
 MAX_QUOTE_GLASS = 3
 MAX_REVIEW_STACK = 3
+MAX_TRUST_CARDS = 6
 
 
 @admin_bp.route("/contenido")
@@ -305,6 +326,7 @@ def contenido():
     about_slides_count = AboutSlide.query.count()
     quote_glass_count = QuoteGlassCard.query.count()
     review_stack_count = ReviewStackCard.query.count()
+    trust_cards_count = TrustCard.query.count()
     return render_template(
         "admin/contenido.html",
         blocks=blocks,
@@ -312,6 +334,7 @@ def contenido():
         about_slides_count=about_slides_count,
         quote_glass_count=quote_glass_count,
         review_stack_count=review_stack_count,
+        trust_cards_count=trust_cards_count,
     )
 
 
@@ -323,6 +346,7 @@ def editar_contenido(section_key):
     about_slides = []
     quote_glass_cards = []
     review_stack_cards = []
+    trust_cards = []
     if section_key == "hero":
         hero_slides = HeroSlide.query.order_by(HeroSlide.sort_order, HeroSlide.id).all()
     elif section_key == "about":
@@ -331,6 +355,8 @@ def editar_contenido(section_key):
         quote_glass_cards = QuoteGlassCard.query.order_by(QuoteGlassCard.sort_order, QuoteGlassCard.id).all()
     elif section_key == "resenas":
         review_stack_cards = ReviewStackCard.query.order_by(ReviewStackCard.sort_order, ReviewStackCard.id).all()
+    elif section_key == "why_us":
+        trust_cards = TrustCard.query.order_by(TrustCard.sort_order, TrustCard.id).all()
 
     if request.method == "POST":
         if block.section_key != "logo":
@@ -352,7 +378,7 @@ def editar_contenido(section_key):
                     block.image_path = rel_path
 
         db.session.commit()
-        flash(f'Bloque "{block.label}" actualizado.', "success")
+        flash(f'Block "{block.label}" updated.', "success")
         return redirect(url_for("admin.contenido"))
 
     return render_template(
@@ -362,10 +388,13 @@ def editar_contenido(section_key):
         about_slides=about_slides,
         quote_glass_cards=quote_glass_cards,
         review_stack_cards=review_stack_cards,
+        trust_cards=trust_cards,
         max_hero_slides=MAX_HERO_SLIDES,
         max_about_slides=MAX_ABOUT_SLIDES,
         max_quote_glass=MAX_QUOTE_GLASS,
         max_review_stack=MAX_REVIEW_STACK,
+        max_trust_cards=MAX_TRUST_CARDS,
+        trust_icon_choices=TrustCard.ICON_CHOICES,
     )
 
 
@@ -396,9 +425,9 @@ def hero_slides_add():
         added += 1
     if added:
         db.session.commit()
-        flash(f"Se agregaron {added} imagen(es) a la galería del hero.", "success")
+        flash(f"Added {added} image(s) to the hero gallery.", "success")
     else:
-        flash("No se pudo agregar ninguna imagen. Revisa el formato (png/jpg/webp) y el límite de 6.", "warning")
+        flash("Could not add any images. Check the format (png/jpg/webp) and the limit of 6.", "warning")
     return redirect(url_for("admin.editar_contenido", section_key="hero"))
 
 
@@ -408,7 +437,7 @@ def hero_slide_delete(slide_id):
     slide = HeroSlide.query.get_or_404(slide_id)
     db.session.delete(slide)
     db.session.commit()
-    flash("Imagen eliminada de la galería.", "success")
+    flash("Image removed from the gallery.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="hero"))
 
 
@@ -419,7 +448,7 @@ def hero_slide_move(slide_id):
     slides = HeroSlide.query.order_by(HeroSlide.sort_order, HeroSlide.id).all()
     idx = next((i for i, s in enumerate(slides) if s.id == slide_id), None)
     if idx is None:
-        flash("Imagen no encontrada.", "danger")
+        flash("Image not found.", "danger")
         return redirect(url_for("admin.editar_contenido", section_key="hero"))
     swap_with = idx - 1 if direction == "up" else idx + 1
     if 0 <= swap_with < len(slides):
@@ -441,7 +470,7 @@ def hero_slide_toggle(slide_id):
     slide = HeroSlide.query.get_or_404(slide_id)
     slide.active = not slide.active
     db.session.commit()
-    flash("Imagen " + ("visible" if slide.active else "ocultada") + " en el sitio.", "success")
+    flash("Image " + ("visible" if slide.active else "hidden") + " on the site.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="hero"))
 
 
@@ -451,7 +480,7 @@ def hero_slide_caption(slide_id):
     slide = HeroSlide.query.get_or_404(slide_id)
     slide.caption = request.form.get("caption", "").strip() or None
     db.session.commit()
-    flash("Leyenda actualizada.", "success")
+    flash("Caption updated.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="hero"))
 
 
@@ -480,9 +509,9 @@ def about_slides_add():
         added += 1
     if added:
         db.session.commit()
-        flash(f"Se agregaron {added} imagen(es) a la galería Sobre nosotros.", "success")
+        flash(f"Added {added} image(s) to the About Us gallery.", "success")
     else:
-        flash("No se pudo agregar ninguna imagen. Revisa formato y el límite de 10.", "warning")
+        flash("Could not add any images. Check the format and the limit of 10.", "warning")
     return redirect(url_for("admin.editar_contenido", section_key="about"))
 
 
@@ -492,7 +521,7 @@ def about_slide_delete(slide_id):
     slide = AboutSlide.query.get_or_404(slide_id)
     db.session.delete(slide)
     db.session.commit()
-    flash("Imagen eliminada de la galería.", "success")
+    flash("Image removed from the gallery.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="about"))
 
 
@@ -503,7 +532,7 @@ def about_slide_move(slide_id):
     slides = AboutSlide.query.order_by(AboutSlide.sort_order, AboutSlide.id).all()
     idx = next((i for i, s in enumerate(slides) if s.id == slide_id), None)
     if idx is None:
-        flash("Imagen no encontrada.", "danger")
+        flash("Image not found.", "danger")
         return redirect(url_for("admin.editar_contenido", section_key="about"))
     swap_with = idx - 1 if direction == "up" else idx + 1
     if 0 <= swap_with < len(slides):
@@ -524,7 +553,7 @@ def about_slide_toggle(slide_id):
     slide = AboutSlide.query.get_or_404(slide_id)
     slide.active = not slide.active
     db.session.commit()
-    flash("Imagen " + ("visible" if slide.active else "ocultada") + " en el sitio.", "success")
+    flash("Image " + ("visible" if slide.active else "hidden") + " on the site.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="about"))
 
 
@@ -557,9 +586,9 @@ def quote_glass_add():
         added += 1
     if added:
         db.session.commit()
-        flash(f"Se agregaron {added} imagen(es) a las cards de cotización.", "success")
+        flash(f"Added {added} image(s) to the quote cards.", "success")
     else:
-        flash("No se pudo agregar ninguna imagen. Revisa formato y el límite de 3.", "warning")
+        flash("Could not add any images. Check the format and the limit of 3.", "warning")
     return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
 
 
@@ -569,7 +598,7 @@ def quote_glass_delete(card_id):
     card = QuoteGlassCard.query.get_or_404(card_id)
     db.session.delete(card)
     db.session.commit()
-    flash("Imagen eliminada de las cards de cotización.", "success")
+    flash("Image removed from the quote cards.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
 
 
@@ -580,7 +609,7 @@ def quote_glass_move(card_id):
     cards = QuoteGlassCard.query.order_by(QuoteGlassCard.sort_order, QuoteGlassCard.id).all()
     idx = next((i for i, c in enumerate(cards) if c.id == card_id), None)
     if idx is None:
-        flash("Imagen no encontrada.", "danger")
+        flash("Image not found.", "danger")
         return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
     swap_with = idx - 1 if direction == "up" else idx + 1
     if 0 <= swap_with < len(cards):
@@ -601,7 +630,7 @@ def quote_glass_toggle(card_id):
     card = QuoteGlassCard.query.get_or_404(card_id)
     card.active = not card.active
     db.session.commit()
-    flash("Card " + ("visible" if card.active else "ocultada") + " en el sitio.", "success")
+    flash("Card " + ("visible" if card.active else "hidden") + " on the site.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
 
 
@@ -611,7 +640,7 @@ def quote_glass_caption(card_id):
     card = QuoteGlassCard.query.get_or_404(card_id)
     card.caption = request.form.get("caption", "").strip() or None
     db.session.commit()
-    flash("Texto de la card actualizado.", "success")
+    flash("Card text updated.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="cotizacion"))
 
 
@@ -646,9 +675,9 @@ def review_stack_add():
         added += 1
     if added:
         db.session.commit()
-        flash(f"Se agregaron {added} imagen(es) a las cards de reseñas.", "success")
+        flash(f"Added {added} image(s) to the review cards.", "success")
     else:
-        flash("No se pudo agregar ninguna imagen. Revisa formato y el límite de 3.", "warning")
+        flash("Could not add any images. Check the format and the limit of 3.", "warning")
     return redirect(url_for("admin.editar_contenido", section_key="resenas"))
 
 
@@ -658,7 +687,7 @@ def review_stack_delete(card_id):
     card = ReviewStackCard.query.get_or_404(card_id)
     db.session.delete(card)
     db.session.commit()
-    flash("Imagen eliminada de las cards de reseñas.", "success")
+    flash("Image removed from the review cards.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="resenas"))
 
 
@@ -669,7 +698,7 @@ def review_stack_move(card_id):
     cards = ReviewStackCard.query.order_by(ReviewStackCard.sort_order, ReviewStackCard.id).all()
     idx = next((i for i, c in enumerate(cards) if c.id == card_id), None)
     if idx is None:
-        flash("Imagen no encontrada.", "danger")
+        flash("Image not found.", "danger")
         return redirect(url_for("admin.editar_contenido", section_key="resenas"))
     swap_with = idx - 1 if direction == "up" else idx + 1
     if 0 <= swap_with < len(cards):
@@ -690,7 +719,7 @@ def review_stack_toggle(card_id):
     card = ReviewStackCard.query.get_or_404(card_id)
     card.active = not card.active
     db.session.commit()
-    flash("Card " + ("visible" if card.active else "ocultada") + " en el sitio.", "success")
+    flash("Card " + ("visible" if card.active else "hidden") + " on the site.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="resenas"))
 
 
@@ -701,8 +730,126 @@ def review_stack_caption(card_id):
     card.caption = request.form.get("caption", "").strip() or None
     card.button_label = request.form.get("button_label", "").strip() or None
     db.session.commit()
-    flash("Textos de la card actualizados.", "success")
+    flash("Card texts updated.", "success")
     return redirect(url_for("admin.editar_contenido", section_key="resenas"))
+
+
+# ---------- Trust cards (What sets us apart) ----------
+
+@admin_bp.route("/contenido/why_us/cards", methods=["POST"])
+@login_required
+def trust_card_add():
+    if TrustCard.query.count() >= MAX_TRUST_CARDS:
+        flash(f"Limit of {MAX_TRUST_CARDS} highlight cards reached.", "warning")
+        return redirect(url_for("admin.editar_contenido", section_key="why_us"))
+
+    metric = request.form.get("metric", "").strip()
+    title = request.form.get("title", "").strip()
+    body = request.form.get("body", "").strip()
+    icon_key = request.form.get("icon_key", "shield").strip()
+    if icon_key not in TrustCard.ICON_CHOICES:
+        icon_key = "shield"
+
+    if not metric or not title:
+        flash("Metric and title are required.", "danger")
+        return redirect(url_for("admin.editar_contenido", section_key="why_us"))
+
+    image_path = None
+    image = request.files.get("image")
+    if image and image.filename:
+        image_path = save_upload(image, "content")
+
+    max_order = db.session.query(db.func.coalesce(db.func.max(TrustCard.sort_order), -1)).scalar()
+    db.session.add(
+        TrustCard(
+            metric=metric,
+            title=title,
+            body=body or None,
+            icon_key=icon_key,
+            image_path=image_path,
+            sort_order=(max_order or 0) + 1,
+            active=True,
+        )
+    )
+    db.session.commit()
+    flash("Highlight card added.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="why_us"))
+
+
+@admin_bp.route("/contenido/why_us/cards/<int:card_id>/guardar", methods=["POST"])
+@login_required
+def trust_card_save(card_id):
+    card = TrustCard.query.get_or_404(card_id)
+    metric = request.form.get("metric", "").strip()
+    title = request.form.get("title", "").strip()
+    body = request.form.get("body", "").strip()
+    icon_key = request.form.get("icon_key", card.icon_key or "shield").strip()
+    if icon_key not in TrustCard.ICON_CHOICES:
+        icon_key = "shield"
+
+    if not metric or not title:
+        flash("Metric and title are required.", "danger")
+        return redirect(url_for("admin.editar_contenido", section_key="why_us"))
+
+    card.metric = metric
+    card.title = title
+    card.body = body or None
+    card.icon_key = icon_key
+
+    image = request.files.get("image")
+    if image and image.filename:
+        rel_path = save_upload(image, "content")
+        if rel_path:
+            card.image_path = rel_path
+
+    if request.form.get("remove_image") == "on":
+        card.image_path = None
+
+    db.session.commit()
+    flash("Highlight card updated.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="why_us"))
+
+
+@admin_bp.route("/contenido/why_us/cards/<int:card_id>/eliminar", methods=["POST"])
+@login_required
+def trust_card_delete(card_id):
+    card = TrustCard.query.get_or_404(card_id)
+    db.session.delete(card)
+    db.session.commit()
+    flash("Highlight card deleted.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="why_us"))
+
+
+@admin_bp.route("/contenido/why_us/cards/<int:card_id>/mover", methods=["POST"])
+@login_required
+def trust_card_move(card_id):
+    direction = request.form.get("direction", "up")
+    cards = TrustCard.query.order_by(TrustCard.sort_order, TrustCard.id).all()
+    idx = next((i for i, c in enumerate(cards) if c.id == card_id), None)
+    if idx is None:
+        flash("Card not found.", "danger")
+        return redirect(url_for("admin.editar_contenido", section_key="why_us"))
+    swap_with = idx - 1 if direction == "up" else idx + 1
+    if 0 <= swap_with < len(cards):
+        cards[idx].sort_order, cards[swap_with].sort_order = (
+            cards[swap_with].sort_order,
+            cards[idx].sort_order,
+        )
+        if cards[idx].sort_order == cards[swap_with].sort_order:
+            cards[idx].sort_order = swap_with
+            cards[swap_with].sort_order = idx
+        db.session.commit()
+    return redirect(url_for("admin.editar_contenido", section_key="why_us"))
+
+
+@admin_bp.route("/contenido/why_us/cards/<int:card_id>/toggle", methods=["POST"])
+@login_required
+def trust_card_toggle(card_id):
+    card = TrustCard.query.get_or_404(card_id)
+    card.active = not card.active
+    db.session.commit()
+    flash("Card " + ("visible" if card.active else "hidden") + " on the site.", "success")
+    return redirect(url_for("admin.editar_contenido", section_key="why_us"))
 
 
 # ---------- Servicios / Productos ----------
@@ -751,11 +898,22 @@ def _guardar_servicio(servicio):
     name = request.form.get("name", "").strip()
     short_description = request.form.get("short_description", "").strip()
     description = request.form.get("description", "").strip()
+    work_methods = request.form.get("work_methods", "").strip()
     order = request.form.get("order", 0)
     active = request.form.get("active") == "on"
 
     if not slug or not name:
-        flash("El nombre y el slug son obligatorios.", "danger")
+        flash("Name and slug are required.", "danger")
+        return redirect(request.url)
+
+    # Evitar UNIQUE constraint failed en services.slug
+    existing = Service.query.filter_by(slug=slug).first()
+    if existing and (servicio is None or existing.id != servicio.id):
+        flash(
+            f'A product with the slug "{slug}" already exists. '
+            "Use a different slug (for example by adding a suffix) or edit the existing product.",
+            "danger",
+        )
         return redirect(request.url)
 
     if servicio is None:
@@ -766,6 +924,7 @@ def _guardar_servicio(servicio):
     servicio.name = name
     servicio.short_description = short_description
     servicio.description = description
+    servicio.work_methods = work_methods or None
     try:
         servicio.order = int(order)
     except (TypeError, ValueError):
@@ -778,7 +937,7 @@ def _guardar_servicio(servicio):
         if rel_path:
             servicio.image_path = rel_path
         else:
-            flash("La imagen de portada no se pudo subir (usa png/jpg/webp).", "warning")
+            flash("The cover image could not be uploaded (use png/jpg/webp).", "warning")
 
     video = request.files.get("video")
     if video and video.filename:
@@ -786,13 +945,22 @@ def _guardar_servicio(servicio):
         if rel_path:
             servicio.video_path = rel_path
         else:
-            flash("El video no se pudo subir (usa mp4/webm/mov, máx. 64 MB).", "warning")
+            flash("The video could not be uploaded (use mp4/webm/mov, max. 64 MB).", "warning")
 
     if request.form.get("remove_video") == "on":
         servicio.video_path = None
 
-    db.session.commit()
-    flash(f'Servicio "{servicio.name}" guardado.', "success")
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        flash(
+            f'Could not save: the slug "{slug}" is already in use by another product.',
+            "danger",
+        )
+        return redirect(request.url)
+
+    flash(f'Service "{servicio.name}" saved.', "success")
     return redirect(url_for("admin.editar_servicio", service_id=servicio.id))
 
 
@@ -827,9 +995,9 @@ def service_gallery_add(service_id):
         added += 1
     if added:
         db.session.commit()
-        flash(f"Se agregaron {added} foto(s) a la galería.", "success")
+        flash(f"Added {added} photo(s) to the gallery.", "success")
     else:
-        flash("No se pudo agregar ninguna foto. Revisa formato (png/jpg/webp) y el límite.", "warning")
+        flash("Could not add any photos. Check the format (png/jpg/webp) and the limit.", "warning")
     return redirect(url_for("admin.editar_servicio", service_id=servicio.id))
 
 
@@ -840,7 +1008,7 @@ def service_gallery_delete(image_id):
     service_id = img.service_id
     db.session.delete(img)
     db.session.commit()
-    flash("Foto eliminada de la galería.", "success")
+    flash("Photo removed from the gallery.", "success")
     return redirect(url_for("admin.editar_servicio", service_id=service_id))
 
 
@@ -856,7 +1024,7 @@ def service_gallery_move(image_id):
     )
     idx = next((i for i, s in enumerate(slides) if s.id == image_id), None)
     if idx is None:
-        flash("Imagen no encontrada.", "danger")
+        flash("Image not found.", "danger")
         return redirect(url_for("admin.editar_servicio", service_id=img.service_id))
     swap_with = idx - 1 if direction == "up" else idx + 1
     if 0 <= swap_with < len(slides):
@@ -877,7 +1045,7 @@ def service_gallery_toggle(image_id):
     img = ServiceGalleryImage.query.get_or_404(image_id)
     img.active = not img.active
     db.session.commit()
-    flash("Visibilidad de la foto actualizada.", "success")
+    flash("Photo visibility updated.", "success")
     return redirect(url_for("admin.editar_servicio", service_id=img.service_id))
 
 
@@ -887,7 +1055,7 @@ def service_gallery_caption(image_id):
     img = ServiceGalleryImage.query.get_or_404(image_id)
     img.caption = request.form.get("caption", "").strip() or None
     db.session.commit()
-    flash("Leyenda guardada.", "success")
+    flash("Caption saved.", "success")
     return redirect(url_for("admin.editar_servicio", service_id=img.service_id))
 
 
@@ -897,7 +1065,7 @@ def eliminar_servicio(service_id):
     servicio = Service.query.get_or_404(service_id)
     db.session.delete(servicio)
     db.session.commit()
-    flash("Servicio eliminado.", "success")
+    flash("Service deleted.", "success")
     return redirect(url_for("admin.servicios"))
 
 
@@ -928,7 +1096,7 @@ def config_correo():
             settings.smtp_app_password = new_password
 
         db.session.commit()
-        flash("Configuración de correo actualizada.", "success")
+        flash("Email settings updated.", "success")
         return redirect(url_for("admin.config_correo"))
 
     return render_template("admin/config_correo.html", settings=settings)
@@ -939,13 +1107,13 @@ def config_correo():
 def config_correo_probar():
     settings = EmailSettings.query.first()
     if not settings:
-        flash("Primero guarda la configuración de correo.", "warning")
+        flash("Save the email settings first.", "warning")
         return redirect(url_for("admin.config_correo"))
 
     ok, msg = send_test_email(settings)
     flash(
-        f"Correo de prueba enviado a {settings.notify_email or settings.smtp_email}." if ok
-        else f"No se pudo enviar el correo de prueba: {msg}",
+        f"Test email sent to {settings.notify_email or settings.smtp_email}." if ok
+        else f"Could not send the test email: {msg}",
         "success" if ok else "danger",
     )
     return redirect(url_for("admin.config_correo"))
@@ -969,7 +1137,7 @@ def editar_plantilla(key):
         tpl.subject = request.form.get("subject", "").strip()
         tpl.body = request.form.get("body", "").strip()
         db.session.commit()
-        flash(f'Plantilla "{tpl.label}" actualizada.', "success")
+        flash(f'Template "{tpl.label}" updated.', "success")
         return redirect(url_for("admin.plantillas"))
 
     return render_template(
@@ -987,7 +1155,7 @@ def superadmin_required(f):
     @login_required
     def decorated(*args, **kwargs):
         if not current_user.is_superadmin:
-            flash("No tienes permisos para acceder a esta sección.", "danger")
+            flash("You do not have permission to access this section.", "danger")
             return redirect(url_for("admin.dashboard"))
         return f(*args, **kwargs)
     return decorated
@@ -1014,18 +1182,18 @@ def nuevo_usuario():
         is_superadmin = request.form.get("is_superadmin") == "on"
 
         if not username or not password:
-            flash("El usuario y la contraseña son obligatorios.", "danger")
+            flash("Username and password are required.", "danger")
             return redirect(url_for("admin.nuevo_usuario"))
 
         if Admin.query.filter_by(username=username).first():
-            flash("Ya existe un usuario con ese nombre.", "danger")
+            flash("A user with that name already exists.", "danger")
             return redirect(url_for("admin.nuevo_usuario"))
 
         new_admin = Admin(username=username, is_superadmin=is_superadmin)
         new_admin.set_password(password)
         db.session.add(new_admin)
         db.session.commit()
-        flash(f'Usuario "{username}" creado.', "success")
+        flash(f'User "{username}" created.', "success")
         return redirect(url_for("admin.usuarios"))
 
     return render_template("admin/editar_usuario.html", admin_user=None)
@@ -1042,12 +1210,12 @@ def editar_usuario(user_id):
         new_superadmin = request.form.get("is_superadmin") == "on"
 
         if not new_username:
-            flash("El usuario es obligatorio.", "danger")
+            flash("Username is required.", "danger")
             return redirect(url_for("admin.editar_usuario", user_id=user_id))
 
         existing = Admin.query.filter_by(username=new_username).first()
         if existing and existing.id != user_id:
-            flash("Ya existe otro usuario con ese nombre.", "danger")
+            flash("Another user with that name already exists.", "danger")
             return redirect(url_for("admin.editar_usuario", user_id=user_id))
 
         admin_user.username = new_username
@@ -1057,7 +1225,7 @@ def editar_usuario(user_id):
             admin_user.set_password(new_password)
 
         db.session.commit()
-        flash(f'Usuario "{new_username}" actualizado.', "success")
+        flash(f'User "{new_username}" updated.', "success")
         return redirect(url_for("admin.usuarios"))
 
     return render_template("admin/editar_usuario.html", admin_user=admin_user)
@@ -1069,18 +1237,18 @@ def eliminar_usuario(user_id):
     admin_user = Admin.query.get_or_404(user_id)
 
     if admin_user.id == current_user.id:
-        flash("No puedes eliminarte a ti mismo.", "danger")
+        flash("You cannot delete yourself.", "danger")
         return redirect(url_for("admin.usuarios"))
 
     if admin_user.is_superadmin:
         superadmin_count = Admin.query.filter_by(is_superadmin=True).count()
         if superadmin_count <= 1:
-            flash("No puedes eliminar el último superadmin.", "danger")
+            flash("You cannot delete the last superadmin.", "danger")
             return redirect(url_for("admin.usuarios"))
 
     db.session.delete(admin_user)
     db.session.commit()
-    flash(f'Usuario "{admin_user.username}" eliminado.', "success")
+    flash(f'User "{admin_user.username}" deleted.', "success")
     return redirect(url_for("admin.usuarios"))
 
 
@@ -1090,20 +1258,20 @@ def toggle_superadmin(user_id):
     admin_user = Admin.query.get_or_404(user_id)
 
     if admin_user.id == current_user.id:
-        flash("No puedes cambiar tu propio permiso de superadmin.", "danger")
+        flash("You cannot change your own superadmin permission.", "danger")
         return redirect(url_for("admin.usuarios"))
 
     if admin_user.is_superadmin:
         superadmin_count = Admin.query.filter_by(is_superadmin=True).count()
         if superadmin_count <= 1:
-            flash("No puedes quitar superadmin al último superadmin.", "danger")
+            flash("You cannot remove superadmin from the last superadmin.", "danger")
             return redirect(url_for("admin.usuarios"))
 
     admin_user.is_superadmin = not admin_user.is_superadmin
     db.session.commit()
 
-    estado = "otorgado" if admin_user.is_superadmin else "revocado"
-    flash(f'Permiso de superadmin {estado} para "{admin_user.username}".', "success")
+    estado = "granted" if admin_user.is_superadmin else "revoked"
+    flash(f'Superadmin permission {estado} for "{admin_user.username}".', "success")
     return redirect(url_for("admin.usuarios"))
 
 
@@ -1124,7 +1292,7 @@ def config_marketing():
         settings.conversion_label = request.form.get("conversion_label", "").strip()
         settings.ga4_measurement_id = request.form.get("ga4_measurement_id", "").strip()
         db.session.commit()
-        flash("Configuración de Google Ads actualizada.", "success")
+        flash("Google Ads settings updated.", "success")
         return redirect(url_for("admin.config_marketing"))
 
     return render_template("admin/config_marketing.html", settings=settings)

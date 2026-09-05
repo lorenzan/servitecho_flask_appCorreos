@@ -39,11 +39,11 @@ def send_email(to_addr, subject, body, settings=None):
     """Low-level SMTP send. Returns (ok: bool, message: str)."""
     settings = settings or get_settings()
     if not settings or not settings.enabled:
-        return False, "El envío de correos está desactivado en Configuración de correo."
+        return False, "Email sending is disabled in Email Settings."
     if not settings.smtp_email or not settings.smtp_app_password:
-        return False, "Faltan las credenciales SMTP (correo o contraseña de aplicación)."
+        return False, "SMTP credentials are missing (email or app password)."
     if not to_addr:
-        return False, "No hay una dirección de correo destino."
+        return False, "No destination email address."
 
     try:
         msg = MIMEMultipart()
@@ -56,7 +56,7 @@ def send_email(to_addr, subject, body, settings=None):
             server.starttls()
             server.login(settings.smtp_email, settings.smtp_app_password)
             server.sendmail(settings.smtp_email, [to_addr], msg.as_string())
-        return True, "Correo enviado correctamente."
+        return True, "Email sent successfully."
     except Exception as e:
         return False, f"{type(e).__name__}: {e}"
 
@@ -116,19 +116,19 @@ def send_quote_response(quote):
     Returns (ok: bool, message: str)."""
     settings = get_settings()
     if not settings or not settings.enabled:
-        return False, "El envío de correos está desactivado en Configuración de correo."
+        return False, "Email sending is disabled in Email Settings."
     if not quote.email:
-        return False, "El cliente no proporcionó un correo electrónico."
+        return False, "The client did not provide an email address."
     tpl = get_template("respuesta_cotizacion")
     if not tpl:
-        return False, "No existe la plantilla de respuesta de cotización."
+        return False, "The quote response template does not exist."
 
     context = {
         "nombre": quote.name,
         "ubicacion": quote.location,
         "producto": quote.service_type or "—",
         "descripcion": quote.description,
-        "estado": quote.status.replace("_", " "),
+        "estado": quote.status_label,
         "respuesta": quote.client_response or "",
     }
     subject = _render(tpl.subject, context)

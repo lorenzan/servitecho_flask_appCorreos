@@ -44,6 +44,7 @@ class Service(db.Model):
     name = db.Column(db.String(150), nullable=False)
     short_description = db.Column(db.String(400))
     description = db.Column(db.Text)
+    work_methods = db.Column(db.Text)  # métodos de trabajo: un ítem por línea
     image_path = db.Column(db.String(300))  # imagen de portada / fallback del hero
     video_path = db.Column(db.String(300))  # video opcional del hero (mp4/webm)
     order = db.Column(db.Integer, default=0)
@@ -89,6 +90,12 @@ class Quote(db.Model):
     __tablename__ = "quotes"
 
     STATUS_CHOICES = ["pendiente", "en_revision", "cotizado", "rechazado"]
+    STATUS_LABELS = {
+        "pendiente": "Pending",
+        "en_revision": "In review",
+        "cotizado": "Quoted",
+        "rechazado": "Rejected",
+    }
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
@@ -108,6 +115,10 @@ class Quote(db.Model):
     images = db.relationship(
         "QuoteImage", backref="quote", cascade="all, delete-orphan", lazy=True
     )
+
+    @property
+    def status_label(self):
+        return self.STATUS_LABELS.get(self.status, self.status)
 
 
 class QuoteImage(db.Model):
@@ -203,6 +214,23 @@ class ReviewStackCard(db.Model):
     image_path = db.Column(db.String(300), nullable=False)
     caption = db.Column(db.String(80))  # título del panel al hover
     button_label = db.Column(db.String(40))  # texto del botón en el panel
+    sort_order = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class TrustCard(db.Model):
+    """Highlight cards in the 'What sets us apart' section (editable from admin)."""
+    __tablename__ = "trust_cards"
+
+    ICON_CHOICES = ("shield", "support", "install", "systems")
+
+    id = db.Column(db.Integer, primary_key=True)
+    metric = db.Column(db.String(40), nullable=False)  # e.g. +30, 24/7, 100%
+    title = db.Column(db.String(150), nullable=False)
+    body = db.Column(db.String(400))
+    icon_key = db.Column(db.String(40), default="shield")  # built-in coin SVG
+    image_path = db.Column(db.String(300))  # optional custom icon image
     sort_order = db.Column(db.Integer, default=0)
     active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

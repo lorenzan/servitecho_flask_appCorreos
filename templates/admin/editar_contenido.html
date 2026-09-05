@@ -1,6 +1,6 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Editar {{ block.label }} | Tecuns Admin{% endblock %}
-{% block page_title %}Editar: {{ block.label }}{% endblock %}
+{% block title %}Edit {{ block.label }} | Tecuns Admin{% endblock %}
+{% block page_title %}Edit: {{ block.label }}{% endblock %}
 
 {% block admin_content %}
 <div class="card-panel" style="max-width:780px;">
@@ -8,86 +8,86 @@
 
     {% if block.section_key == 'logo' %}
       <div class="form-row">
-        <label for="image">Logotipo del sitio</label>
+        <label for="image">Site logo</label>
         {% if block.image_path %}
-          <img src="{{ url_for('static', filename=block.image_path) }}" alt="Logo actual" style="max-width:200px; max-height:80px; border-radius:8px; margin-bottom:12px; background:var(--offwhite); padding:8px;">
+          <img src="{{ url_for('static', filename=block.image_path) }}" alt="Current logo" style="max-width:200px; max-height:80px; border-radius:8px; margin-bottom:12px; background:var(--offwhite); padding:8px;">
         {% else %}
-          <p class="hint" style="margin-top:0;">Aún no se ha subido un logotipo — se muestra el ícono por defecto.</p>
+          <p class="hint" style="margin-top:0;">No logo uploaded yet — the default icon is shown.</p>
         {% endif %}
         <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
-        <p class="hint">Recomendado: imagen PNG con fondo transparente, aprox. 200x60px.</p>
+        <p class="hint">Recommended: PNG with transparent background, approx. 200x60px.</p>
       </div>
     {% else %}
       <div class="form-row">
         <label for="eyebrow">
-          {% if block.section_key == 'site_info' %}Teléfono principal / WhatsApp
-          {% elif block.section_key == 'socials' %}WhatsApp (URL completa, opcional)
-          {% else %}Etiqueta / antetítulo{% endif %}
+          {% if block.section_key == 'site_info' %}Primary phone / WhatsApp
+          {% elif block.section_key == 'socials' %}WhatsApp (full URL, optional)
+          {% else %}Label / eyebrow{% endif %}
         </label>
         <input type="text" id="eyebrow" name="eyebrow" value="{{ block.eyebrow or '' }}" {% if block.section_key == 'socials' %}placeholder="https://wa.me/50369561628"{% endif %}>
-        {% if block.section_key == 'socials' %}<p class="hint">Si lo dejas vacío, se usa el teléfono de contacto automáticamente.</p>{% endif %}
+        {% if block.section_key == 'socials' %}<p class="hint">If left empty, the contact phone number is used automatically.</p>{% endif %}
       </div>
       {% if block.section_key == 'site_info' %}
       <div class="form-row">
-        <label for="image_path">Teléfono secundario (opcional)</label>
-        <input type="text" id="image_path" name="image_path" value="{{ block.image_path or '' }}" placeholder="ej. 2200-1234">
-        <p class="hint">Se mostrará junto al teléfono principal en el encabezado y pie de página.</p>
+        <label for="image_path">Secondary phone (optional)</label>
+        <input type="text" id="image_path" name="image_path" value="{{ block.image_path or '' }}" placeholder="e.g. 2200-1234">
+        <p class="hint">Shown next to the primary phone in the header and footer.</p>
       </div>
       {% endif %}
       <div class="form-row">
         <label for="title">
-          {% if block.section_key == 'site_info' %}Correo electrónico
+          {% if block.section_key == 'site_info' %}Email address
           {% elif block.section_key == 'socials' %}Facebook (URL)
-          {% else %}Título{% endif %}
+          {% else %}Title{% endif %}
         </label>
-        <input type="text" id="title" name="title" value="{{ block.title or '' }}" {% if block.section_key == 'socials' %}placeholder="https://facebook.com/tu-pagina"{% endif %}>
+        <input type="text" id="title" name="title" value="{{ block.title or '' }}" {% if block.section_key == 'socials' %}placeholder="https://facebook.com/your-page"{% endif %}>
       </div>
       <div class="form-row">
         <label for="body">
-          {% if block.section_key == 'site_info' %}Dirección
+          {% if block.section_key == 'site_info' %}Address
           {% elif block.section_key == 'socials' %}Instagram (URL)
-          {% else %}Texto / contenido{% endif %}
+          {% else %}Text / content{% endif %}
         </label>
         {% if block.section_key == 'socials' %}
-          <input type="text" id="body" name="body" value="{{ block.body or '' }}" placeholder="https://instagram.com/tu-cuenta">
+          <input type="text" id="body" name="body" value="{{ block.body or '' }}" placeholder="https://instagram.com/your-account">
         {% else %}
           <textarea id="body" name="body">{{ block.body or '' }}</textarea>
         {% endif %}
       </div>
       <div class="form-row">
         <label for="extra">
-          {% if block.section_key == 'site_info' %}Horario de atención
-          {% elif block.section_key == 'about' %}Valores (separados por coma)
-          {% elif block.section_key == 'support' %}Teléfono de soporte
-          {% elif block.section_key == 'socials' %}TikTok (URL, opcional)
-          {% else %}Texto del botón (opcional){% endif %}
+          {% if block.section_key == 'site_info' %}Business hours
+          {% elif block.section_key == 'about' %}Values (comma-separated)
+          {% elif block.section_key == 'support' %}Support phone
+          {% elif block.section_key == 'socials' %}TikTok (URL, optional)
+          {% else %}Button text (optional){% endif %}
         </label>
-        <input type="text" id="extra" name="extra" value="{{ block.extra or '' }}" {% if block.section_key == 'socials' %}placeholder="https://tiktok.com/@tu-cuenta"{% endif %}>
+        <input type="text" id="extra" name="extra" value="{{ block.extra or '' }}" {% if block.section_key == 'socials' %}placeholder="https://tiktok.com/@your-account"{% endif %}>
       </div>
 
       {% if block.section_key != 'site_info' and block.section_key != 'hero' and block.section_key != 'about' and block.section_key != 'cotizacion' and block.section_key != 'resenas' and block.section_key != 'socials' %}
       <div class="form-row">
-        <label for="image">Imagen</label>
+        <label for="image">Image</label>
         {% if block.image_path %}
           <img src="{{ url_for('static', filename=block.image_path) }}" alt="{{ block.label }}" style="max-width:220px; border-radius:8px; margin-bottom:10px;">
         {% endif %}
         <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
-        <p class="hint">Sube una nueva imagen para reemplazar la actual (opcional).</p>
+        <p class="hint">Upload a new image to replace the current one (optional).</p>
       </div>
       {% endif %}
     {% endif %}
 
-    <button type="submit" class="btn btn-rust">Guardar cambios</button>
-    <a href="{{ url_for('admin.contenido') }}" class="btn btn-outline-dark">Cancelar</a>
+    <button type="submit" class="btn btn-rust">Save changes</button>
+    <a href="{{ url_for('admin.contenido') }}" class="btn btn-outline-dark">Cancel</a>
   </form>
 </div>
 
 {% if block.section_key == 'hero' %}
 <div class="card-panel" style="max-width:780px; margin-top:8px;">
-  <h3 style="margin-top:0;">Galería del hero (3 cards animadas)</h3>
+  <h3 style="margin-top:0;">Hero gallery (3 animated cards)</h3>
   <p class="text-steel" style="margin-bottom:18px;">
-    Sube hasta {{ max_hero_slides }} imágenes. Las <strong>primeras 3 activas</strong> alimentan la animación de cards en la portada.
-    Actualmente: <strong>{{ hero_slides|length }}</strong> / {{ max_hero_slides }}.
+    Upload up to {{ max_hero_slides }} images. The <strong>first 3 active</strong> ones power the card animation on the homepage.
+    Currently: <strong>{{ hero_slides|length }}</strong> / {{ max_hero_slides }}.
   </p>
 
   {% if hero_slides %}
@@ -97,23 +97,23 @@
       <img src="{{ url_for('static', filename=slide.image_path) }}" alt="Slide {{ loop.index }}">
       <div class="hero-gallery-meta">
         <form method="POST" action="{{ url_for('admin.hero_slide_caption', slide_id=slide.id) }}" class="hero-caption-form">
-          <input type="text" name="caption" value="{{ slide.caption or '' }}" placeholder="Leyenda opcional (ej. Standing Seam)">
-          <button type="submit" class="btn btn-sm btn-outline-dark">Guardar leyenda</button>
+          <input type="text" name="caption" value="{{ slide.caption or '' }}" placeholder="Optional caption (e.g. Standing Seam)">
+          <button type="submit" class="btn btn-sm btn-outline-dark">Save caption</button>
         </form>
         <div class="hero-gallery-actions">
           <form method="POST" action="{{ url_for('admin.hero_slide_move', slide_id=slide.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="up">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move up">↑</button>
           </form>
           <form method="POST" action="{{ url_for('admin.hero_slide_move', slide_id=slide.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="down">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move down">↓</button>
           </form>
           <form method="POST" action="{{ url_for('admin.hero_slide_toggle', slide_id=slide.id) }}" class="inline-form">
-            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if slide.active else 'Mostrar' }}</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Hide' if slide.active else 'Show' }}</button>
           </form>
-          <form method="POST" action="{{ url_for('admin.hero_slide_delete', slide_id=slide.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta imagen?');">
-            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          <form method="POST" action="{{ url_for('admin.hero_slide_delete', slide_id=slide.id) }}" class="inline-form" onsubmit="return confirm('Delete this image?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
           </form>
         </div>
       </div>
@@ -121,36 +121,36 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="hint">Aún no hay imágenes en la galería. Si tenías una imagen antigua del hero, se migrará sola al reiniciar la app; también puedes subir nuevas abajo.</p>
+  <p class="hint">No images in the gallery yet. If you had an old hero image, it will migrate automatically when the app restarts; you can also upload new ones below.</p>
   {% endif %}
 
   {% if hero_slides|length < max_hero_slides %}
   <form method="POST" action="{{ url_for('admin.hero_slides_add') }}" enctype="multipart/form-data" style="margin-top:22px;">
     <div class="form-row">
-      <label for="images">Agregar imágenes</label>
+      <label for="images">Add images</label>
       <input type="file" id="images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
-      <p class="hint">Puedes seleccionar varias a la vez. Formatos: PNG, JPG, WEBP.</p>
+      <p class="hint">You can select multiple at once. Formats: PNG, JPG, WEBP.</p>
     </div>
     <div class="form-row">
-      <label for="caption">Leyenda por defecto (opcional)</label>
-      <input type="text" id="caption" name="caption" placeholder="Standing Seam · Panel 5G · Módulos">
+      <label for="caption">Default caption (optional)</label>
+      <input type="text" id="caption" name="caption" placeholder="Standing Seam · Panel 5G · Modules">
     </div>
-    <button type="submit" class="btn btn-rust">Subir a la galería</button>
+    <button type="submit" class="btn btn-rust">Upload to gallery</button>
   </form>
   {% else %}
-  <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_hero_slides }}). Elimina alguna para subir otra.</p>
+  <p class="hint" style="margin-top:16px;">Limit reached ({{ max_hero_slides }}). Delete one to upload another.</p>
   {% endif %}
 </div>
 {% endif %}
 
 {% if block.section_key == 'about' %}
 <div class="card-panel" style="max-width:780px; margin-top:8px;">
-  <h3 style="margin-top:0;">Galería 3D — Sobre nosotros</h3>
+  <h3 style="margin-top:0;">3D gallery — About us</h3>
   <p class="text-steel" style="margin-bottom:18px;">
-    Sube hasta {{ max_about_slides }} fotos de proyectos/equipo. Se muestran en el carrusel 3D del sitio.
-    Actualmente: <strong>{{ about_slides|length }}</strong> / {{ max_about_slides }}.
+    Upload up to {{ max_about_slides }} project/team photos. They appear in the site's 3D carousel.
+    Currently: <strong>{{ about_slides|length }}</strong> / {{ max_about_slides }}.
   </p>
-  <p class="hint">Los valores (Calidad, Compromiso, etc.) se editan arriba en el campo “Valores (separados por coma)”.</p>
+  <p class="hint">Values (Quality, Commitment, etc.) are edited above in the "Values (comma-separated)" field.</p>
 
   {% if about_slides %}
   <div class="hero-gallery-admin">
@@ -161,17 +161,17 @@
         <div class="hero-gallery-actions">
           <form method="POST" action="{{ url_for('admin.about_slide_move', slide_id=slide.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="up">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move up">↑</button>
           </form>
           <form method="POST" action="{{ url_for('admin.about_slide_move', slide_id=slide.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="down">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move down">↓</button>
           </form>
           <form method="POST" action="{{ url_for('admin.about_slide_toggle', slide_id=slide.id) }}" class="inline-form">
-            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if slide.active else 'Mostrar' }}</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Hide' if slide.active else 'Show' }}</button>
           </form>
-          <form method="POST" action="{{ url_for('admin.about_slide_delete', slide_id=slide.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta imagen?');">
-            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          <form method="POST" action="{{ url_for('admin.about_slide_delete', slide_id=slide.id) }}" class="inline-form" onsubmit="return confirm('Delete this image?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
           </form>
         </div>
       </div>
@@ -179,31 +179,31 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="hint">Aún no hay fotos. Si había una imagen antigua del bloque, se migrará al reiniciar la app.</p>
+  <p class="hint">No photos yet. If there was an old block image, it will migrate when the app restarts.</p>
   {% endif %}
 
   {% if about_slides|length < max_about_slides %}
   <form method="POST" action="{{ url_for('admin.about_slides_add') }}" enctype="multipart/form-data" style="margin-top:22px;">
     <div class="form-row">
-      <label for="about_images">Agregar imágenes</label>
+      <label for="about_images">Add images</label>
       <input type="file" id="about_images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
-      <p class="hint">Ideal: 6–10 fotos de obras, equipo o instalaciones.</p>
+      <p class="hint">Ideal: 6–10 photos of projects, team, or installations.</p>
     </div>
-    <button type="submit" class="btn btn-rust">Subir a la galería</button>
+    <button type="submit" class="btn btn-rust">Upload to gallery</button>
   </form>
   {% else %}
-  <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_about_slides }}).</p>
+  <p class="hint" style="margin-top:16px;">Limit reached ({{ max_about_slides }}).</p>
   {% endif %}
 </div>
 {% endif %}
 
 {% if block.section_key == 'cotizacion' %}
 <div class="card-panel" style="max-width:780px; margin-top:8px;">
-  <h3 style="margin-top:0;">Cards de cristal (página Cotización)</h3>
+  <h3 style="margin-top:0;">Glass cards (Quote page)</h3>
   <p class="text-steel" style="margin-bottom:18px;">
-    Sube hasta <strong>{{ max_quote_glass }}</strong> fotos. Se muestran en abanico glass a la derecha del título en
-    <em>/cotizacion</em>. Ideal: fotos de techos, obras o detalle de productos.
-    Actualmente: <strong>{{ quote_glass_cards|length }}</strong> / {{ max_quote_glass }}.
+    Upload up to <strong>{{ max_quote_glass }}</strong> photos. They appear as a glass fan to the right of the title on
+    <em>/cotizacion</em>. Ideal: roof, project, or product detail photos.
+    Currently: <strong>{{ quote_glass_cards|length }}</strong> / {{ max_quote_glass }}.
   </p>
 
   {% if quote_glass_cards %}
@@ -213,23 +213,23 @@
       <img src="{{ url_for('static', filename=card.image_path) }}" alt="Card {{ loop.index }}">
       <div class="hero-gallery-meta">
         <form method="POST" action="{{ url_for('admin.quote_glass_caption', card_id=card.id) }}" class="hero-caption-form">
-          <input type="text" name="caption" value="{{ card.caption or '' }}" placeholder="Texto en la card (ej. Standing Seam)" maxlength="40">
-          <button type="submit" class="btn btn-sm btn-outline-dark">Guardar texto</button>
+          <input type="text" name="caption" value="{{ card.caption or '' }}" placeholder="Text on the card (e.g. Standing Seam)" maxlength="40">
+          <button type="submit" class="btn btn-sm btn-outline-dark">Save text</button>
         </form>
         <div class="hero-gallery-actions">
           <form method="POST" action="{{ url_for('admin.quote_glass_move', card_id=card.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="up">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move up">↑</button>
           </form>
           <form method="POST" action="{{ url_for('admin.quote_glass_move', card_id=card.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="down">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move down">↓</button>
           </form>
           <form method="POST" action="{{ url_for('admin.quote_glass_toggle', card_id=card.id) }}" class="inline-form">
-            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if card.active else 'Mostrar' }}</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Hide' if card.active else 'Show' }}</button>
           </form>
-          <form method="POST" action="{{ url_for('admin.quote_glass_delete', card_id=card.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta imagen?');">
-            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          <form method="POST" action="{{ url_for('admin.quote_glass_delete', card_id=card.id) }}" class="inline-form" onsubmit="return confirm('Delete this image?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
           </form>
         </div>
       </div>
@@ -237,35 +237,35 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="hint">Aún no hay imágenes. Sube 3 fotos para activar el efecto glass en cotización.</p>
+  <p class="hint">No images yet. Upload 3 photos to enable the glass effect on the quote page.</p>
   {% endif %}
 
   {% if quote_glass_cards|length < max_quote_glass %}
   <form method="POST" action="{{ url_for('admin.quote_glass_add') }}" enctype="multipart/form-data" style="margin-top:22px;">
     <div class="form-row">
-      <label for="quote_glass_images">Agregar imágenes</label>
+      <label for="quote_glass_images">Add images</label>
       <input type="file" id="quote_glass_images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
-      <p class="hint">Máximo {{ max_quote_glass }} en total. Formatos: PNG, JPG, WEBP.</p>
+      <p class="hint">Maximum {{ max_quote_glass }} total. Formats: PNG, JPG, WEBP.</p>
     </div>
     <div class="form-row">
-      <label for="quote_glass_caption">Texto por defecto (opcional)</label>
-      <input type="text" id="quote_glass_caption" name="caption" placeholder="Proyecto · Techo · Instalación" maxlength="40">
+      <label for="quote_glass_caption">Default text (optional)</label>
+      <input type="text" id="quote_glass_caption" name="caption" placeholder="Project · Roof · Installation" maxlength="40">
     </div>
-    <button type="submit" class="btn btn-rust">Subir a las cards</button>
+    <button type="submit" class="btn btn-rust">Upload to cards</button>
   </form>
   {% else %}
-  <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_quote_glass }}). Elimina alguna para subir otra.</p>
+  <p class="hint" style="margin-top:16px;">Limit reached ({{ max_quote_glass }}). Delete one to upload another.</p>
   {% endif %}
 </div>
 {% endif %}
 
 {% if block.section_key == 'resenas' %}
 <div class="card-panel" style="max-width:780px; margin-top:8px;">
-  <h3 style="margin-top:0;">Cards apiladas (página Reseñas)</h3>
+  <h3 style="margin-top:0;">Stacked cards (Reviews page)</h3>
   <p class="text-steel" style="margin-bottom:18px;">
-    Sube hasta <strong>{{ max_review_stack }}</strong> fotos. Se muestran apiladas a la derecha del título en
-    <em>/resenas</em>. Al pasar el mouse se abren con título y botón.
-    Actualmente: <strong>{{ review_stack_cards|length }}</strong> / {{ max_review_stack }}.
+    Upload up to <strong>{{ max_review_stack }}</strong> photos. They appear stacked to the right of the title on
+    <em>/resenas</em>. On hover they open with a title and button.
+    Currently: <strong>{{ review_stack_cards|length }}</strong> / {{ max_review_stack }}.
   </p>
 
   {% if review_stack_cards %}
@@ -275,23 +275,23 @@
       <img src="{{ url_for('static', filename=card.image_path) }}" alt="Stack {{ loop.index }}">
       <div class="hero-gallery-meta">
         <form method="POST" action="{{ url_for('admin.review_stack_caption', card_id=card.id) }}" class="hero-caption-form">
-          <input type="text" name="caption" value="{{ card.caption or '' }}" placeholder="Título (ej. Proyecto residencial)" maxlength="40">
-          <button type="submit" class="btn btn-sm btn-outline-dark">Guardar título</button>
+          <input type="text" name="caption" value="{{ card.caption or '' }}" placeholder="Title (e.g. Residential project)" maxlength="40">
+          <button type="submit" class="btn btn-sm btn-outline-dark">Save title</button>
         </form>
         <div class="hero-gallery-actions">
           <form method="POST" action="{{ url_for('admin.review_stack_move', card_id=card.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="up">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move up">↑</button>
           </form>
           <form method="POST" action="{{ url_for('admin.review_stack_move', card_id=card.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="down">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move down">↓</button>
           </form>
           <form method="POST" action="{{ url_for('admin.review_stack_toggle', card_id=card.id) }}" class="inline-form">
-            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if card.active else 'Mostrar' }}</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Hide' if card.active else 'Show' }}</button>
           </form>
-          <form method="POST" action="{{ url_for('admin.review_stack_delete', card_id=card.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta imagen?');">
-            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          <form method="POST" action="{{ url_for('admin.review_stack_delete', card_id=card.id) }}" class="inline-form" onsubmit="return confirm('Delete this image?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
           </form>
         </div>
       </div>
@@ -299,24 +299,134 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="hint">Aún no hay imágenes. Sube 3 fotos para activar el stack en reseñas.</p>
+  <p class="hint">No images yet. Upload 3 photos to enable the stack on the reviews page.</p>
   {% endif %}
 
   {% if review_stack_cards|length < max_review_stack %}
   <form method="POST" action="{{ url_for('admin.review_stack_add') }}" enctype="multipart/form-data" style="margin-top:22px;">
     <div class="form-row">
-      <label for="review_stack_images">Agregar imágenes</label>
+      <label for="review_stack_images">Add images</label>
       <input type="file" id="review_stack_images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
-      <p class="hint">Máximo {{ max_review_stack }} en total. Formatos: PNG, JPG, WEBP.</p>
+      <p class="hint">Maximum {{ max_review_stack }} total. Formats: PNG, JPG, WEBP.</p>
     </div>
     <div class="form-row">
-      <label for="review_stack_caption">Título por defecto (opcional)</label>
-      <input type="text" id="review_stack_caption" name="caption" placeholder="Proyecto · Cliente · Obra" maxlength="40">
+      <label for="review_stack_caption">Default title (optional)</label>
+      <input type="text" id="review_stack_caption" name="caption" placeholder="Project · Client · Job" maxlength="40">
     </div>
-    <button type="submit" class="btn btn-rust">Subir a las cards</button>
+    <button type="submit" class="btn btn-rust">Upload to cards</button>
   </form>
   {% else %}
-  <p class="hint" style="margin-top:16px;">Límite alcanzado ({{ max_review_stack }}). Elimina alguna para subir otra.</p>
+  <p class="hint" style="margin-top:16px;">Limit reached ({{ max_review_stack }}). Delete one to upload another.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if block.section_key == 'why_us' %}
+<div class="card-panel" style="max-width:780px; margin-top:8px;">
+  <h3 style="margin-top:0;">Highlight cards</h3>
+  <p class="text-steel" style="margin-bottom:18px;">
+    These are the four (or more) cards with metric, title and description on the homepage
+    (“What sets us apart”). Currently: <strong>{{ trust_cards|length }}</strong> / {{ max_trust_cards }}.
+  </p>
+
+  {% if trust_cards %}
+  <div class="trust-admin-list">
+    {% for card in trust_cards %}
+    <div class="trust-admin-item {{ '' if card.active else 'is-hidden' }}" style="border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:14px; background:{{ 'transparent' if card.active else 'rgba(0,0,0,.04)' }};">
+      <form method="POST" action="{{ url_for('admin.trust_card_save', card_id=card.id) }}" enctype="multipart/form-data">
+        <div class="form-grid-2">
+          <div class="form-row" style="margin-bottom:10px;">
+            <label>Metric (large number)</label>
+            <input type="text" name="metric" value="{{ card.metric }}" required placeholder="+30">
+          </div>
+          <div class="form-row" style="margin-bottom:10px;">
+            <label>Built-in icon</label>
+            <select name="icon_key">
+              {% for key in trust_icon_choices %}
+              <option value="{{ key }}" {% if card.icon_key == key %}selected{% endif %}>{{ key|capitalize }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:10px;">
+          <label>Title</label>
+          <input type="text" name="title" value="{{ card.title }}" required>
+        </div>
+        <div class="form-row" style="margin-bottom:10px;">
+          <label>Description</label>
+          <textarea name="body" style="min-height:70px;">{{ card.body or '' }}</textarea>
+        </div>
+        <div class="form-row" style="margin-bottom:10px;">
+          <label>Custom icon image (optional)</label>
+          {% if card.image_path %}
+          <img src="{{ url_for('static', filename=card.image_path) }}" alt="" style="max-width:56px; max-height:56px; border-radius:50%; margin-bottom:8px; background:#1a1410;">
+          <label style="display:flex; align-items:center; gap:8px; text-transform:none; font-family:var(--font-body); margin-bottom:8px;">
+            <input type="checkbox" name="remove_image" style="width:auto;">
+            Remove custom icon (use built-in)
+          </label>
+          {% endif %}
+          <input type="file" name="image" accept="image/png,image/jpeg,image/webp">
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+          <button type="submit" class="btn btn-rust btn-sm">Save card</button>
+        </div>
+      </form>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px;">
+          <form method="POST" action="{{ url_for('admin.trust_card_move', card_id=card.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="up">
+            <button type="submit" class="btn btn-outline-dark btn-sm">↑</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.trust_card_move', card_id=card.id) }}" class="inline-form">
+            <input type="hidden" name="direction" value="down">
+            <button type="submit" class="btn btn-outline-dark btn-sm">↓</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.trust_card_toggle', card_id=card.id) }}" class="inline-form">
+            <button type="submit" class="btn btn-outline-dark btn-sm">{{ 'Hide' if card.active else 'Show' }}</button>
+          </form>
+          <form method="POST" action="{{ url_for('admin.trust_card_delete', card_id=card.id) }}" class="inline-form" onsubmit="return confirm('Delete this highlight card?');">
+            <button type="submit" class="btn btn-outline-dark btn-sm">Delete</button>
+          </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="hint">No highlight cards yet. Add the first one below.</p>
+  {% endif %}
+
+  {% if trust_cards|length < max_trust_cards %}
+  <form method="POST" action="{{ url_for('admin.trust_card_add') }}" enctype="multipart/form-data" style="margin-top:22px; border-top:1px solid var(--line); padding-top:18px;">
+    <h4 style="margin-top:0;">Add highlight card</h4>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label for="metric">Metric</label>
+        <input type="text" id="metric" name="metric" required placeholder="+30">
+      </div>
+      <div class="form-row">
+        <label for="icon_key">Built-in icon</label>
+        <select id="icon_key" name="icon_key">
+          {% for key in trust_icon_choices %}
+          <option value="{{ key }}">{{ key|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" required placeholder="Years of Standing Seam warranty">
+    </div>
+    <div class="form-row">
+      <label for="body">Description</label>
+      <textarea id="body" name="body" style="min-height:70px;" placeholder="Short supporting text"></textarea>
+    </div>
+    <div class="form-row">
+      <label for="image">Custom icon (optional)</label>
+      <input type="file" id="image" name="image" accept="image/png,image/jpeg,image/webp">
+    </div>
+    <button type="submit" class="btn btn-rust">Add card</button>
+  </form>
+  {% else %}
+  <p class="hint" style="margin-top:16px;">Limit reached ({{ max_trust_cards }}). Delete one to add another.</p>
   {% endif %}
 </div>
 {% endif %}

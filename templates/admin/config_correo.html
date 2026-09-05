@@ -1,74 +1,74 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Configuración de correo | Tecuns Admin{% endblock %}
-{% block page_title %}Configuración de correo{% endblock %}
+{% block title %}Email settings | Tecuns Admin{% endblock %}
+{% block page_title %}Email settings{% endblock %}
 
 {% block admin_content %}
 <div class="card-panel" style="max-width:720px;">
   <div class="alert alert-info">
-    <strong>¿Cómo obtengo la contraseña de aplicación de Gmail?</strong><br>
-    Gmail no usa una "API key" tradicional para enviar correos por este método — usa una
-    <strong>contraseña de aplicación</strong>. Pasos: 1) Activa la verificación en 2 pasos en tu cuenta de Google
-    (myaccount.google.com/security). 2) Ve a <strong>myaccount.google.com/apppasswords</strong>. 3) Crea una nueva
-    contraseña de aplicación (elige "Otra" y ponle un nombre como "Tecuns Roofing Web"). 4) Copia el código de 16
-    caracteres que te da Google y pégalo abajo en "Contraseña de aplicación" — no es la contraseña normal de tu
-    cuenta de Gmail.
+    <strong>How do I get a Gmail app password?</strong><br>
+    Gmail does not use a traditional "API key" for sending email this way — it uses an
+    <strong>app password</strong>. Steps: 1) Turn on 2-step verification on your Google account
+    (myaccount.google.com/security). 2) Go to <strong>myaccount.google.com/apppasswords</strong>. 3) Create a new
+    app password (choose "Other" and name it something like "Tecuns Roofing Web"). 4) Copy the 16-character
+    code Google gives you and paste it below under "App password" — it is not your normal
+    Gmail account password.
   </div>
 
   <form method="POST" action="{{ url_for('admin.config_correo') }}">
     <div class="form-row">
       <label style="display:flex; align-items:center; gap:8px; text-transform:none; font-family:var(--font-body);">
         <input type="checkbox" name="enabled" style="width:auto;" {% if settings.enabled %}checked{% endif %}>
-        Activar el envío de correos (notificaciones y respuestas)
+        Enable email sending (notifications and replies)
       </label>
     </div>
 
     <div class="form-grid-2">
       <div class="form-row">
-        <label for="smtp_email">Correo de Gmail que envía los mensajes</label>
-        <input type="text" id="smtp_email" name="smtp_email" value="{{ settings.smtp_email or '' }}" placeholder="tunegocio@gmail.com">
+        <label for="smtp_email">Gmail address that sends messages</label>
+        <input type="text" id="smtp_email" name="smtp_email" value="{{ settings.smtp_email or '' }}" placeholder="yourbusiness@gmail.com">
       </div>
       <div class="form-row">
-        <label for="smtp_app_password">Contraseña de aplicación de Gmail</label>
-        <input type="password" id="smtp_app_password" name="smtp_app_password" placeholder="{% if settings.smtp_app_password %}•••••••••••••••• (dejar en blanco para no cambiar){% else %}xxxx xxxx xxxx xxxx{% endif %}">
+        <label for="smtp_app_password">Gmail app password</label>
+        <input type="password" id="smtp_app_password" name="smtp_app_password" placeholder="{% if settings.smtp_app_password %}•••••••••••••••• (leave blank to keep current){% else %}xxxx xxxx xxxx xxxx{% endif %}">
       </div>
     </div>
 
     <div class="form-grid-2">
       <div class="form-row">
-        <label for="sender_name">Nombre del remitente</label>
+        <label for="sender_name">Sender name</label>
         <input type="text" id="sender_name" name="sender_name" value="{{ settings.sender_name or 'Tecuns Roofing' }}">
       </div>
       <div class="form-row">
-        <label for="notify_email">Correo donde recibirás las notificaciones</label>
+        <label for="notify_email">Email where you receive notifications</label>
         <input type="text" id="notify_email" name="notify_email" value="{{ settings.notify_email or '' }}" placeholder="admin@tecunsroofing.com">
-        <p class="hint mb-0">Aquí llegará el aviso cada vez que se reciba una nueva reseña o cotización.</p>
+        <p class="hint mb-0">You will get an alert here whenever a new review or quote is submitted.</p>
       </div>
     </div>
 
     <details style="margin-bottom:20px;">
-      <summary style="cursor:pointer; font-family:var(--font-display); font-weight:600; font-size:.9rem; color:var(--steel);">Configuración SMTP avanzada (opcional)</summary>
+      <summary style="cursor:pointer; font-family:var(--font-display); font-weight:600; font-size:.9rem; color:var(--steel);">Advanced SMTP settings (optional)</summary>
       <div class="form-grid-2" style="margin-top:16px;">
         <div class="form-row">
-          <label for="smtp_host">Servidor SMTP</label>
+          <label for="smtp_host">SMTP server</label>
           <input type="text" id="smtp_host" name="smtp_host" value="{{ settings.smtp_host or 'smtp.gmail.com' }}">
         </div>
         <div class="form-row">
-          <label for="smtp_port">Puerto</label>
+          <label for="smtp_port">Port</label>
           <input type="number" id="smtp_port" name="smtp_port" value="{{ settings.smtp_port or 587 }}">
         </div>
       </div>
-      <p class="hint">Solo cambia esto si usarás un proveedor de correo distinto a Gmail.</p>
+      <p class="hint">Only change this if you will use an email provider other than Gmail.</p>
     </details>
 
-    <button type="submit" class="btn btn-rust">Guardar configuración</button>
+    <button type="submit" class="btn btn-rust">Save settings</button>
   </form>
 </div>
 
 <div class="card-panel" style="max-width:720px;">
-  <h3 style="text-transform:none; font-size:1rem;">Probar el envío de correo</h3>
-  <p class="text-steel">Envía un correo de prueba a <strong>{{ settings.notify_email or settings.smtp_email or 'tu correo configurado' }}</strong> para confirmar que la configuración funciona.</p>
+  <h3 style="text-transform:none; font-size:1rem;">Test email sending</h3>
+  <p class="text-steel">Send a test email to <strong>{{ settings.notify_email or settings.smtp_email or 'your configured email' }}</strong> to confirm the settings work.</p>
   <form method="POST" action="{{ url_for('admin.config_correo_probar') }}">
-    <button type="submit" class="btn btn-outline-dark">Enviar correo de prueba</button>
+    <button type="submit" class="btn btn-outline-dark">Send test email</button>
   </form>
 </div>
 {% endblock %}

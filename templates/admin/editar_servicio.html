@@ -1,6 +1,6 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}{{ 'Editar' if servicio else 'Nuevo' }} producto | Tecuns Admin{% endblock %}
-{% block page_title %}{{ 'Editar producto' if servicio else 'Nuevo producto' }}{% endblock %}
+{% block title %}{{ 'Edit' if servicio else 'New' }} product | Tecuns Admin{% endblock %}
+{% block page_title %}{{ 'Edit product' if servicio else 'New product' }}{% endblock %}
 
 {% block admin_content %}
 <div class="card-panel" style="max-width:820px;">
@@ -9,70 +9,76 @@
         enctype="multipart/form-data">
     <div class="form-grid-2">
       <div class="form-row">
-        <label for="name">Nombre del producto</label>
+        <label for="name">Product name</label>
         <input type="text" id="name" name="name" value="{{ servicio.name if servicio else '' }}" required>
       </div>
       <div class="form-row">
         <label for="slug">Slug (URL)</label>
-        <input type="text" id="slug" name="slug" value="{{ servicio.slug if servicio else '' }}" placeholder="ej. instalacion-de-techos" required>
+        <input type="text" id="slug" name="slug" value="{{ servicio.slug if servicio else '' }}" placeholder="e.g. roof-installation" required>
       </div>
     </div>
 
     <div class="form-row">
-      <label for="short_description">Descripción corta</label>
+      <label for="short_description">Short description</label>
       <textarea id="short_description" name="short_description" style="min-height:80px;">{{ servicio.short_description if servicio else '' }}</textarea>
     </div>
 
     <div class="form-row">
-      <label for="description">Descripción completa</label>
+      <label for="description">Full description</label>
       <textarea id="description" name="description">{{ servicio.description if servicio else '' }}</textarea>
     </div>
 
     <div class="form-row">
-      <label for="image">Imagen de portada (hero / cards)</label>
+      <label for="work_methods">Work method (extra description)</label>
+      <textarea id="work_methods" name="work_methods" style="min-height:140px;" placeholder="Describe how this service is performed. You can use paragraphs separated by a blank line.">{{ servicio.work_methods if servicio and servicio.work_methods else '' }}</textarea>
+      <p class="hint">Free-form text visitors see when they click the <strong>Work method</strong> button on the product page. Separate paragraphs with a blank line.</p>
+    </div>
+
+    <div class="form-row">
+      <label for="image">Cover image (hero / cards)</label>
       {% if servicio and servicio.image_path %}
         <img src="{{ url_for('static', filename=servicio.image_path) }}" alt="{{ servicio.name }}" style="max-width:220px; border-radius:8px; margin-bottom:10px;">
       {% endif %}
       <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
-      <p class="hint">Se usa como fondo del hero si no hay video, y en el listado de productos.</p>
+      <p class="hint">Used as the hero background when there is no video, and in the product listing.</p>
     </div>
 
     <div class="form-row">
-      <label for="video">Video del hero (opcional)</label>
+      <label for="video">Hero video (optional)</label>
       {% if servicio and servicio.video_path %}
         <video src="{{ url_for('static', filename=servicio.video_path) }}" controls muted playsinline style="max-width:320px; border-radius:8px; margin-bottom:10px; background:#111;"></video>
         <label style="display:flex; align-items:center; gap:8px; text-transform:none; font-family:var(--font-body); margin-bottom:10px;">
           <input type="checkbox" name="remove_video" style="width:auto;">
-          Quitar video actual (volver a usar solo la imagen)
+          Remove current video (use image only)
         </label>
       {% endif %}
       <input type="file" id="video" name="video" accept="video/mp4,video/webm,video/quicktime">
-      <p class="hint">Formatos: MP4, WebM o MOV. Máx. ~64 MB. Si subes un video, se reproduce en el hero (con la imagen como respaldo).</p>
+      <p class="hint">Formats: MP4, WebM, or MOV. Max ~64 MB. If you upload a video, it plays in the hero (with the image as fallback).</p>
     </div>
 
     <div class="form-grid-2">
       <div class="form-row">
-        <label for="order">Orden de aparición</label>
+        <label for="order">Display order</label>
         <input type="number" id="order" name="order" value="{{ servicio.order if servicio else 0 }}">
       </div>
       <div class="form-row">
         <label style="display:flex; align-items:center; gap:8px; text-transform:none; font-family:var(--font-body); margin-top:10px;">
           <input type="checkbox" name="active" style="width:auto;" {% if not servicio or servicio.active %}checked{% endif %}>
-          Visible en el sitio público
+          Visible on the public site
         </label>
       </div>
     </div>
 
-    <button type="submit" class="btn btn-rust">Guardar producto</button>
-    <a href="{{ url_for('admin.servicios') }}" class="btn btn-outline-dark">Cancelar</a>
+    <button type="submit" class="btn btn-rust">Save product</button>
+    <a href="{{ url_for('admin.servicios') }}" class="btn btn-outline-dark">Cancel</a>
   </form>
 </div>
 
 {% if servicio %}
 <div class="card-panel" style="max-width:820px; margin-top:8px;">
-  <h3 style="margin-top:0;">Galería de fotos del servicio</h3>
+  <h3 style="margin-top:0;">Service photo gallery</h3>
   <p class="text-steel" style="margin-bottom:18px;">
-    Fotos propias de este servicio (hasta {{ max_gallery }}). Actualmente:
+    Photos for this service (up to {{ max_gallery }}). Currently:
     <strong>{{ gallery|length }}</strong> / {{ max_gallery }}.
   </p>
 
@@ -80,26 +86,26 @@
   <div class="hero-gallery-admin">
     {% for slide in gallery %}
     <div class="hero-gallery-item {{ '' if slide.active else 'is-hidden' }}">
-      <img src="{{ url_for('static', filename=slide.image_path) }}" alt="Foto {{ loop.index }}">
+      <img src="{{ url_for('static', filename=slide.image_path) }}" alt="Photo {{ loop.index }}">
       <div class="hero-gallery-meta">
         <form method="POST" action="{{ url_for('admin.service_gallery_caption', image_id=slide.id) }}" class="hero-caption-form">
-          <input type="text" name="caption" value="{{ slide.caption or '' }}" placeholder="Leyenda opcional">
-          <button type="submit" class="btn btn-sm btn-outline-dark">Guardar leyenda</button>
+          <input type="text" name="caption" value="{{ slide.caption or '' }}" placeholder="Optional caption">
+          <button type="submit" class="btn btn-sm btn-outline-dark">Save caption</button>
         </form>
         <div class="hero-gallery-actions">
           <form method="POST" action="{{ url_for('admin.service_gallery_move', image_id=slide.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="up">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Subir">↑</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move up">↑</button>
           </form>
           <form method="POST" action="{{ url_for('admin.service_gallery_move', image_id=slide.id) }}" class="inline-form">
             <input type="hidden" name="direction" value="down">
-            <button type="submit" class="btn btn-sm btn-outline-dark" title="Bajar">↓</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark" title="Move down">↓</button>
           </form>
           <form method="POST" action="{{ url_for('admin.service_gallery_toggle', image_id=slide.id) }}" class="inline-form">
-            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Ocultar' if slide.active else 'Mostrar' }}</button>
+            <button type="submit" class="btn btn-sm btn-outline-dark">{{ 'Hide' if slide.active else 'Show' }}</button>
           </form>
-          <form method="POST" action="{{ url_for('admin.service_gallery_delete', image_id=slide.id) }}" class="inline-form" onsubmit="return confirm('¿Eliminar esta foto?');">
-            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          <form method="POST" action="{{ url_for('admin.service_gallery_delete', image_id=slide.id) }}" class="inline-form" onsubmit="return confirm('Delete this photo?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
           </form>
         </div>
       </div>
@@ -107,28 +113,28 @@
     {% endfor %}
   </div>
   {% else %}
-  <p class="hint">Aún no hay fotos en la galería de este servicio.</p>
+  <p class="hint">No photos in this service gallery yet.</p>
   {% endif %}
 
   {% if gallery|length < max_gallery %}
   <form method="POST" action="{{ url_for('admin.service_gallery_add', service_id=servicio.id) }}" enctype="multipart/form-data" style="margin-top:18px;">
     <div class="form-row">
-      <label for="gallery_images">Agregar fotos</label>
+      <label for="gallery_images">Add photos</label>
       <input type="file" id="gallery_images" name="images" accept="image/png, image/jpeg, image/webp" multiple>
     </div>
     <div class="form-row">
-      <label for="gallery_caption">Leyenda (opcional, se aplica a las nuevas)</label>
-      <input type="text" id="gallery_caption" name="caption" placeholder="ej. Obra residencial">
+      <label for="gallery_caption">Caption (optional, applied to new uploads)</label>
+      <input type="text" id="gallery_caption" name="caption" placeholder="e.g. Residential project">
     </div>
-    <button type="submit" class="btn btn-rust">Subir a la galería</button>
+    <button type="submit" class="btn btn-rust">Upload to gallery</button>
   </form>
   {% else %}
-  <p class="hint">Llegaste al máximo de {{ max_gallery }} fotos. Elimina alguna para agregar más.</p>
+  <p class="hint">You have reached the maximum of {{ max_gallery }} photos. Delete some to add more.</p>
   {% endif %}
 </div>
 {% else %}
 <div class="card-panel" style="max-width:820px; margin-top:8px;">
-  <p class="hint" style="margin:0;">Guarda el producto primero para poder subir la galería de fotos.</p>
+  <p class="hint" style="margin:0;">Save the product first to upload the photo gallery.</p>
 </div>
 {% endif %}
 {% endblock %}

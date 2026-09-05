@@ -1,29 +1,31 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Contenido del sitio | Tecuns Admin{% endblock %}
-{% block page_title %}Contenido del sitio{% endblock %}
+{% block title %}Site content | Tecuns Admin{% endblock %}
+{% block page_title %}Site content{% endblock %}
 
 {% block admin_content %}
-<p class="text-steel">Edita los textos e imágenes de cada sección. Hero, Sobre nosotros, Cotización y Reseñas incluyen <strong>galerías</strong> editables.</p>
+<p class="text-steel">Edit the text and images for each section. Hero, About us, Quote, Reviews, and What Sets Us Apart include editable <strong>galleries / cards</strong>.</p>
 <div class="content-block-grid">
   {% for b in blocks %}
   <div class="content-block-card">
     {% if b.section_key == 'hero' and hero_slides_count %}
-      <div class="content-block-badge">Galería: {{ hero_slides_count }} foto{{ 's' if hero_slides_count != 1 else '' }}</div>
+      <div class="content-block-badge">Gallery: {{ hero_slides_count }} photo{{ 's' if hero_slides_count != 1 else '' }}</div>
     {% elif b.section_key == 'about' and about_slides_count %}
-      <div class="content-block-badge">Galería 3D: {{ about_slides_count }} foto{{ 's' if about_slides_count != 1 else '' }}</div>
+      <div class="content-block-badge">3D gallery: {{ about_slides_count }} photo{{ 's' if about_slides_count != 1 else '' }}</div>
     {% elif b.section_key == 'cotizacion' and quote_glass_count %}
-      <div class="content-block-badge">Cards glass: {{ quote_glass_count }} foto{{ 's' if quote_glass_count != 1 else '' }}</div>
+      <div class="content-block-badge">Glass cards: {{ quote_glass_count }} photo{{ 's' if quote_glass_count != 1 else '' }}</div>
     {% elif b.section_key == 'resenas' and review_stack_count %}
-      <div class="content-block-badge">Cards stack: {{ review_stack_count }} foto{{ 's' if review_stack_count != 1 else '' }}</div>
+      <div class="content-block-badge">Stack cards: {{ review_stack_count }} photo{{ 's' if review_stack_count != 1 else '' }}</div>
+    {% elif b.section_key == 'why_us' and trust_cards_count %}
+      <div class="content-block-badge">Highlight cards: {{ trust_cards_count }}</div>
     {% endif %}
     {% if b.image_path and b.section_key != 'site_info' %}
       <img src="{{ url_for('static', filename=b.image_path) }}" alt="{{ b.label }}">
     {% else %}
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='100%25' height='100%25' fill='%23242B2F'/%3E%3C/svg%3E" alt="Sin imagen">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='100%25' height='100%25' fill='%23242B2F'/%3E%3C/svg%3E" alt="No image">
     {% endif %}
     <h3>{{ b.label }}</h3>
-    <p>{{ (b.title or b.body or 'Sin contenido')[:80] }}...</p>
-    <a class="link" href="{{ url_for('admin.editar_contenido', section_key=b.section_key) }}">Editar →</a>
+    <p>{{ (b.title or b.body or 'No content')[:80] }}...</p>
+    <a class="link" href="{{ url_for('admin.editar_contenido', section_key=b.section_key) }}">Edit →</a>
   </div>
   {% endfor %}
 </div>

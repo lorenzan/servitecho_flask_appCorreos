@@ -1,19 +1,19 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Reseñas | Tecuns Admin{% endblock %}
-{% block page_title %}Gestión de reseñas{% endblock %}
+{% block title %}Reviews | Tecuns Admin{% endblock %}
+{% block page_title %}Review management{% endblock %}
 
 {% block admin_content %}
 <div class="filter-tabs">
-  <a href="{{ url_for('admin.resenas', filtro='todas') }}" class="{{ 'active' if filtro == 'todas' }}">Todas</a>
-  <a href="{{ url_for('admin.resenas', filtro='pendientes') }}" class="{{ 'active' if filtro == 'pendientes' }}">Pendientes</a>
-  <a href="{{ url_for('admin.resenas', filtro='aprobadas') }}" class="{{ 'active' if filtro == 'aprobadas' }}">Publicadas</a>
+  <a href="{{ url_for('admin.resenas', filtro='todas') }}" class="{{ 'active' if filtro == 'todas' }}">All</a>
+  <a href="{{ url_for('admin.resenas', filtro='pendientes') }}" class="{{ 'active' if filtro == 'pendientes' }}">Pending</a>
+  <a href="{{ url_for('admin.resenas', filtro='aprobadas') }}" class="{{ 'active' if filtro == 'aprobadas' }}">Published</a>
 </div>
 
 <div class="card-panel">
   {% if reviews %}
     <table class="admin-table">
       <thead>
-        <tr><th>Cliente</th><th>Calificación</th><th>Comentario</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr>
+        <tr><th>Customer</th><th>Rating</th><th>Comment</th><th>Date</th><th>Status</th><th>Actions</th></tr>
       </thead>
       <tbody>
         {% for r in reviews %}
@@ -24,27 +24,27 @@
           <td>{{ r.created_at.strftime('%d/%m/%Y') }}</td>
           <td>
             {% if r.approved %}
-              <span class="badge badge-cotizado">Publicada</span>
+              <span class="badge badge-cotizado">Published</span>
             {% else %}
-              <span class="badge badge-pendiente">Pendiente</span>
+              <span class="badge badge-pendiente">Pending</span>
             {% endif %}
             {% if r.featured %}
-              <span class="badge badge-en_revision" style="margin-left:4px;">Destacada</span>
+              <span class="badge badge-en_revision" style="margin-left:4px;">Featured</span>
             {% endif %}
           </td>
           <td>
             {% if not r.approved %}
               <form class="inline-form" method="POST" action="{{ url_for('admin.aprobar_resena', review_id=r.id) }}">
-                <button class="btn btn-rust btn-sm" type="submit">Aprobar</button>
+                <button class="btn btn-rust btn-sm" type="submit">Approve</button>
               </form>
             {% else %}
               <form class="inline-form" method="POST" action="{{ url_for('admin.rechazar_resena', review_id=r.id) }}">
-                <button class="btn btn-outline-dark btn-sm" type="submit">Ocultar</button>
+                <button class="btn btn-outline-dark btn-sm" type="submit">Hide</button>
               </form>
             {% endif %}
-            <a class="btn btn-outline-dark btn-sm" href="{{ url_for('admin.editar_resena', review_id=r.id) }}">Editar</a>
-            <form class="inline-form" method="POST" action="{{ url_for('admin.eliminar_resena', review_id=r.id) }}" onsubmit="return confirm('¿Eliminar esta reseña permanentemente?');">
-              <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+            <a class="btn btn-outline-dark btn-sm" href="{{ url_for('admin.editar_resena', review_id=r.id) }}">Edit</a>
+            <form class="inline-form" method="POST" action="{{ url_for('admin.eliminar_resena', review_id=r.id) }}" onsubmit="return confirm('Permanently delete this review?');">
+              <button class="btn btn-danger btn-sm" type="submit">Delete</button>
             </form>
           </td>
         </tr>
@@ -52,7 +52,7 @@
       </tbody>
     </table>
   {% else %}
-    <p class="text-steel mb-0">No hay reseñas en esta categoría.</p>
+    <p class="text-steel mb-0">No reviews in this category.</p>
   {% endif %}
 </div>
 {% endblock %}

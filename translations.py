@@ -12,10 +12,11 @@ Usage:
   - Active language:            g.lang  ('es' | 'en')
 """
 import json
+import logging
 import os
 import threading
 
-from flask import g, request
+from flask import current_app, g, request
 
 try:
     from deep_translator import GoogleTranslator
@@ -38,8 +39,9 @@ BLOCK_FIELDS = {
     "support": ["eyebrow", "title", "body"],
     "why_us": ["eyebrow", "title", "body"],
 }
-SERVICE_FIELDS = ("name", "short_description", "description")
+SERVICE_FIELDS = ("name", "short_description", "description", "work_methods")
 REVIEW_FIELDS = ("comment",)
+TRUST_CARD_FIELDS = ("title", "body")
 
 # Fixed texts from public templates. Preloaded at startup so that
 # the first Spanish-speaking visitor doesn't wait for translations.
@@ -51,7 +53,7 @@ _STATIC_STRINGS = [
     "View products", "View details",
     "View all / leave a review", "Leave a review", "Back to home",
     "View reviews", "Admin access", "Services", "Contact", "Social media",
-    "All rights reserved.", "Modules", "Open menu",
+    "All rights reserved.", "Modules", "Open menu", "More", "More products", "Main menu",
     "Language", "Spanish", "English",
     # Home
     "Roofs, Facades and Prefabricated Modules",
@@ -126,6 +128,8 @@ _STATIC_STRINGS = [
     "Gallery", "Projects of this service",
     "Real photos of projects completed by Tecun's Roofing.",
     "Continue viewing",
+    "Work methods", "Work method", "Our work method",
+    "How we carry out this service, step by step.",
     "Enlarge photo", "Close", "Previous", "Next",
     # Thanks
     "Request sent", "Request received",
@@ -191,7 +195,7 @@ def detect_lang():
     accept = request.headers.get("Accept-Language", "")
     primary = accept.split(",")[0].strip().lower()
     code = primary.split(";")[0].split("-")[0].strip()
-    return EN if code == EN else DEFAULT
+    return ES if code == ES else EN
 
 
 def _enabled():
@@ -250,15 +254,34 @@ def _batch(texts, lang):
     try:
         translator = GoogleTranslator(source=EN, target=lang)
         return translator.translate_batch(texts, sleep_seconds=0.1)
-    except Exception:
+    except Exception as e:
+        _log_translation_failure("batch", texts, lang, e)
         return [_single(text, lang) for text in texts]
 
 
 def _single(text, lang):
     try:
         return GoogleTranslator(source=EN, target=lang).translate(text)
-    except Exception:
+    except Exception as e:
+        _log_translation_failure("single", text, lang, e)
         return text
+
+
+def _log_translation_failure(mode, texts, lang, exc):
+    """Log a translation failure with context for debugging."""
+    msg = f"Translation failed ({mode} mode, target={lang}): {exc}"
+    # Include the text(s) that failed (truncated to avoid huge logs)
+    if isinstance(texts, list):
+        truncated = [t[:100] + ("..." if len(t) > 100 else "") for t in texts]
+        msg += f" | texts: {truncated}"
+    else:
+        truncated = texts[:100] + ("..." if len(texts) > 100 else "")
+        msg += f" | text: {truncated}"
+    # Prefer Flask's current_app.logger; fall back to stdlib logging
+    try:
+        current_app.logger.warning(msg)
+    except RuntimeError:
+        logging.warning(msg)
 
 
 class Localized:
@@ -306,11 +329,15 @@ def localize_review(review):
     return localize(review, list(REVIEW_FIELDS))
 
 
+def localize_trust_card(card):
+    return localize(card, list(TRUST_CARD_FIELDS))
+
+
 def _prewarm(app):
     """Traduce por lotes, en segundo plano, el contenido actual + textos fijos."""
     try:
         with app.app_context():
-            from models import ContentBlock, Review, Service
+            from models import ContentBlock, Review, Service, TrustCard
 
             texts = list(_STATIC_STRINGS)
             for block in ContentBlock.query.all():
@@ -326,7 +353,12 @@ def _prewarm(app):
             for review in Review.query.all():
                 if review.comment:
                     texts.append(review.comment)
-            translate_mapping(list(dict.fromkeys(texts)), EN)
+            for card in TrustCard.query.all():
+                for field in TRUST_CARD_FIELDS:
+                    value = getattr(card, field, None)
+                    if value and isinstance(value, str):
+                        texts.append(value)
+            translate_mapping(list(dict.fromkeys(texts)), ES)
     except Exception:
         # La precarga es opcional; si falla, la traducción se hace bajo demanda.
         pass

@@ -1,19 +1,19 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Plantillas de correo | Tecuns Admin{% endblock %}
-{% block page_title %}Plantillas de correo{% endblock %}
+{% block title %}Email templates | Tecuns Admin{% endblock %}
+{% block page_title %}Email templates{% endblock %}
 
 {% block admin_content %}
-<p class="text-steel">Personaliza el asunto y el mensaje de cada correo automático que envía el sitio.</p>
+<p class="text-steel">Customize the subject and message of each automatic email the site sends.</p>
 
 <div class="card-panel">
   <table class="admin-table">
-    <thead><tr><th>Plantilla</th><th>Asunto actual</th><th></th></tr></thead>
+    <thead><tr><th>Template</th><th>Current subject</th><th></th></tr></thead>
     <tbody>
       {% for t in templates %}
       <tr>
         <td>{{ t.label }}</td>
         <td class="text-steel">{{ t.subject }}</td>
-        <td><a href="{{ url_for('admin.editar_plantilla', key=t.key) }}" class="link">Editar →</a></td>
+        <td><a href="{{ url_for('admin.editar_plantilla', key=t.key) }}" class="link">Edit →</a></td>
       </tr>
       {% endfor %}
     </tbody>

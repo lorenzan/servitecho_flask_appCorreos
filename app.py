@@ -1,6 +1,7 @@
-from flask import Flask, g, render_template
+from flask import Flask, g, render_template, redirect, request, flash, url_for
+from flask_wtf.csrf import CSRFError
 from config import Config
-from extensions import db, login_manager
+from extensions import db, login_manager, csrf
 from models import Admin
 import translations
 
@@ -11,6 +12,7 @@ def create_app():
 
     db.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
 
     translations.init_app(app)
 
@@ -23,6 +25,21 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return Admin.query.get(int(user_id))
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        flash(
+            "The form session expired or the request is invalid. Please try again.",
+            "danger",
+        )
+        target = request.referrer
+        if not target:
+            target = (
+                url_for("admin.login")
+                if (request.path or "").startswith("/admin")
+                else url_for("public.index")
+            )
+        return redirect(target)
 
     @app.errorhandler(404)
     def not_found(e):
@@ -49,15 +66,20 @@ def create_app():
     @app.context_processor
     def inject_globals():
         from models import Service, ContentBlock, AdsSettings
-        nav_services = Service.query.filter_by(active=True).order_by(Service.order).all()
+        nav_services = list(
+            Service.query.filter_by(active=True).order_by(Service.order).all()
+        )
         site_info = ContentBlock.query.filter_by(section_key="site_info").first()
         site_logo = ContentBlock.query.filter_by(section_key="logo").first()
         site_socials = ContentBlock.query.filter_by(section_key="socials").first()
         ads_settings = AdsSettings.query.first()
         if getattr(g, "lang", "es") == "en":
             nav_services = [translations.localize_service(s) for s in nav_services]
+        # Solo 3 productos en la barra; el resto va al desplegable "More"
         return {
             "nav_services": nav_services,
+            "nav_services_visible": nav_services[:3],
+            "nav_services_extra": nav_services[3:],
             "site_info": site_info,
             "site_logo": site_logo,
             "site_socials": site_socials,
@@ -80,6 +102,12 @@ def create_app():
             db.session.commit()
         except Exception:
             pass
+        # Migración: métodos de trabajo por servicio
+        try:
+            db.session.execute(db.text("ALTER TABLE services ADD COLUMN work_methods TEXT"))
+            db.session.commit()
+        except Exception:
+            pass
         # Migración: reseñas destacadas (carrusel)
         try:
             db.session.execute(db.text("ALTER TABLE reviews ADD COLUMN featured BOOLEAN DEFAULT 0"))
@@ -88,7 +116,55 @@ def create_app():
             pass
         # Migrar imagen única del hero a la galería (una sola vez)
         try:
-            from models import ContentBlock, HeroSlide, AboutSlide, QuoteGlassCard
+            from models import ContentBlock, HeroSlide, AboutSlide, QuoteGlassCard, TrustCard
+            # Admin CMS labels in English (visible in Site content panel)
+            _block_labels_en = {
+                "logo": "Logo",
+                "hero": "Homepage (Hero)",
+                "about": "About Us",
+                "mission": "Mission",
+                "vision": "Vision",
+                "support": "24/7 Support",
+                "why_us": "What Sets Us Apart",
+                "site_info": "Contact Info (Header & Footer)",
+                "socials": "Social Media (Footer)",
+                "cotizacion": "Quote (Glass Cards)",
+                "resenas": "Reviews (Stacked Cards)",
+            }
+            labels_changed = False
+            for key, en_label in _block_labels_en.items():
+                block = ContentBlock.query.filter_by(section_key=key).first()
+                if block and block.label != en_label:
+                    block.label = en_label
+                    labels_changed = True
+            if labels_changed:
+                db.session.commit()
+
+            # Seed default highlight cards (What sets us apart)
+            if TrustCard.query.count() == 0:
+                defaults = [
+                    ("+30", "Years of Standing Seam warranty",
+                     "Long-lasting protection with certified roof systems and real backing.", "shield"),
+                    ("24/7", "Customer support",
+                     "Continuous support for emergencies, maintenance and project follow-up.", "support"),
+                    ("100%", "Professional installation",
+                     "Specialized crews, flawless finishes and safety in every project.", "install"),
+                    ("3", "Construction systems",
+                     "Standing Seam, thermoacoustic panels and modules adapted to each project.", "systems"),
+                ]
+                for i, (metric, title, body, icon_key) in enumerate(defaults):
+                    db.session.add(
+                        TrustCard(
+                            metric=metric,
+                            title=title,
+                            body=body,
+                            icon_key=icon_key,
+                            sort_order=i,
+                            active=True,
+                        )
+                    )
+                db.session.commit()
+
             if HeroSlide.query.count() == 0:
                 hero = ContentBlock.query.filter_by(section_key="hero").first()
                 if hero and hero.image_path:

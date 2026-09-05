@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 {% block title %}{{ t('Customer reviews') }} | Tecun's Roofing{% endblock %}
 
+{% block extra_head %}
+{# reCAPTCHA: cargar script según versión configurada #}
+{% if config.RECAPTCHA_SITE_KEY %}
+  {% if config.RECAPTCHA_VERSION == "v2" %}
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  {% elif config.RECAPTCHA_VERSION == "v3" %}
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config.RECAPTCHA_SITE_KEY }}"></script>
+  {% endif %}
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <section class="reviews-page">
   <div class="reviews-page__hero">
@@ -122,6 +133,40 @@
           <div class="form-row">
             <label for="comment">{{ t('Comment') }}</label>
             <textarea id="comment" name="comment" required rows="5" placeholder="{{ t('Tell us about your project and experience with Tecuns Roofing...') }}"></textarea>
+          </div>
+
+          {# --- reCAPTCHA v2: widget visible (checkbox) --- #}
+          {% if config.RECAPTCHA_SITE_KEY and config.RECAPTCHA_VERSION == "v2" %}
+          <div class="form-row recaptcha-row">
+            <div class="g-recaptcha" data-sitekey="{{ config.RECAPTCHA_SITE_KEY }}"></div>
+          </div>
+          {% endif %}
+
+          {# --- reCAPTCHA v3: token invisible via JS --- #}
+          {% if config.RECAPTCHA_SITE_KEY and config.RECAPTCHA_VERSION == "v3" %}
+          <input type="hidden" name="recaptcha_token" id="recaptcha_token">
+          <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              if (typeof grecaptcha !== "undefined") {
+                grecaptcha.ready(function() {
+                  grecaptcha.execute("{{ config.RECAPTCHA_SITE_KEY }}", {action: "submit_review"})
+                    .then(function(token) {
+                      document.getElementById("recaptcha_token").value = token;
+                    })
+                    .catch(function(err) {
+                      console.warn("reCAPTCHA v3 execute failed:", err);
+                    });
+                });
+              }
+            });
+          </script>
+          {% endif %}
+
+          {# --- Honeypot: campo oculto (CSS position:absolute;left:-9999px) --- #}
+          {# Los bots simples lo detectan y lo llenan; los humanos no lo ven #}
+          <div class="form-row honeypot" aria-hidden="true" style="position:absolute;left:-9999px;height:0;overflow:hidden;">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
           </div>
 
           <button type="submit" class="btn btn-rust">

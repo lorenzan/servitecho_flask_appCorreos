@@ -10,7 +10,7 @@ app = create_app()
 CONTENT_BLOCKS = [
     dict(
         section_key="logo",
-        label="Logotipo",
+        label="Logo",
         eyebrow=None,
         title=None,
         body=None,
