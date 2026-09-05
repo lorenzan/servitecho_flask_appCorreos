@@ -53,7 +53,7 @@ _STATIC_STRINGS = [
     "View products", "View details",
     "View all / leave a review", "Leave a review", "Back to home",
     "View reviews", "Admin access", "Services", "Contact", "Social media",
-    "All rights reserved.", "Modules", "Open menu", "More", "More products", "Main menu",
+    "All rights reserved.", "Modules", "Open menu", "More", "More products", "More services", "Main menu",
     "Language", "Spanish", "English",
     # Home
     "Roofs, Facades and Prefabricated Modules",

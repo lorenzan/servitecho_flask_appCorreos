@@ -496,8 +496,10 @@ button.btn-rust{
   top:calc(100% + 8px);
   left:50%;
   transform:translateX(-50%) translateY(6px);
-  min-width:220px;
-  max-width:min(320px, 85vw);
+  min-width:240px;
+  max-width:min(360px, 85vw);
+  max-height:min(70vh, 420px);
+  overflow-y:auto;
   padding:8px;
   border-radius:14px;
   /* Café sólido del sitio — opaco, sin transparencia */
@@ -638,7 +640,7 @@ button.btn-rust{
 }
 
 /* Antes de que se amontone: menu hamburguesa */
-@media (max-width: 1180px){
+@media (max-width: 1280px){
   .topbar{ display:none; }
   .navbar .container{
     display:flex;

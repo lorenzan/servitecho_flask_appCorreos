@@ -75,11 +75,11 @@ def create_app():
         ads_settings = AdsSettings.query.first()
         if getattr(g, "lang", "es") == "en":
             nav_services = [translations.localize_service(s) for s in nav_services]
-        # Solo 3 productos en la barra; el resto va al desplegable "More"
+        # Hasta 2 servicios en la barra; el resto va a "More services"
         return {
             "nav_services": nav_services,
-            "nav_services_visible": nav_services[:3],
-            "nav_services_extra": nav_services[3:],
+            "nav_services_visible": nav_services[:2],
+            "nav_services_extra": nav_services[2:],
             "site_info": site_info,
             "site_logo": site_logo,
             "site_socials": site_socials,

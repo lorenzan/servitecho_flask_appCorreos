@@ -112,17 +112,17 @@
               aria-controls="navProductsMenu"
               id="navProductsToggle"
             >
-              <span>{{ t('More products') }}</span>
+              <span>More services</span>
               <svg class="nav-dropdown__chevron" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
             </button>
             <div class="nav-dropdown__menu" id="navProductsMenu" role="menu" aria-labelledby="navProductsToggle">
               {% for s in nav_services_extra %}
               <a
                 role="menuitem"
-                class="nav-dropdown__link {{ 'is-active' if ep == 'public.servicio_detalle' and current_slug == s.slug else '' }}"
+                class="nav-dropdown__link {{ 'is-active' if extra_active and current_slug == s.slug else '' }}"
                 href="{{ url_for('public.servicio_detalle', slug=s.slug) }}"
                 title="{{ s.name }}"
-                {% if ep == 'public.servicio_detalle' and current_slug == s.slug %}aria-current="page"{% endif %}
+                {% if extra_active and current_slug == s.slug %}aria-current="page"{% endif %}
               >{{ s.name }}</a>
               {% endfor %}
             </div>
@@ -132,7 +132,7 @@
             class="nav-item nav-item--fixed {{ 'is-active' if ep == 'public.resenas' else '' }}"
             href="{{ url_for('public.resenas') }}"
             {% if ep == 'public.resenas' %}aria-current="page"{% endif %}
-          >{{ t('Reviews') }}</a>
+          >Reviews</a>
           <a class="nav-link-mobile-only" href="{{ url_for('public.cotizacion') }}">{{ t('Quote') }}</a>
           <div class="nav-mobile-actions">
             <div class="lang-switch lang-switch--mobile" aria-label="{{ t('Language') }}">
@@ -313,7 +313,7 @@
     window.addEventListener('scroll', onScroll, { passive: true });
   }
 
-  /* Products dropdown (4th+ services) */
+  /* Extra services dropdown (3rd+) */
   const navDropdown = document.getElementById('navProductsDropdown');
   const navProductsToggle = document.getElementById('navProductsToggle');
   if (navDropdown && navProductsToggle) {
