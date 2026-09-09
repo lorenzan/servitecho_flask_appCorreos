@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from extensions import db
 from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard, TrustCard
-from utils import save_upload
+from utils import save_upload, ensure_external_url
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -364,6 +364,13 @@ def editar_contenido(section_key):
             block.title = request.form.get("title", "").strip()
             block.body = request.form.get("body", "").strip()
             block.extra = request.form.get("extra", "").strip()
+
+        # Social URLs must be absolute so they don't open as site-relative 404s
+        if block.section_key == "socials":
+            block.eyebrow = ensure_external_url(block.eyebrow)
+            block.title = ensure_external_url(block.title)
+            block.body = ensure_external_url(block.body)
+            block.extra = ensure_external_url(block.extra)
 
         # site_info usa image_path como teléfono secundario (texto, no imagen)
         if block.section_key == "site_info":

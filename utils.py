@@ -27,6 +27,25 @@ def allowed_video(filename):
     return ext in current_app.config.get("ALLOWED_VIDEO_EXTENSIONS", set())
 
 
+def ensure_external_url(url):
+    """Make sure a social / external link opens off-site (avoid relative 404s).
+
+    Values like ``facebook.com/page`` become ``https://facebook.com/page``.
+    Empty / whitespace-only values stay empty.
+    """
+    if url is None:
+        return ""
+    value = str(url).strip()
+    if not value:
+        return ""
+    lower = value.lower()
+    if lower.startswith(("http://", "https://", "mailto:", "tel:")):
+        return value
+    if value.startswith("//"):
+        return "https:" + value
+    return "https://" + value
+
+
 def _optimize_image(file_storage, original_ext):
     """
     Optimize uploaded image using Pillow.

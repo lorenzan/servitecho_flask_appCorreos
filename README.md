@@ -32,7 +32,7 @@ Esto crea el archivo `instance/tecuns.db` con:
 
 - Un usuario administrador:
   - **Usuario:** `admin`
-  - **Contraseña:** `Tecuns2024!`
+  - **Contraseña:** `Servitecho2024!`
   - ⚠️ Cámbiala después de tu primer inicio de sesión (ver sección 6).
 - Los 3 productos (Standing Seam, Panel Termoacústico, Módulos Constructivos).
 - Los bloques de texto de la página de inicio (hero, misión, visión, etc.).

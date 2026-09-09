@@ -25,7 +25,7 @@
           {% else %}Label / eyebrow{% endif %}
         </label>
         <input type="text" id="eyebrow" name="eyebrow" value="{{ block.eyebrow or '' }}" {% if block.section_key == 'socials' %}placeholder="https://wa.me/50369561628"{% endif %}>
-        {% if block.section_key == 'socials' %}<p class="hint">If left empty, the contact phone number is used automatically.</p>{% endif %}
+        {% if block.section_key == 'socials' %}<p class="hint">If left empty, the contact phone number is used automatically. Prefer full URLs with https:// (e.g. https://wa.me/50369561628).</p>{% endif %}
       </div>
       {% if block.section_key == 'site_info' %}
       <div class="form-row">

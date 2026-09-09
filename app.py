@@ -16,6 +16,10 @@ def create_app():
 
     translations.init_app(app)
 
+    from utils import ensure_external_url
+
+    app.jinja_env.filters["external_url"] = ensure_external_url
+
     from public_routes import public_bp
     from admin_routes import admin_bp
 
