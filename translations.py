@@ -179,23 +179,13 @@ def _save_cache():
 
 
 def set_language():
-    """before_request: active language = user cookie > Accept-Language."""
-    lang = request.cookies.get("lang")
-    if lang not in SUPPORTED:
-        lang = detect_lang()
-    g.lang = lang
+    """before_request: site is English-only (ignore cookie / Accept-Language)."""
+    g.lang = EN
 
 
 def detect_lang():
-    """Detect language from browser's Accept-Language header.
-
-    A visitor in the USA typically sends 'en-US...' (→ English); in LATAM
-    'es-*' (→ Spanish). The manual selector always takes priority.
-    """
-    accept = request.headers.get("Accept-Language", "")
-    primary = accept.split(",")[0].strip().lower()
-    code = primary.split(";")[0].split("-")[0].strip()
-    return ES if code == ES else EN
+    """Always English — public site no longer auto-switches by browser."""
+    return EN
 
 
 def _enabled():

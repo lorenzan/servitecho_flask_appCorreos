@@ -15,14 +15,11 @@ public_bp = Blueprint("public", __name__)
 
 @public_bp.route("/lang/<lang>")
 def set_lang(lang):
-    """Cambia el idioma del visitante y guarda la preferencia en una cookie."""
-    lang = lang if lang in ("es", "en") else "es"
-    # Solo redirigimos a la página desde la que vino si es de nuestro sitio
-    # (evita redirección abierta vía Referer).
+    """Legacy route — site is English-only; ignore requested language."""
     referrer = request.referrer or ""
     target = referrer if request.host in referrer else url_for("public.index")
     resp = redirect(target)
-    resp.set_cookie("lang", lang, max_age=60 * 60 * 24 * 365, samesite="Lax")
+    resp.set_cookie("lang", "en", max_age=60 * 60 * 24 * 365, samesite="Lax")
     return resp
 
 

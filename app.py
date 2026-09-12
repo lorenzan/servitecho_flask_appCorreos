@@ -77,7 +77,7 @@ def create_app():
         site_logo = ContentBlock.query.filter_by(section_key="logo").first()
         site_socials = ContentBlock.query.filter_by(section_key="socials").first()
         ads_settings = AdsSettings.query.first()
-        if getattr(g, "lang", "es") == "en":
+        if getattr(g, "lang", "en") == "es":
             nav_services = [translations.localize_service(s) for s in nav_services]
         # Hasta 2 servicios en la barra; el resto va a "More services"
         return {
@@ -88,7 +88,7 @@ def create_app():
             "site_logo": site_logo,
             "site_socials": site_socials,
             "ads_settings": ads_settings,
-            "current_lang": getattr(g, "lang", "es"),
+            "current_lang": getattr(g, "lang", "en"),
             "t": translations.t,
         }
 

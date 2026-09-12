@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ 'en' if current_lang == 'en' else 'es' }}">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,11 +59,6 @@
             <svg class="topbar-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11H7v-2h4V7h2v6z"/></svg>
             <span>{{ site_info.extra }}</span>
           </span>
-          <div class="lang-switch" aria-label="{{ t('Language') }}">
-            <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="{{ t('Spanish') }}">ES</a>
-            <span class="lang-divider"></span>
-            <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="{{ t('English') }}">EN</a>
-          </div>
         </div>
         {% endif %}
       </div>
@@ -135,11 +130,6 @@
           >Reviews</a>
           <a class="nav-link-mobile-only" href="{{ url_for('public.cotizacion') }}">{{ t('Quote') }}</a>
           <div class="nav-mobile-actions">
-            <div class="lang-switch lang-switch--mobile" aria-label="{{ t('Language') }}">
-              <a href="{{ url_for('public.set_lang', lang='es') }}" class="{{ 'active' if current_lang == 'es' else '' }}" aria-label="{{ t('Spanish') }}">ES</a>
-              <span class="lang-divider"></span>
-              <a href="{{ url_for('public.set_lang', lang='en') }}" class="{{ 'active' if current_lang == 'en' else '' }}" aria-label="{{ t('English') }}">EN</a>
-            </div>
             {% if site_info and site_info.eyebrow %}
             <a class="btn btn-call" href="tel:{{ site_info.eyebrow }}" aria-label="{{ t('Call Us Today') }}">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.4 21 3 13.6 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
