@@ -1,6 +1,9 @@
 import smtplib
+import uuid
+from datetime import datetime, timezone
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import format_datetime, formataddr, make_msgid
 
 from flask import render_template_string, url_for
 
@@ -35,6 +38,13 @@ def _render(text, context):
         return text
 
 
+def _message_id_domain(smtp_email):
+    """Domain part for Message-ID (falls back if the address is incomplete)."""
+    if smtp_email and "@" in smtp_email:
+        return smtp_email.rsplit("@", 1)[-1].strip() or "localhost"
+    return "localhost"
+
+
 def send_email(to_addr, subject, body, settings=None):
     """Low-level SMTP send. Returns (ok: bool, message: str)."""
     settings = settings or get_settings()
@@ -46,16 +56,25 @@ def send_email(to_addr, subject, body, settings=None):
         return False, "No destination email address."
 
     try:
+        sender_email = settings.smtp_email
+        sender_name = settings.sender_name or "Tecuns Roofing"
+
         msg = MIMEMultipart()
-        msg["From"] = f"{settings.sender_name or 'Tecuns Roofing'} <{settings.smtp_email}>"
+        msg["From"] = formataddr((sender_name, sender_email))
         msg["To"] = to_addr
         msg["Subject"] = subject
+        # Headers that normal mail clients always set; spam filters look for them
+        msg["Date"] = format_datetime(datetime.now(timezone.utc))
+        msg["Message-ID"] = make_msgid(
+            idstring=uuid.uuid4().hex,
+            domain=_message_id_domain(sender_email),
+        )
         msg.attach(MIMEText(body, "plain", "utf-8"))
 
         with smtplib.SMTP(settings.smtp_host or "smtp.gmail.com", settings.smtp_port or 587, timeout=15) as server:
             server.starttls()
-            server.login(settings.smtp_email, settings.smtp_app_password)
-            server.sendmail(settings.smtp_email, [to_addr], msg.as_string())
+            server.login(sender_email, settings.smtp_app_password)
+            server.sendmail(sender_email, [to_addr], msg.as_string())
         return True, "Email sent successfully."
     except Exception as e:
         return False, f"{type(e).__name__}: {e}"
