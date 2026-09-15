@@ -46,7 +46,11 @@ def _message_id_domain(smtp_email):
 
 
 def send_email(to_addr, subject, body, settings=None):
-    """Low-level SMTP send. Returns (ok: bool, message: str)."""
+    """Low-level SMTP send. Returns (ok: bool, message: str).
+
+    Supports Gmail (login = From email) and Brevo (login = smtp_username,
+    From = verified smtp_email). Optional BCC copies every message.
+    """
     settings = settings or get_settings()
     if not settings or not settings.enabled:
         return False, "Email sending is disabled in Email Settings."
@@ -56,13 +60,18 @@ def send_email(to_addr, subject, body, settings=None):
         return False, "No destination email address."
 
     try:
-        sender_email = settings.smtp_email
+        sender_email = settings.smtp_email.strip()
         sender_name = settings.sender_name or "Tecuns Roofing"
+        # Brevo: smtp_username = xxxx@smtp-brevo.com; Gmail: leave blank → use From
+        smtp_user = (getattr(settings, "smtp_username", None) or "").strip() or sender_email
+        bcc = (getattr(settings, "bcc_email", None) or "").strip()
 
         msg = MIMEMultipart()
         msg["From"] = formataddr((sender_name, sender_email))
         msg["To"] = to_addr
         msg["Subject"] = subject
+        if bcc:
+            msg["Bcc"] = bcc
         # Headers that normal mail clients always set; spam filters look for them
         msg["Date"] = format_datetime(datetime.now(timezone.utc))
         msg["Message-ID"] = make_msgid(
@@ -71,10 +80,14 @@ def send_email(to_addr, subject, body, settings=None):
         )
         msg.attach(MIMEText(body, "plain", "utf-8"))
 
+        recipients = [to_addr]
+        if bcc and bcc.lower() != to_addr.lower():
+            recipients.append(bcc)
+
         with smtplib.SMTP(settings.smtp_host or "smtp.gmail.com", settings.smtp_port or 587, timeout=15) as server:
             server.starttls()
-            server.login(sender_email, settings.smtp_app_password)
-            server.sendmail(sender_email, [to_addr], msg.as_string())
+            server.login(smtp_user, settings.smtp_app_password)
+            server.sendmail(sender_email, recipients, msg.as_string())
         return True, "Email sent successfully."
     except Exception as e:
         return False, f"{type(e).__name__}: {e}"

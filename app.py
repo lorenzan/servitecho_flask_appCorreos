@@ -118,6 +118,17 @@ def create_app():
             db.session.commit()
         except Exception:
             pass
+        # Migración: Brevo / SMTP login separado + BCC
+        try:
+            db.session.execute(db.text("ALTER TABLE email_settings ADD COLUMN smtp_username VARCHAR(200)"))
+            db.session.commit()
+        except Exception:
+            pass
+        try:
+            db.session.execute(db.text("ALTER TABLE email_settings ADD COLUMN bcc_email VARCHAR(150)"))
+            db.session.commit()
+        except Exception:
+            pass
         # Migrar imagen única del hero a la galería (una sola vez)
         try:
             from models import ContentBlock, HeroSlide, AboutSlide, QuoteGlassCard, TrustCard

@@ -137,10 +137,12 @@ class EmailSettings(db.Model):
     enabled = db.Column(db.Boolean, default=False)
     smtp_host = db.Column(db.String(120), default="smtp.gmail.com")
     smtp_port = db.Column(db.Integer, default=587)
-    smtp_email = db.Column(db.String(150))
+    smtp_email = db.Column(db.String(150))  # From address (verified sender)
+    smtp_username = db.Column(db.String(200))  # SMTP login if different (Brevo); empty = use smtp_email (Gmail)
     smtp_app_password = db.Column(db.String(255))
     sender_name = db.Column(db.String(150), default="Tecuns Roofing")
     notify_email = db.Column(db.String(150))  # where admin notifications are sent
+    bcc_email = db.Column(db.String(150))  # optional BCC copy of every outgoing email
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 

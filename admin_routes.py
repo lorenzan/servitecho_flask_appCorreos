@@ -1095,8 +1095,10 @@ def config_correo():
         except (TypeError, ValueError):
             settings.smtp_port = 587
         settings.smtp_email = request.form.get("smtp_email", "").strip()
+        settings.smtp_username = request.form.get("smtp_username", "").strip()
         settings.sender_name = request.form.get("sender_name", "").strip()
         settings.notify_email = request.form.get("notify_email", "").strip()
+        settings.bcc_email = request.form.get("bcc_email", "").strip()
 
         new_password = request.form.get("smtp_app_password", "").strip()
         if new_password:
