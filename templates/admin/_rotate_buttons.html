@@ -1,0 +1,7 @@
+{# Usage: {% with img_path=slide.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %} #}
+{% if img_path and img_path.startswith('uploads/') %}
+<div class="rotate-actions">
+  <button type="submit" form="rotateImageForm" name="rotate" value="left:{{ img_path }}" class="btn btn-outline-dark rotate-actions__btn" title="Rotate left" aria-label="Rotate left">↺ Left</button>
+  <button type="submit" form="rotateImageForm" name="rotate" value="right:{{ img_path }}" class="btn btn-outline-dark rotate-actions__btn" title="Rotate right" aria-label="Rotate right">↻ Right</button>
+</div>
+{% endif %}

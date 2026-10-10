@@ -5,10 +5,12 @@ from werkzeug.utils import secure_filename
 from flask import current_app
 
 try:
-    from PIL import Image
+    from PIL import Image, ImageOps
     PIL_AVAILABLE = True
 except Exception:
     PIL_AVAILABLE = False
+
+ROTATABLE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"}
 
 
 def _ext(filename):
@@ -64,6 +66,9 @@ def _optimize_image(file_storage, original_ext):
         file_storage.stream.seek(0)
 
         img = Image.open(BytesIO(img_data))
+        # Phones store portrait photos as landscape pixels + an EXIF orientation
+        # flag; the flag is lost on re-encode, so bake the rotation into the pixels.
+        img = ImageOps.exif_transpose(img)
 
         # Convert to RGB/RGBA as needed
         has_transparency = img.mode in ("RGBA", "LA") or (
@@ -116,6 +121,67 @@ def _optimize_image(file_storage, original_ext):
     except Exception:
         # Any failure: return None to trigger fallback
         return None, None
+
+
+def resolve_upload_path(rel_path):
+    """Absolute path for a DB image path like ``uploads/content/x.jpg``.
+
+    Returns None if the path escapes static/uploads or isn't a rotatable image.
+    """
+    if not rel_path or not isinstance(rel_path, str):
+        return None
+    rel_path = rel_path.strip().replace("\\", "/")
+    if not rel_path.startswith("uploads/") or _ext(rel_path) not in ROTATABLE_EXTENSIONS:
+        return None
+    uploads_root = os.path.realpath(os.path.join(current_app.static_folder, "uploads"))
+    full_path = os.path.realpath(os.path.join(current_app.static_folder, rel_path))
+    if not full_path.startswith(uploads_root + os.sep) or not os.path.isfile(full_path):
+        return None
+    return full_path
+
+
+def rotate_saved_image(rel_path, direction):
+    """Rotate an uploaded image in place by 90°. direction: "left" or "right".
+
+    Returns (ok: bool, message: str).
+    """
+    if not PIL_AVAILABLE:
+        return False, "Image rotation is not available (Pillow is not installed)."
+    if direction not in ("left", "right"):
+        return False, "Invalid rotation direction."
+    full_path = resolve_upload_path(rel_path)
+    if not full_path:
+        return False, "Image not found."
+
+    ext = _ext(full_path)
+    try:
+        with Image.open(full_path) as img:
+            if getattr(img, "is_animated", False):
+                return False, "Animated GIFs cannot be rotated."
+            img.load()
+            img = ImageOps.exif_transpose(img)
+            # Pillow rotates counter-clockwise for positive angles
+            rotated = img.rotate(90 if direction == "left" else -90, expand=True)
+
+        out = BytesIO()
+        if ext in ("jpg", "jpeg"):
+            if rotated.mode != "RGB":
+                rotated = rotated.convert("RGB")
+            rotated.save(out, format="JPEG", quality=90, optimize=True)
+        elif ext == "webp":
+            rotated.save(out, format="WEBP", quality=90, method=6)
+        elif ext == "png":
+            rotated.save(out, format="PNG", optimize=True)
+        else:
+            rotated.save(out, format="GIF")
+
+        tmp_path = full_path + ".tmp"
+        with open(tmp_path, "wb") as f:
+            f.write(out.getvalue())
+        os.replace(tmp_path, full_path)
+        return True, "Image rotated."
+    except Exception as e:
+        return False, f"Could not rotate the image: {e}"
 
 
 def save_upload(file_storage, subfolder, media="image"):

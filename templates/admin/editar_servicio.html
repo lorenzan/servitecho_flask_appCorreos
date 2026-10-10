@@ -38,6 +38,7 @@
       <label for="image">Cover image (hero / cards)</label>
       {% if servicio and servicio.image_path %}
         <img src="{{ url_for('static', filename=servicio.image_path) }}" alt="{{ servicio.name }}" style="max-width:220px; border-radius:8px; margin-bottom:10px;">
+        {% with img_path=servicio.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
       {% endif %}
       <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
       <p class="hint">Used as the hero background when there is no video, and in the product listing.</p>
@@ -87,6 +88,7 @@
     {% for slide in gallery %}
     <div class="hero-gallery-item {{ '' if slide.active else 'is-hidden' }}">
       <img src="{{ url_for('static', filename=slide.image_path) }}" alt="Photo {{ loop.index }}">
+      {% with img_path=slide.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
       <div class="hero-gallery-meta">
         <form method="POST" action="{{ url_for('admin.service_gallery_caption', image_id=slide.id) }}" class="hero-caption-form">
           <input type="text" name="caption" value="{{ slide.caption or '' }}" placeholder="Optional caption">

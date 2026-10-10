@@ -11,6 +11,7 @@
         <label for="image">Site logo</label>
         {% if block.image_path %}
           <img src="{{ url_for('static', filename=block.image_path) }}" alt="Current logo" style="max-width:200px; max-height:80px; border-radius:8px; margin-bottom:12px; background:var(--offwhite); padding:8px;">
+          {% with img_path=block.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
         {% else %}
           <p class="hint" style="margin-top:0;">No logo uploaded yet — the default icon is shown.</p>
         {% endif %}
@@ -70,6 +71,7 @@
         <label for="image">Image</label>
         {% if block.image_path %}
           <img src="{{ url_for('static', filename=block.image_path) }}" alt="{{ block.label }}" style="max-width:220px; border-radius:8px; margin-bottom:10px;">
+          {% with img_path=block.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
         {% endif %}
         <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp">
         <p class="hint">Upload a new image to replace the current one (optional).</p>
@@ -95,6 +97,7 @@
     {% for slide in hero_slides %}
     <div class="hero-gallery-item {{ '' if slide.active else 'is-hidden' }}">
       <img src="{{ url_for('static', filename=slide.image_path) }}" alt="Slide {{ loop.index }}">
+      {% with img_path=slide.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
       <div class="hero-gallery-meta">
         <form method="POST" action="{{ url_for('admin.hero_slide_caption', slide_id=slide.id) }}" class="hero-caption-form">
           <input type="text" name="caption" value="{{ slide.caption or '' }}" placeholder="Optional caption (e.g. Standing Seam)">
@@ -157,6 +160,7 @@
     {% for slide in about_slides %}
     <div class="hero-gallery-item {{ '' if slide.active else 'is-hidden' }}">
       <img src="{{ url_for('static', filename=slide.image_path) }}" alt="About {{ loop.index }}">
+      {% with img_path=slide.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
       <div class="hero-gallery-meta">
         <div class="hero-gallery-actions">
           <form method="POST" action="{{ url_for('admin.about_slide_move', slide_id=slide.id) }}" class="inline-form">
@@ -211,6 +215,7 @@
     {% for card in quote_glass_cards %}
     <div class="hero-gallery-item {{ '' if card.active else 'is-hidden' }}">
       <img src="{{ url_for('static', filename=card.image_path) }}" alt="Card {{ loop.index }}">
+      {% with img_path=card.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
       <div class="hero-gallery-meta">
         <form method="POST" action="{{ url_for('admin.quote_glass_caption', card_id=card.id) }}" class="hero-caption-form">
           <input type="text" name="caption" value="{{ card.caption or '' }}" placeholder="Text on the card (e.g. Standing Seam)" maxlength="40">
@@ -273,6 +278,7 @@
     {% for card in review_stack_cards %}
     <div class="hero-gallery-item {{ '' if card.active else 'is-hidden' }}">
       <img src="{{ url_for('static', filename=card.image_path) }}" alt="Stack {{ loop.index }}">
+      {% with img_path=card.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
       <div class="hero-gallery-meta">
         <form method="POST" action="{{ url_for('admin.review_stack_caption', card_id=card.id) }}" class="hero-caption-form">
           <input type="text" name="caption" value="{{ card.caption or '' }}" placeholder="Title (e.g. Residential project)" maxlength="40">
@@ -360,6 +366,7 @@
           <label>Custom icon image (optional)</label>
           {% if card.image_path %}
           <img src="{{ url_for('static', filename=card.image_path) }}" alt="" style="max-width:56px; max-height:56px; border-radius:50%; margin-bottom:8px; background:#1a1410;">
+          {% with img_path=card.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
           <label style="display:flex; align-items:center; gap:8px; text-transform:none; font-family:var(--font-body); margin-bottom:8px;">
             <input type="checkbox" name="remove_image" style="width:auto;">
             Remove custom icon (use built-in)

@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from extensions import db
 from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard, TrustCard
-from utils import save_upload, ensure_external_url
+from utils import save_upload, ensure_external_url, rotate_saved_image
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -1126,6 +1126,21 @@ def config_correo_probar():
         "success" if ok else "danger",
     )
     return redirect(url_for("admin.config_correo"))
+
+
+# ---------- Rotar imágenes subidas ----------
+
+@admin_bp.route("/imagenes/rotar", methods=["POST"])
+@login_required
+def rotate_image():
+    # Button value is "left:<path>" or "right:<path>"
+    direction, _, rel_path = (request.form.get("rotate") or "").partition(":")
+    ok, msg = rotate_saved_image(rel_path, direction)
+    flash(msg, "success" if ok else "danger")
+
+    referrer = urlparse(request.referrer or "")
+    back = referrer.path + (f"?{referrer.query}" if referrer.query else "")
+    return redirect(_safe_admin_next(back) or url_for("admin.dashboard"))
 
 
 # ---------- Plantillas de correo ----------

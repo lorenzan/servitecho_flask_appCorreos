@@ -53,6 +53,8 @@
       </div>
     </div>
   </div>
+  {# Shared target for the rotate buttons (they use form="rotateImageForm", so they work inside other forms too) #}
+  <form id="rotateImageForm" method="POST" action="{{ url_for('admin.rotate_image') }}" hidden></form>
   {% block extra_scripts %}{% endblock %}
 
 </body>

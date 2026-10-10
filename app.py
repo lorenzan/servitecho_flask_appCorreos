@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, g, render_template, redirect, request, flash, url_for
 from flask_wtf.csrf import CSRFError
 from config import Config
@@ -19,6 +21,16 @@ def create_app():
     from utils import ensure_external_url
 
     app.jinja_env.filters["external_url"] = ensure_external_url
+
+    @app.url_defaults
+    def _bust_upload_cache(endpoint, values):
+        # Rotated images keep the same filename; the mtime param forces browsers to refetch
+        filename = values.get("filename") if endpoint == "static" else None
+        if filename and filename.startswith("uploads/"):
+            try:
+                values["v"] = int(os.path.getmtime(os.path.join(app.static_folder, filename)))
+            except OSError:
+                pass
 
     from public_routes import public_bp
     from admin_routes import admin_bp

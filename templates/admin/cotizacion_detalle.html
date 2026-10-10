@@ -40,9 +40,12 @@
     {% if quote.images %}
       <div class="thumb-strip">
         {% for img in quote.images %}
-          <a href="{{ url_for('static', filename=img.image_path) }}" target="_blank">
-            <img src="{{ url_for('static', filename=img.image_path) }}" alt="Project photo">
-          </a>
+          <div class="thumb-strip__item">
+            <a href="{{ url_for('static', filename=img.image_path) }}" target="_blank">
+              <img src="{{ url_for('static', filename=img.image_path) }}" alt="Project photo">
+            </a>
+            {% with img_path=img.image_path %}{% include 'admin/_rotate_buttons.html' %}{% endwith %}
+          </div>
         {% endfor %}
       </div>
     {% else %}
