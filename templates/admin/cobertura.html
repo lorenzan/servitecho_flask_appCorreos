@@ -1,0 +1,138 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Coverage areas | Tecuns Admin{% endblock %}
+{% block page_title %}Coverage areas{% endblock %}
+
+{% block admin_content %}
+<form method="POST" action="{{ url_for('admin.cobertura') }}" id="coverageForm">
+  <div class="card-panel coverage-admin-toolbar">
+    <div class="coverage-admin-toolbar__text">
+      <p class="mb-0">Check the cities you serve. Unchecked cities are hidden from the
+        <a class="link" href="{{ url_for('public.cobertura') }}" target="_blank" rel="noopener">public Coverage page ↗</a>.</p>
+      <p class="hint mb-0" id="coverageDirtyHint">Changes are applied when you click <strong>Save changes</strong>.</p>
+    </div>
+    <input type="search" id="coverageAdminFilter" class="coverage-admin-toolbar__filter" placeholder="Filter cities…" aria-label="Filter cities">
+    <button type="submit" class="btn btn-rust">Save changes</button>
+  </div>
+
+  {% for c in counties %}
+  {% set active_count = c.city_rows | selectattr('active') | list | length %}
+  <section class="card-panel coverage-admin-county" id="county-{{ c.key }}" style="--county-color:{{ c.color }}">
+    <div class="card-panel-header">
+      <h3 class="coverage-admin-county__title">
+        <span class="coverage-admin-swatch" aria-hidden="true"></span>{{ c.name }}
+      </h3>
+      <div class="coverage-admin-county__tools">
+        <span class="badge badge-cotizado" data-active-count>{{ active_count }} / {{ c.city_rows|length }} active</span>
+        <button type="button" class="btn btn-outline-dark btn-sm" data-check="all">Select all</button>
+        <button type="button" class="btn btn-outline-dark btn-sm" data-check="none">Select none</button>
+      </div>
+    </div>
+
+    {% if c.city_rows %}
+    <div class="coverage-admin-cities">
+      {% for city in c.city_rows %}
+      <div class="coverage-admin-city {{ '' if city.active else 'is-off' }}" data-city="{{ city.name|lower }}">
+        <label>
+          <input type="checkbox" name="active" value="{{ city.id }}" {% if city.active %}checked{% endif %}>
+          <span>{{ city.name }}</span>
+        </label>
+        {% if city.name == c.seat %}<small class="coverage-admin-tag">seat</small>{% endif %}
+        {% if city.is_custom %}
+        <small class="coverage-admin-tag coverage-admin-tag--custom">added</small>
+        <button
+          type="submit"
+          name="delete"
+          value="{{ city.id }}"
+          class="coverage-admin-city__delete"
+          title="Delete {{ city.name }}"
+          aria-label="Delete {{ city.name }}"
+          data-confirm="Delete &quot;{{ city.name }}&quot; from {{ c.name }}?"
+        >&times;</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="hint">No cities yet.</p>
+    {% endif %}
+
+    <div class="coverage-admin-add">
+      <input type="text" name="new_city_{{ c.key }}" maxlength="120" placeholder="Add a city or community to {{ c.name }}" aria-label="New city for {{ c.name }}">
+      <button type="submit" name="anchor" value="{{ c.key }}" class="btn btn-outline-dark btn-sm">+ Add city</button>
+    </div>
+  </section>
+  {% endfor %}
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const form = document.getElementById('coverageForm');
+  const filter = document.getElementById('coverageAdminFilter');
+  const dirtyHint = document.getElementById('coverageDirtyHint');
+  const normalize = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  let dirty = false;
+
+  function markDirty() {
+    if (dirty) return;
+    dirty = true;
+    dirtyHint.innerHTML = '<strong>You have unsaved changes.</strong> Click Save changes to publish them.';
+    dirtyHint.classList.add('is-dirty');
+  }
+
+  function refreshCounty(section) {
+    const boxes = section.querySelectorAll('input[name="active"]');
+    let on = 0;
+    boxes.forEach((box) => {
+      box.closest('.coverage-admin-city').classList.toggle('is-off', !box.checked);
+      if (box.checked) on += 1;
+    });
+    section.querySelector('[data-active-count]').textContent = `${on} / ${boxes.length} active`;
+  }
+
+  form.querySelectorAll('.coverage-admin-county').forEach((section) => {
+    section.addEventListener('change', (e) => {
+      if (e.target.name === 'active') {
+        refreshCounty(section);
+        markDirty();
+      }
+    });
+    section.querySelectorAll('[data-check]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.check === 'all';
+        section.querySelectorAll('.coverage-admin-city:not([hidden]) input[name="active"]').forEach((box) => {
+          box.checked = value;
+        });
+        refreshCounty(section);
+        markDirty();
+      });
+    });
+  });
+
+  form.querySelectorAll('input[name^="new_city_"]').forEach((input) => {
+    input.addEventListener('input', markDirty);
+  });
+
+  filter.addEventListener('input', () => {
+    const q = normalize(filter.value);
+    form.querySelectorAll('.coverage-admin-city').forEach((row) => {
+      row.hidden = q !== '' && !normalize(row.dataset.city).includes(q);
+    });
+  });
+
+  form.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-confirm]');
+    if (btn && !window.confirm(btn.dataset.confirm)) e.preventDefault();
+  });
+
+  form.addEventListener('submit', () => { dirty = false; });
+  window.addEventListener('beforeunload', (e) => {
+    if (dirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+})();
+</script>
+{% endblock %}

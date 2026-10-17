@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}{{ t('Coverage counties') }} | Tecun's Roofing{% endblock %}
+{% block meta_description %}{{ t('Roofing services across Los Angeles, Orange, San Bernardino, Riverside, Ventura and Santa Barbara counties in California. Find your city on our coverage map.') }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<section class="coverage-page">
+  <div class="coverage-hero">
+    <div class="container">
+      {% set cov_eyebrow = t('Service areas') %}
+      <div class="eyebrow eyebrow--shine">
+        <span class="eyebrow-shine">
+          {% for char in cov_eyebrow %}
+            {% if char == ' ' %}
+              <span class="eyebrow-shine__letter eyebrow-shine__space" style="--i:{{ loop.index0 }}">&nbsp;</span>
+            {% else %}
+              <span class="eyebrow-shine__letter" style="--i:{{ loop.index0 }}">{{ char }}</span>
+            {% endif %}
+          {% endfor %}
+          <span class="eyebrow-shine__loader" aria-hidden="true"></span>
+        </span>
+      </div>
+      <h1>{{ t('Coverage counties') }}</h1>
+      <p class="coverage-hero__lead">{{ t('We serve six counties across Southern and Central California. Explore the map or browse the list to find your city.') }}</p>
+      <ul class="coverage-hero__stats">
+        <li><strong>{{ counties|length }}</strong><span>{{ t('Counties') }}</span></li>
+        <li><strong>{{ total_cities }}</strong><span>{{ t('Cities') }}</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="coverage-body">
+    <div class="container coverage-layout">
+      <div class="coverage-map-col">
+        <div class="coverage-map-card">
+          <div
+            class="coverage-map"
+            id="coverageMap"
+            role="region"
+            aria-label="{{ t('Interactive map of our coverage counties in California') }}"
+            data-geojson="{{ url_for('static', filename='data/ca_counties.geojson') }}"
+          ></div>
+          <div class="coverage-map__info" id="coverageMapInfo" aria-live="polite" hidden></div>
+          <p class="coverage-map__status" id="coverageMapStatus">{{ t('Loading map…') }}</p>
+        </div>
+
+        <ul class="coverage-legend" aria-label="{{ t('Map legend') }}">
+          {% for c in counties %}
+          <li>
+            <button type="button" class="coverage-legend__item" data-county="{{ c.key }}" aria-pressed="false" style="--county-color:{{ c.color }}">
+              <span class="coverage-legend__swatch" aria-hidden="true"></span>{{ c.name }}
+            </button>
+          </li>
+          {% endfor %}
+          <li>
+            <span class="coverage-legend__item coverage-legend__item--muted">
+              <span class="coverage-legend__swatch" aria-hidden="true"></span>{{ t('Outside coverage') }}
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="coverage-list-col">
+        <div class="coverage-list__head">
+          <h2>{{ t('Counties & cities') }}</h2>
+          <p class="coverage-list__intro">{{ t('Select a county to see its cities and highlight it on the map.') }}</p>
+          <label class="coverage-search">
+            <span class="coverage-search__label">{{ t('Search your city') }}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.47 6.47 0 0 0 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="search" id="coverageSearch" placeholder="{{ t('Search your city…') }}" autocomplete="off">
+          </label>
+          <p class="coverage-search__empty" id="coverageSearchEmpty" hidden>
+            {{ t('No city matches your search.') }}
+            <a href="{{ url_for('public.cotizacion') }}">{{ t('Contact us') }}</a> — {{ t('we may still cover your area.') }}
+          </p>
+        </div>
+
+        <div class="coverage-accordion" id="coverageAccordion">
+          {% for c in counties %}
+          <article class="coverage-county" id="county-{{ c.key }}" data-county="{{ c.key }}" style="--county-color:{{ c.color }}">
+            <h3 class="coverage-county__heading">
+              <button
+                type="button"
+                class="coverage-county__toggle"
+                id="county-{{ c.key }}-toggle"
+                aria-expanded="false"
+                aria-controls="county-{{ c.key }}-panel"
+              >
+                <span class="coverage-county__swatch" aria-hidden="true"></span>
+                <span class="coverage-county__name">{{ c.name }}</span>
+                <span class="coverage-county__count"><span data-count>{{ c.cities|length }}</span> {{ t('cities') }}</span>
+                <svg class="coverage-county__chevron" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+              </button>
+            </h3>
+            <div class="coverage-county__panel" id="county-{{ c.key }}-panel" role="region" aria-labelledby="county-{{ c.key }}-toggle" hidden>
+              {% if c.seat in c.cities %}
+              <p class="coverage-county__seat">{{ t('County seat') }}: <strong>{{ c.seat }}</strong></p>
+              {% endif %}
+              {% if c.cities %}
+              <ul class="coverage-county__cities">
+                {% for city in c.cities %}
+                <li{% if city == c.seat %} class="is-seat"{% endif %}>{{ city }}</li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="coverage-county__empty">
+                <a href="{{ url_for('public.cotizacion') }}">{{ t('Contact us') }}</a> {{ t('to check availability in this county.') }}
+              </p>
+              {% endif %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+
+        <p class="coverage-note">{{ t('') }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="coverage-cta">
+    <div class="container coverage-cta__inner">
+      <div>
+        <h2>{{ t('Is your project in one of these counties?') }}</h2>
+        <p>{{ t('Tell us about it and get a free quote from our team.') }}</p>
+      </div>
+      <a class="btn btn-rust" href="{{ url_for('public.cotizacion') }}">
+        <span>{{ t('Request a Quote') }}</span>
+        <svg class="btn-arrow" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.172 12 8.222 7.05l1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" id="coverageData">{{ counties|tojson }}</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/coverage-map.js') }}"></script>
+{% endblock %}

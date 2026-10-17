@@ -9,8 +9,9 @@ from sqlalchemy import desc, func, extract
 from urllib.parse import urlparse
 
 from extensions import db
-from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard, TrustCard
+from models import Admin, Review, Quote, ContentBlock, Service, ServiceGalleryImage, EmailSettings, EmailTemplate, AdsSettings, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard, TrustCard, CoverageCity
 from utils import save_upload, ensure_external_url, rotate_saved_image
+from coverage_data import COVERAGE_COUNTIES, COUNTIES_BY_KEY, get_coverage_counties
 from utils_email import send_quote_response, send_test_email, TEMPLATE_PLACEHOLDERS
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -1320,3 +1321,53 @@ def config_marketing():
         return redirect(url_for("admin.config_marketing"))
 
     return render_template("admin/config_marketing.html", settings=settings)
+
+
+# ---------- Coverage counties / cities ----------
+
+@admin_bp.route("/cobertura", methods=["GET", "POST"])
+@login_required
+def cobertura():
+    if request.method == "POST":
+        # Every button submits the whole form, so checkbox changes are never lost.
+        active_ids = {int(v) for v in request.form.getlist("active") if v.isdigit()}
+        cities = CoverageCity.query.all()
+        for city in cities:
+            city.active = city.id in active_ids
+
+        messages = []
+        anchor = request.form.get("anchor", "")
+        for county in COVERAGE_COUNTIES:
+            name = " ".join(request.form.get(f"new_city_{county['key']}", "").split())[:120]
+            if not name:
+                continue
+            anchor = county["key"]
+            existing = next(
+                (c for c in cities if c.county_key == county["key"] and c.name.lower() == name.lower()),
+                None,
+            )
+            if existing:
+                existing.active = True
+                messages.append(f'"{existing.name}" is already in {county["name"]}; it is now active.')
+            else:
+                db.session.add(CoverageCity(county_key=county["key"], name=name, active=True, is_custom=True))
+                messages.append(f'"{name}" added to {county["name"]}.')
+
+        delete_id = request.form.get("delete", "")
+        if delete_id.isdigit():
+            city = CoverageCity.query.get(int(delete_id))
+            if city and city.is_custom:
+                db.session.delete(city)
+                anchor = city.county_key
+                messages.append(f'"{city.name}" deleted.')
+
+        db.session.commit()
+        flash(" ".join(messages) or "Coverage cities updated.", "success")
+
+        target = url_for("admin.cobertura")
+        if anchor in COUNTIES_BY_KEY:
+            target += f"#county-{anchor}"
+        return redirect(target)
+
+    counties = get_coverage_counties(include_inactive=True)
+    return render_template("admin/cobertura.html", counties=counties)

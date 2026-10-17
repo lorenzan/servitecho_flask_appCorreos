@@ -221,6 +221,19 @@ class ReviewStackCard(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class CoverageCity(db.Model):
+    """City shown on the /cobertura page; counties themselves live in coverage_data.py."""
+    __tablename__ = "coverage_cities"
+    __table_args__ = (db.UniqueConstraint("county_key", "name", name="uq_coverage_city"),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    county_key = db.Column(db.String(40), nullable=False, index=True)
+    name = db.Column(db.String(120), nullable=False)
+    active = db.Column(db.Boolean, default=True)
+    is_custom = db.Column(db.Boolean, default=False)  # added by an admin (can be deleted)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 class TrustCard(db.Model):
     """Highlight cards in the 'What sets us apart' section (editable from admin)."""
     __tablename__ = "trust_cards"

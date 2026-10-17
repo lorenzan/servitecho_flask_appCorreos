@@ -6,6 +6,7 @@ from sqlalchemy import desc
 from extensions import db
 from models import ContentBlock, Service, Review, Quote, QuoteImage, HeroSlide, AboutSlide, QuoteGlassCard, ReviewStackCard, TrustCard
 from utils import save_upload
+from coverage_data import get_coverage_counties, county_silhouettes
 from utils_email import notify_new_review, notify_new_quote
 from utils_spam import verify_recaptcha, is_spam
 import translations
@@ -97,6 +98,8 @@ def index():
         hero_cards=hero_cards,
         about_gallery=about_gallery,
         trust_cards=trust_cards,
+        coverage_counties=get_coverage_counties(),
+        county_shapes=county_silhouettes(),
     )
 
 
@@ -313,6 +316,16 @@ def cotizacion_gracias():
     return render_template("cotizacion_gracias.html")
 
 
+@public_bp.route("/cobertura")
+def cobertura():
+    counties = get_coverage_counties()
+    return render_template(
+        "cobertura.html",
+        counties=counties,
+        total_cities=sum(len(c["cities"]) for c in counties),
+    )
+
+
 # ---------- SEO: robots.txt y sitemap.xml ----------
 
 def _site_base_url():
@@ -363,6 +376,12 @@ def sitemap():
         {
             "loc": base + url_for("public.cotizacion"),
             "priority": "0.8",
+            "changefreq": "monthly",
+            "lastmod": None,
+        },
+        {
+            "loc": base + url_for("public.cobertura"),
+            "priority": "0.7",
             "changefreq": "monthly",
             "lastmod": None,
         },

@@ -62,6 +62,31 @@
           <span>{{ t('View products') }}</span>
         </a>
       </div>
+      {% if coverage_counties %}
+      <nav class="hero-coverage" aria-label="{{ t('Coverage counties') }}">
+        <p class="hero-coverage__label">{{ t('Service areas') }}</p>
+        <div class="coverage-carousel">
+          <div class="coverage-carousel__track">
+            {% for copy in range(2) %}
+            {% for c in coverage_counties %}
+            <a
+              class="coverage-carousel__card"
+              href="{{ url_for('public.cobertura') }}#county-{{ c.key }}"
+              style="--county-color:{{ c.color }}"
+              title="{% if c.cities %}{{ c.cities|length }} {{ t('cities') }}{% else %}{{ t('Ask about availability') }}{% endif %}"
+              {% if copy %}aria-hidden="true" tabindex="-1"{% endif %}
+            >
+              <span class="coverage-carousel__shape" aria-hidden="true">
+                <svg viewBox="0 0 100 100"><path d="{{ county_shapes[c.key] }}"/></svg>
+              </span>
+              <span class="coverage-carousel__name">{{ c.name }}</span>
+            </a>
+            {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+      </nav>
+      {% endif %}
     </div>
     <div class="hero-figure">
       {% set fallback_hero_cards = [

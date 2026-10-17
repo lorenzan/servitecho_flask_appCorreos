@@ -141,6 +141,12 @@ def create_app():
             db.session.commit()
         except Exception:
             pass
+        # Ciudades de cobertura: lista inicial (una sola vez)
+        try:
+            from coverage_data import seed_coverage_cities
+            seed_coverage_cities()
+        except Exception:
+            db.session.rollback()
         # Migrar imagen única del hero a la galería (una sola vez)
         try:
             from models import ContentBlock, HeroSlide, AboutSlide, QuoteGlassCard, TrustCard

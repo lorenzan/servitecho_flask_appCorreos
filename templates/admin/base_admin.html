@@ -23,6 +23,7 @@
         <a href="{{ url_for('admin.cotizaciones') }}" class="{{ 'active' if request.endpoint and 'cotizacion' in request.endpoint }}">Quotes</a>
         <a href="{{ url_for('admin.servicios') }}" class="{{ 'active' if request.endpoint and 'servicio' in request.endpoint }}">Products / Services</a>
         <a href="{{ url_for('admin.contenido') }}" class="{{ 'active' if request.endpoint and 'contenido' in request.endpoint }}">Site content</a>
+        <a href="{{ url_for('admin.cobertura') }}" class="{{ 'active' if request.endpoint == 'admin.cobertura' }}">Coverage areas</a>
         <a href="{{ url_for('admin.config_correo') }}" class="{{ 'active' if request.endpoint == 'admin.config_correo' }}">Email — Settings</a>
         <a href="{{ url_for('admin.plantillas') }}" class="{{ 'active' if request.endpoint == 'admin.plantillas' }}">Email — Templates</a>
         <a href="{{ url_for('admin.config_marketing') }}" class="{{ 'active' if request.endpoint == 'admin.config_marketing' }}">Marketing — Google Ads</a>
